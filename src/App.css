@@ -30,7 +30,7 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  opacity: 0.5; /* שקיפות לתמונה בלבד */
+  opacity: 0.3; /* שקיפות לתמונה בלבד */
   z-index: 0; /* מתחת לכותרת */
 }
 
