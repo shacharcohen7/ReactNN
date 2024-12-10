@@ -1,5 +1,5 @@
-/* App.css */
-.App {
+/* Login.css */
+.Login {
   margin: 0;
   padding: 0;
   height: 100vh;
@@ -80,13 +80,6 @@
   direction: rtl; /* כיוון ימין לשמאל */
 }
 
-.input-group label {
-  font-size: 1rem;
-  color: #333;
-  margin-bottom: 5px;
-  text-align: right; /* יישור הטקסט לימין */
-}
-
 .input-group input {
   padding: 10px;
   font-size: 1rem;
@@ -96,9 +89,24 @@
   text-align: right; /* יישור הטקסט של הקלט לימין */
 }
 
-.input-group input:focus {
-  border-color: #007bff;
-  outline: none;
+.bottom_line {
+  text-align: right; /* יישור לימין */
+  direction: rtl;
+  display: flex;
+  align-items: center; /* ממרכז את האלמנטים אנכית */
+}
+
+.new-user-text {
+  font-size: 16px; /* גודל טקסט */
+}
+
+.sign-up-link {
+  font-size: 1rem;
+  color: blue; /* צבע כחול */
+  text-decoration: underline; /* קו תחתון */
+  border: none; /* מבטל גבול אם יש */
+  background: none; /* מבטל רקע אם יש */
+  cursor: pointer; /* הופך את הקישור ללחיץ */
 }
 
 .login-button {
