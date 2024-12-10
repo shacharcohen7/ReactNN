@@ -19,10 +19,10 @@ function Login() {
 
           {/* טופס התחברות */}
           <div className="login-container">
-            <p className="instruction">נא להזין פרטי משתמש</p>
+            <p className="instruction">:נא להזין פרטי משתמש</p>
             <form className="login-form">
               <div className="input-group">
-                  <input type="text" id="lastName" placeholder="מייל אוניברסיטאי" required />
+                  <input type="email" id="email" placeholder="מייל אוניברסיטאי" required />
                   <input type="password" id="username" required placeholder="סיסמה"/>
               </div>
               <button type="submit" className="login-button">התחברות</button>
