@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/Login/Login';  // קומפוננטת התחברות
 import SignUp from './components/SignUp/SignUp';  // קומפוננטת הרשמה
 
+
+
 function App() {
   return (
     <Router>
