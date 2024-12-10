@@ -1,32 +1,17 @@
 import React from 'react';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './components/Login/Login';  // קומפוננטת התחברות
+import SignUp from './components/SignUp/SignUp';  // קומפוננטת הרשמה
 
 function App() {
   return (
-    <div className="App">
-      <div className="background-logo">
-        <div className="image-layer"></div> {/* שכבת התמונה */}
-        <div className="content">
-          <h1 className="welcome-title">ברוכים הבאים!</h1>
-
-          {/* טופס התחברות */}
-          <div className="login-container">
-            <p className="instruction">נא להזין שם משתמש וסיסמה אוניברסיטאיים</p>
-            <form className="login-form">
-              <div className="input-group">
-                <label htmlFor="username">שם משתמש</label>
-                <input type="text" id="username" placeholder="הזן שם משתמש" required />
-              </div>
-              <div className="input-group">
-                <label htmlFor="password">סיסמה</label>
-                <input type="password" id="password" placeholder="הזן סיסמה" required />
-              </div>
-              <button type="submit" className="login-button">התחברות</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />  
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+    </Router>
   );
 }
 
