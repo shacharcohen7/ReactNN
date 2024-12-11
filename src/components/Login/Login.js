@@ -14,7 +14,7 @@ function Login() {
 
   // פונקציה שתתבצע כשילחצו על כפתור הרשמה
   const handleSignUpClick = () => {
-    navigate('/signup');  // מנווט לעמוד ההרשמה
+    navigate('/signupdetails');  // מנווט לעמוד ההרשמה
   };
 
   const [message, setMessage] = useState(''); // State for success or error messages
@@ -30,20 +30,21 @@ function Login() {
 
   // Handle form submission and make HTTP POST request
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/login', {
-        email: formData.email,
-        password: formData.password,
-      });
+    // try {
+    //   const response = await axios.post('http://localhost:5000/api/login', {
+    //     email: formData.email,
+    //     password: formData.password,
+    //   });
 
-      setMessage('התחברות בוצעה בהצלחה!'); // Success message
-      console.log(response.data); // Log response for debugging
-      navigate('/home');  // מנווט לעמוד ההרשמה
-    } catch (error) {
-      setMessage(error.response?.data?.message || 'התחברות נכשלה. בדוק את הפרטים שלך.');
-    }
+    //   setMessage('התחברות בוצעה בהצלחה!'); // Success message
+    //   console.log(response.data); // Log response for debugging
+    //   navigate('/home');  // מנווט לעמוד ההרשמה
+    // } catch (error) {
+    //   setMessage(error.response?.data?.message || 'התחברות נכשלה. בדוק את הפרטים שלך.');
+    // }
+    navigate('/home');
   };
 
   return (
@@ -54,7 +55,7 @@ function Login() {
           <h1 className="welcome-title">ברוכים הבאים!</h1>
           {/* טופס התחברות */}
           <div className="login-container">
-            <p className="instruction">:נא להזין פרטי משתמש</p>
+            <p className="instruction">נא להזין פרטי משתמש:</p>
               <form className="login-form" onSubmit={handleSubmit}>
                 <div className="input-group">
                   <input
@@ -81,11 +82,6 @@ function Login() {
               <p className="new-user-text">חדש אצלנו?</p>
               <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
             </div>
-            <button type="submit" className="login-button" onClick={handleSubmit}>התחברות</button>
-          </div>
-          <div className="bottom_line">
-            <p className="new-user-text">חדש אצלנו?</p>
-            <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
           </div>
         </div>
       </div>

@@ -65,6 +65,7 @@
     font-size: 1.1rem;
     color: #555;
     margin-bottom: 30px;
+    direction: rtl;
   }
   
   .signup-form {
@@ -90,26 +91,6 @@
     text-align: right; /* יישור הטקסט של הקלט לימין */
   }
   
-  .confirm_line {
-    text-align: right; /* יישור לימין */
-    direction: rtl;
-    display: flex;
-    align-items: center; /* ממרכז את האלמנטים אנכית */
-  }
-  
-  .confirm-text {
-    font-size: 16px; /* גודל טקסט */
-  }
-  
-  .termsOfUse-link {
-    font-size: 1rem;
-    color: blue; /* צבע כחול */
-    text-decoration: underline; /* קו תחתון */
-    border: none; /* מבטל גבול אם יש */
-    background: none; /* מבטל רקע אם יש */
-    cursor: pointer; /* הופך את הקישור ללחיץ */
-  }
-  
   .signup-button {
     background-color: white; /* צבע רקע לבן */
     color: #333; /* טקסט כהה שיבלוט על הרקע הלבן */
@@ -126,46 +107,3 @@
   .signup-button:hover {
     background-color: #f1f1f1; /* צבע רקע בהיר בהצלחה */
   }
-
-  /* רקע חצי שקוף מאחורי ה-Modal */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  /* חלון ה-Modal עצמו */
-  .modal-popup {
-    direction: rtl;
-    white-space: pre-line;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 650px;
-    position: relative;
-    text-align: right;
-  }
-
-  /* כפתור סגירה */
-  .close-button {
-    position: absolute;
-    top: 10px;
-    left: 10px; /* ממקם בפינה השמאלית העליונה */
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #333;
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-
-    
