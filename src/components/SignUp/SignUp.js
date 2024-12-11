@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 
 function SignUp() {
+    // State to hold form data
     const termsOfUseContent = 
         "ברוכים הבאים לשירות NegevNerds,\n" +
         "אנא קרא בעיון את תנאי השימוש להלן לפני השימוש בשירות:\n" + 
@@ -18,62 +19,11 @@ function SignUp() {
         "   - כל ביטוי נוסף שעשוי לפגוע בכבודו או בתחושותיו של משתמש אחר.\n" +
         "על ידי לחיצה על תיבת הסימון, אתה מאשר כי קראת, הבנת והסכמת לכל תנאי השימוש, כולל סעיף האוסר על שימוש בשפה פוגענית.\n" +
         "תודה על השימוש בשירות שלנו!"
-    
+
     const [isModalOpen, setModalOpen] = useState(false); // מצב עבור ה-Modal
     const openModal = () => setModalOpen(true);
     const closeModal = () => setModalOpen(false);
     const navigate = useNavigate();  // יצירת אובייקט navigate
-
-    const handleSignUpClick = () => {
-        navigate('/home');  // מנווט לעמוד ההרשמה
-      };
-    return (
-        <div className="SignUp">
-        <div className="background-logo">
-            <div className="image-layer"></div> {/* שכבת התמונה */}
-            <div className="content">
-            <h1 className="signup-title">הרשמה</h1>
-
-            {/* טופס התחברות */}
-            <div className="signup-container">
-                <p className="instruction">:נא להזין את הפרטים הבאים</p>
-                <form className="signup-form">
-                    <div className="input-group">
-                        <input type="text" id="firstName" placeholder="שם פרטי" required />
-                        <input type="text" id="lastName" placeholder="שם משפחה" required />
-                        <input type="email" id="email" placeholder="מייל אוניברסיטאי" required />
-                        <input type="password" id="password" required placeholder="סיסמה" />
-                    </div>
-                    <div className="confirm_line">
-                        <label htmlFor="terms">
-                            <input type="checkbox" id="terms" required />אני מאשר/ת את תקנון האתר
-                        </label>
-                        <button type="button" className="termsOfUse-link" onClick={openModal}>תקנון</button> {/* או להשתמש בלינק */}
-                    </div>
-                    <button type="submit" className="signup-button" onClick={handleSignUpClick}>הרשמה</button>
-                </form>
-                {isModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal-popup">
-                        <button className="close-button" onClick={closeModal}>X</button>
-                            <h2>תקנון האתר</h2>
-                            <p>
-                                {termsOfUseContent}
-                            </p>
-                        </div>
-                    </div>
-                )}
-            </div>
-            </div>
-        </div>
-=======
-import axios from 'axios';  // Import Axios for HTTP requests
-import './SignUp.css';
-
-function SignUp() {
-    // State to hold form data
-
-
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -112,6 +62,7 @@ function SignUp() {
 
             setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
             console.log(response.data);  // You can log the response if needed
+            navigate('/home');
         } catch (error) {
             setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
         }
@@ -173,11 +124,21 @@ function SignUp() {
                                     />
                                     אני מאשר/ת את תקנון האתר
                                 </label>
-                                <button type="button" className="signup-link">תקנון</button>
+                                <button type="button" className="signup-link" onClick={openModal}>תקנון</button>
                             </div>
-                            <button type="submit" className="signup-button">הרשמה</button>
+                            <button type="submit" className="signup-button" onClick={handleSignUpClick}>הרשמה</button>
                         </form>
-
+                        {isModalOpen && (
+                            <div className="modal-overlay">
+                                <div className="modal-popup">
+                                <button className="close-button" onClick={closeModal}>X</button>
+                                    <h2>תקנון האתר</h2>
+                                    <p>
+                                        {termsOfUseContent}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                         {/* Display message based on submission success or failure */}
                         {message && <p className="message">{message}</p>}
                     </div>
