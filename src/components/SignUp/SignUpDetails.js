@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './SignUp.css';
+import './SignUpDetails.css';
+import axios from 'axios'; // Import Axios for HTTP requests
 
 function SignUp() {
     // State to hold form data
@@ -17,12 +18,13 @@ function SignUp() {
         "   - קללות: מטומטם, דפוק, זין, אפס, חרא, בן זונה\n" +
         "   - ביטויים פוגעניים: לך תמות, אדיוט, מכוער, תסתום את הפה\n" +
         "   - כל ביטוי נוסף שעשוי לפגוע בכבודו או בתחושותיו של משתמש אחר.\n" +
-        "על ידי לחיצה על תיבת הסימון, אתה מאשר כי קראת, הבנת והסכמת לכל תנאי השימוש, כולל סעיף האוסר על שימוש בשפה פוגענית.\n" +
-        "תודה על השימוש בשירות שלנו!"
+        "על ידי לחיצה על הכפתור מטה, אתה מאשר כי קראת, הבנת והסכמת לכל תנאי השימוש, כולל סעיף האוסר על שימוש בשפה פוגענית.\n" +
+        "תודה על השימוש בשירות שלנו!\n\n\n"
 
-    const [isModalOpen, setModalOpen] = useState(false); // מצב עבור ה-Modal
-    const openModal = () => setModalOpen(true);
-    const closeModal = () => setModalOpen(false);
+    const [isTermsModalOpen, setTermsModalOpen] = useState(false); // מצב עבור ה-Modal
+    const openTermsModal = () => setTermsModalOpen(true);
+    const confirmTermsModal = () => navigate('/home');
+
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
     const [formData, setFormData] = useState({
@@ -46,26 +48,23 @@ function SignUp() {
 
     // Handle form submission and make HTTP POST request
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.termsAccepted) {
-            setMessage('עליך לאשר את תקנון האתר');
-            return;
-        }
+        // e.preventDefault();
 
-        try {
-            const response = await axios.post('http://localhost:5000/api/register', {
-                email: formData.email,
-                password: formData.password,
-                first_name: formData.firstName,
-                last_name: formData.lastName,
-            })
+        // try {
+        //     const response = await axios.post('http://localhost:5000/api/register', {
+        //         email: formData.email,
+        //         password: formData.password,
+        //         first_name: formData.firstName,
+        //         last_name: formData.lastName,
+        //     })
 
-            setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-            console.log(response.data);  // You can log the response if needed
-            navigate('/home');
-        } catch (error) {
-            setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
-        }
+        //     setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
+        //     console.log(response.data);  // You can log the response if needed
+        //     navigate('/home');
+        // } catch (error) {
+        //     setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+        // }
+        navigate('/signupcode');
     };
 
     return (
@@ -77,7 +76,7 @@ function SignUp() {
 
                     {/* Registration form */}
                     <div className="signup-container">
-                        <p className="instruction">:נא להזין את הפרטים הבאים</p>
+                        <p className="instruction">נא להזין את הפרטים הבאים:</p>
                         <form className="signup-form" onSubmit={handleSubmit}>
                             <div className="input-group">
                                 <input
@@ -113,25 +112,12 @@ function SignUp() {
                                     required
                                 />
                             </div>
-                            <div className="confirm_line">
-                                <label htmlFor="terms">
-                                    <input
-                                        type="checkbox"
-                                        name="termsAccepted"
-                                        checked={formData.termsAccepted}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    אני מאשר/ת את תקנון האתר
-                                </label>
-                                <button type="button" className="signup-link" onClick={openModal}>תקנון</button>
-                            </div>
                             <button type="submit" className="signup-button" onClick={handleSubmit}>הרשמה</button>
                         </form>
-                        {isModalOpen && (
+                        {isTermsModalOpen && (
                             <div className="modal-overlay">
-                                <div className="modal-popup">
-                                <button className="close-button" onClick={closeModal}>X</button>
+                                <div className="Termsmodal-popup">
+                                <button className="confirm-button" onClick={confirmTermsModal}>אני מסכים לתנאי השימוש</button>
                                     <h2>תקנון האתר</h2>
                                     <p>
                                         {termsOfUseContent}
