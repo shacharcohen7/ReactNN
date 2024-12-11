@@ -29,7 +29,7 @@ function Login() {
   };
 
   // Handle form submission and make HTTP POST request
-  const handleLoginClick = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
@@ -81,7 +81,7 @@ function Login() {
               <p className="new-user-text">חדש אצלנו?</p>
               <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
             </div>
-            <button type="submit" className="login-button" onClick={handleLoginClick}>התחברות</button>
+            <button type="submit" className="login-button" onClick={handleSubmit}>התחברות</button>
           </div>
           <div className="bottom_line">
             <p className="new-user-text">חדש אצלנו?</p>
