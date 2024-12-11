@@ -2,17 +2,18 @@
     font-family: Arial, sans-serif;
     direction: rtl;
     background-color: #f9f9f9;
-    padding: 20px;
 }
 
 .details-container {
     display: flex;
-    justify-content: center; /* למרכז את כל השורה */
+    justify-content: center;
+    flex-wrap: wrap;
+    /* justify-content: center; למרכז את כל השורה */
     align-items: center; /* יישור אנכי */
-    gap: 20px; /* רווח בין האלמנטים */
-    padding: 10px;
+    /* gap: 5px; רווח בין האלמנטים */
+    /* padding: 10px; */
     border-radius: 1px; /* פינות מעוגלות */
-    border: 1px solid #d8d8d8;
+    /* border: 1px solid #d8d8d8; */
     background-color: #f9f9f9; /* צבע רקע בהיר */
     font-family: Arial, sans-serif;
     margin-bottom: 20px;
@@ -22,7 +23,7 @@
     padding: 10px;
     background-color: #fdfbfa; /* צבע רקע כתום */
     color: rgb(7, 7, 7); /* צבע טקסט */
-    border-radius: 5px; /* פינות מעוגלות */
+    border: 1px solid #d8d8d8;
     font-size: 1.2rem; /* גודל טקסט */
     min-width: 150px; /* רוחב מינימלי כדי ליישר */
     text-align: center; /* יישור טקסט במרכז */
@@ -59,15 +60,15 @@
     flex-direction: column;
     gap: 20px;
     align-items: center;
-    max-width: 700px;
+    max-width: 550px;
     margin: 0 auto;
     margin-top: 10px;
 }
 
 .question-content-field {
     width: 100%; /* הגדרה רוחב אחיד */
-    max-width: 500px; /* מקסימום רוחב */
-    min-width: 500px; /* מקסימום רוחב */
+    /* max-width: 500px; מקסימום רוחב */
+    min-width: 200px;
     padding: 10px; /* ריווח פנימי */
     border-radius: 8px;
     border: 1px solid #d38a67;
@@ -86,14 +87,14 @@
 
   
 .label-question-content {
-  min-width: 150px; /* רוחב מינימלי לתוויות */
+  min-width: 125px; /* רוחב מינימלי לתוויות */
   text-align: right;
   font-size: 20px;
 }
 
 .info-icon {
-  width: 20px;
-  height: 20px;
+  /* width: 40px; */
+  /* height: 20px; */
   background-color: #3c3c3b; /* צבע רקע */
   color: white;
   font-size: 15px;

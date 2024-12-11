@@ -3,7 +3,7 @@
   font-family: Arial, sans-serif;
   direction: rtl; /* מימין לשמאל */
   background-color: #f9f9f9; /* רקע בהיר */
-  padding: 20px;
+  /* padding: 20px; */
 }
 
 /* סרגלי החיפוש (Tabs) */
@@ -29,6 +29,20 @@
   background-color: #d38a67;
 }
 
+.tab-next {
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  border-radius: 25px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: #20120b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .tab.active {
   background-color: #d38a67;
   font-weight: bold;
@@ -46,18 +60,29 @@
     align-items: center;
     gap: 10px; /* מרווח בין השדות */
     margin-top: 20px; /* מיקום מעט נמוך יותר */
+    /* width: 90%; */
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.topic-search, .date-search, .text-search {
+.search-buttons {
   display: flex;
-  gap: 20px;
+  gap: 10px; 
+}
+
+.topic-search {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  /* width: 100%; */
   margin-left: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .search-input-course {
   flex: 1;
-  min-width: 180px;
-  max-width: 250px;
+  width: 100%;
   max-height: 50px;
   padding: 10px;
   margin: 10px 0;
@@ -76,8 +101,8 @@
 
 .search-input-topic {
   flex: 1;
-  min-width: 180px;
-  max-width: 250px;
+  width: 150px;
+  max-height: 50px;
   padding: 10px;
   margin: 10px 0;
   border-radius: 8px;
@@ -96,7 +121,7 @@
 .search-input-text {
   flex: 1;
   min-width: 180px;
-  max-width: 250px;
+  max-height: 50px;
   padding: 10px;
   margin: 10px 0;
   border-radius: 8px;
@@ -119,10 +144,12 @@
   padding: 8px 12px; /* הקטנה של padding */
   font-size: 1rem; /* הקטנה של גודל הגופן */
   border: 2px solid #d38a67; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
-  border-radius: 15px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  height: 50px; /* גובה אחיד עם השדה */
+  height: 43px; /* גובה אחיד עם השדה */
+  display: flex;
+  align-items: center;
 }
 
 .search-button-home:hover {
@@ -134,6 +161,8 @@
   display: flex;
   gap: 20px;
   margin-top: 30px;
+  width: 100%;
+  justify-content: center;
 }
 
 .action-button {
@@ -173,6 +202,7 @@
   padding: 20px;
   background-color: #ffffff;
   border-radius: 10px;
+  width: 80%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* הוספת צל קל */
   max-width: 700px;
 }
@@ -188,6 +218,7 @@
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .course-card {
@@ -199,10 +230,10 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   text-align: center;
-  width: 180px;
+  width: 30%;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 }
 
 .course-card:hover {
