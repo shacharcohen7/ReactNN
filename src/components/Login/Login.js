@@ -29,7 +29,7 @@ function Login() {
   };
 
   // Handle form submission and make HTTP POST request
-  const handleSubmit = async (e) => {
+  const handleLoginClick = async (e) => {
     e.preventDefault();
 
     try {
@@ -40,6 +40,7 @@ function Login() {
 
       setMessage('התחברות בוצעה בהצלחה!'); // Success message
       console.log(response.data); // Log response for debugging
+      navigate('/home');  // מנווט לעמוד ההרשמה
     } catch (error) {
       setMessage(error.response?.data?.message || 'התחברות נכשלה. בדוק את הפרטים שלך.');
     }
@@ -82,6 +83,11 @@ function Login() {
                 <p className="new-user-text">חדש אצלנו?</p>
                 <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
               </div>
+              <button type="submit" className="login-button" onClick={handleLoginClick}>התחברות</button>
+            </form>
+            <div className="bottom_line">
+              <p className="new-user-text">חדש אצלנו?</p>
+              <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
             </div>
           </div>
         </div>
