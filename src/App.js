@@ -4,6 +4,8 @@ import Login from './components/Login/Login';  // קומפוננטת התחבר�
 import SignUp from './components/SignUp/SignUp';  // קומפוננטת הרשמה
 import Home from './components/Home/Home';  // קומפוננטת דף הבית
 
+
+
 function App() {
   return (
     <Router>
