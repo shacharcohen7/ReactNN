@@ -10,6 +10,10 @@ function Login() {
     navigate('/signup');  // מנווט לעמוד ההרשמה
   };
 
+  const handleLoginClick = () => {
+    navigate('/home');  // מנווט לעמוד ההרשמה
+  };
+
   return (
     <div className="Login">
       <div className="background-logo">
@@ -25,7 +29,7 @@ function Login() {
                   <input type="email" id="email" placeholder="מייל אוניברסיטאי" required />
                   <input type="password" id="username" required placeholder="סיסמה"/>
               </div>
-              <button type="submit" className="login-button">התחברות</button>
+              <button type="submit" className="login-button" onClick={handleLoginClick}>התחברות</button>
             </form>
             <div className="bottom_line">
               <p className="new-user-text">חדש אצלנו?</p>
