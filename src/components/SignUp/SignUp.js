@@ -126,7 +126,7 @@ function SignUp() {
                                 </label>
                                 <button type="button" className="signup-link" onClick={openModal}>תקנון</button>
                             </div>
-                            <button type="submit" className="signup-button" onClick={handleSignUpClick}>הרשמה</button>
+                            <button type="submit" className="signup-button" onClick={handleSubmit}>הרשמה</button>
                         </form>
                         {isModalOpen && (
                             <div className="modal-overlay">
