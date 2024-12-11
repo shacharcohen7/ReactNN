@@ -47,51 +47,49 @@ function Login() {
   };
 
   return (
+    <div className="Login">
+      <div className="background-logo">
+        <div className="image-layer"></div> {/* שכבת התמונה */}
+        <div className="content">
+          <h1 className="welcome-title">ברוכים הבאים!</h1>
+          {/* טופס התחברות */}
+          <div className="login-container">
+            <p className="instruction">:נא להזין פרטי משתמש</p>
+              <form className="login-form" onSubmit={handleSubmit}>
+                <div className="input-group">
+                  <input
+                      type="email"
+                      name="email"
+                      placeholder="מייל אוניברסיטאי"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                  />
+                  <input
+                      type="password"
+                      name="password"
+                      placeholder="סיסמה"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                  />
+                </div>
+                <button type="submit" className="login-button">התחברות</button>
+              </form>
 
-      <div className="Login">
-        <div className="background-logo">
-          <div className="image-layer"></div> {/* שכבת התמונה */}
-          <div className="content">
-            <h1 className="welcome-title">ברוכים הבאים!</h1>
-
-            {/* טופס התחברות */}
-            <div className="login-container">
-              <p className="instruction">:נא להזין פרטי משתמש</p>
-                <form className="login-form" onSubmit={handleSubmit}>
-                  <div className="input-group">
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="מייל אוניברסיטאי"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="סיסמה"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                  </div>
-                  <button type="submit" className="login-button">התחברות</button>
-                </form>
-
-              <div className="bottom_line">
-                <p className="new-user-text">חדש אצלנו?</p>
-                <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
-              </div>
-              <button type="submit" className="login-button" onClick={handleLoginClick}>התחברות</button>
-            </form>
             <div className="bottom_line">
               <p className="new-user-text">חדש אצלנו?</p>
               <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
             </div>
+            <button type="submit" className="login-button" onClick={handleLoginClick}>התחברות</button>
+          </div>
+          <div className="bottom_line">
+            <p className="new-user-text">חדש אצלנו?</p>
+            <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
           </div>
         </div>
       </div>
+    </div>
   );
 }
 
