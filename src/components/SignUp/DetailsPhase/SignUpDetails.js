@@ -5,7 +5,6 @@ import axios from 'axios'; // Import Axios for HTTP requests
 
 function SignUpDetails() {
     // State to hold form data
-
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
     const [formData, setFormData] = useState({
@@ -16,6 +15,7 @@ function SignUpDetails() {
     });
 
     const [message, setMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);  // State to manage submission status
 
     // Handle form input changes
     const handleChange = (e) => {
@@ -30,26 +30,33 @@ function SignUpDetails() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setIsSubmitting(true);  // Disable the submit button during the submission process
+
         try {
+
+
             const response = await axios.post('http://localhost:5001/api/register', {
                 email: formData.email,
                 password: formData.password,
                 first_name: formData.firstName,
                 last_name: formData.lastName,
-            })
+            });
 
             localStorage.setItem('email', formData.email);
             localStorage.setItem('password', formData.password);
             localStorage.setItem('first_name', formData.firstName);
             localStorage.setItem('last_name', formData.lastName);
-            
+
+
+
             setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
             console.log(response.data);  // You can log the response if needed
             navigate('/signupcode');
         } catch (error) {
             setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
         }
-        // navigate('/signupcode');
+
+        setIsSubmitting(false);  // Re-enable the submit button after the process is done
     };
 
     return (
@@ -97,7 +104,13 @@ function SignUpDetails() {
                                     required
                                 />
                             </div>
-                            <button type="submit" className="submit-button" onClick={handleSubmit}>הרשמה</button>
+                            <button
+                                type="submit"
+                                className="submit-button"
+                                disabled={isSubmitting}  // Disable button during submission
+                            >
+                                {isSubmitting ? 'הגשה...' : 'הרשמה'}
+                            </button>
                         </form>
                         {/* Display message based on submission success or failure */}
                         {message && <p className="message">{message}</p>}
