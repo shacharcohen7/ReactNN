@@ -29,64 +29,91 @@ function Login() {
   };
 
   // Handle form submission and make HTTP POST request
+  
   const handleSubmit = async (e) => {
-    // e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
 
-    // try {
-    //   const response = await axios.post('http://localhost:5000/api/login', {
-    //     email: formData.email,
-    //     password: formData.password,
-    //   });
+    try {
+        // Send login data to the backend
+        const response = await axios.post('http://localhost:5001/api/login', {
+            email: formData.email,
+            password: formData.password,
+        });
 
-    //   setMessage('התחברות בוצעה בהצלחה!'); // Success message
-    //   console.log(response.data); // Log response for debugging
-    //   navigate('/home');  // מנווט לעמוד ההרשמה
-    // } catch (error) {
-    //   setMessage(error.response?.data?.message || 'התחברות נכשלה. בדוק את הפרטים שלך.');
-    // }
-    navigate('/home');
-  };
+        // Log response for debugging
+        console.log('Login response:', response.data);
 
-  return (
-    <div className="welcome-page">
-      <div className="background-logo">
-        <div className="image-layer"></div> {/* שכבת התמונה */}
-        <div className="content">
-          <h1 className="welcome-title">ברוכים הבאים!</h1>
-          {/* טופס התחברות */}
-          <div className="login-container">
-            <p className="instruction">נא להזין פרטי משתמש:</p>
-              <form className="login-form" onSubmit={handleSubmit}>
-                <div className="input-group">
-                  <input 
-                      type="email"
-                      name="email"
-                      placeholder="מייל אוניברסיטאי"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                  />
-                  <input 
-                      type="password"
-                      name="password"
-                      placeholder="סיסמה"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                  />
-                </div>
-                <button type="submit" className="submit-button">התחברות</button>
-              </form>
+        if (response.data.success) {
+            // Store user data (e.g., email, token) in localStorage
+            localStorage.setItem('email', formData.email);
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token); // If you use a token-based system
+            }
 
-            <div className="bottom_line">
-              <p className="new-user-text">חדש אצלנו?</p>
-              <button type="link" className="sign-up-link" onClick={handleSignUpClick}>הרשמה</button>
+            // Display success message
+            setMessage('התחברות בוצעה בהצלחה!');
+
+            // Redirect to the home page
+            navigate('/home');
+        } else {
+            // Handle login failure
+            setMessage(response.data.message || 'התחברות נכשלה. בדוק את הפרטים שלך.');
+        }
+    } catch (error) {
+        // Log error for debugging
+        console.error('Login error:', error.response || error.message);
+
+        // Display error message
+        setMessage(error.response?.data?.message || 'שגיאה במהלך ההתחברות.');
+    }
+};
+
+
+return (
+  <div className="welcome-page">
+    <div className="background-logo">
+      <div className="image-layer"></div> {/* שכבת התמונה */}
+      <div className="content">
+        <h1 className="welcome-title">ברוכים הבאים!</h1>
+        {/* טופס התחברות */}
+        <div className="login-container">
+          <p className="instruction">נא להזין פרטי משתמש:</p>
+          <form className="login-form" onSubmit={handleSubmit}>
+            <div className="input-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="מייל אוניברסיטאי"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="סיסמה"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
             </div>
+            <button type="submit" className="submit-button">
+              התחברות
+            </button>
+          </form>
+          {/* Display error or success message */}
+          {message && <p className="message">{message}</p>}
+          <div className="bottom_line">
+            <p className="new-user-text">חדש אצלנו?</p>
+            <button type="button" className="sign-up-link" onClick={handleSignUpClick}>
+              הרשמה
+            </button>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default Login;
