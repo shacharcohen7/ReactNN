@@ -13,7 +13,6 @@ function SignUpDetails() {
         lastName: '',
         email: '',
         password: '',
-        termsAccepted: false,
     });
 
     const [message, setMessage] = useState('');
@@ -29,23 +28,28 @@ function SignUpDetails() {
 
     // Handle form submission and make HTTP POST request
     const handleSubmit = async (e) => {
-        // e.preventDefault();
+        e.preventDefault();
 
-        // try {
-        //     const response = await axios.post('http://localhost:5000/api/register', {
-        //         email: formData.email,
-        //         password: formData.password,
-        //         first_name: formData.firstName,
-        //         last_name: formData.lastName,
-        //     })
+        try {
+            const response = await axios.post('http://localhost:5001/api/register', {
+                email: formData.email,
+                password: formData.password,
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+            })
 
-        //     setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-        //     console.log(response.data);  // You can log the response if needed
-        //     navigate('/home');
-        // } catch (error) {
-        //     setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
-        // }
-        navigate('/signupcode');
+            localStorage.setItem('email', formData.email);
+            localStorage.setItem('password', formData.password);
+            localStorage.setItem('first_name', formData.firstName);
+            localStorage.setItem('last_name', formData.lastName);
+            
+            setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
+            console.log(response.data);  // You can log the response if needed
+            navigate('/signupcode');
+        } catch (error) {
+            setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+        }
+        // navigate('/signupcode');
     };
 
     return (

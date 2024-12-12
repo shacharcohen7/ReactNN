@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './SignUpCode.css';
+import './SignUpCode.css';
 import axios from 'axios'; // Import Axios for HTTP requests
 
 function SignUpCode() {
@@ -8,11 +8,7 @@ function SignUpCode() {
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        termsAccepted: false,
+        code: '',
     });
 
     const [message, setMessage] = useState('');
@@ -28,23 +24,21 @@ function SignUpCode() {
 
     // Handle form submission and make HTTP POST request
     const handleSubmit = async (e) => {
-        // e.preventDefault();
+        e.preventDefault();
 
-        // try {
-        //     const response = await axios.post('http://localhost:5000/api/register', {
-        //         email: formData.email,
-        //         password: formData.password,
-        //         first_name: formData.firstName,
-        //         last_name: formData.lastName,
-        //     })
+        try {
+            const response = await axios.post('http://localhost:5001/api/register_authentication_part', {
+                email: localStorage.getItem('email'),
+                auth_code: formData.code,
+            })
 
-        //     setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-        //     console.log(response.data);  // You can log the response if needed
-        //     navigate('/signupterms');
-        // } catch (error) {
-        //     setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
-        // }
-        navigate('/signupterms');
+            setMessage('קוד תקין');  // Success message
+            console.log(response.data);  // You can log the response if needed
+            navigate('/signupterms');
+        } catch (error) {
+            setMessage(error.response?.data?.message || 'קוד שגוי');
+        }
+        // navigate('/signupterms');
     };
 
     return (
@@ -62,6 +56,7 @@ function SignUpCode() {
                                 <input className="code-input-group input"
                                     type="text" 
                                     maxLength="4" 
+                                    onChange={handleChange}
                                     required 
                                 />
                             </div>
