@@ -26,23 +26,23 @@ function SignUpTerms() {
 
     // Handle form submission and make HTTP POST request
     const handleSubmit = async (e) => {
-        // e.preventDefault();
+        e.preventDefault();
 
-        // try {
-        //     const response = await axios.post('http://localhost:5000/api/register', {
-        //         email: formData.email,
-        //         password: formData.password,
-        //         first_name: formData.firstName,
-        //         last_name: formData.lastName,
-        //     })
+        try {
+            const response = await axios.post('http://localhost:5001/api/register_termOfUse_part', {
+                email: localStorage.getItem('email'),
+                password: localStorage.getItem('password'),
+                first_name: localStorage.getItem('first_name'),
+                last_name: localStorage.getItem('last_name'),
+            })
 
-        //     setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-        //     console.log(response.data);  // You can log the response if needed
-        //     navigate('/home');
-        // } catch (error) {
-        //     setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
-        // }
-        navigate('/home');
+            setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
+            console.log(response.data);  // You can log the response if needed
+            navigate('/home');
+        } catch (error) {
+            setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+        }
+        // navigate('/home');
     };
 
     return (
