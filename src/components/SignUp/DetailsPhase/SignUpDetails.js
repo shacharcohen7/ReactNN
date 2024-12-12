@@ -109,7 +109,7 @@ function SignUpDetails() {
                                 className="submit-button"
                                 disabled={isSubmitting}  // Disable button during submission
                             >
-                                {isSubmitting ? 'הגשה...' : 'הרשמה'}
+                                {isSubmitting ? 'הטופס בשליחה' : "הרשמה" }
                             </button>
                         </form>
                         {/* Display message based on submission success or failure */}
