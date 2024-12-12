@@ -1,5 +1,5 @@
 /* Login.css */
-.Login {
+.welcome-page {
   margin: 0;
   padding: 0;
   height: 100vh;
@@ -75,18 +75,21 @@
 }
 
 .input-group {
-  text-align: right; /* יישור לימין */
+  text-align: center; /* יישור לימין */
+  display: flex;
   flex-direction: column;
-  direction: rtl; /* כיוון ימין לשמאל */
+  direction: ltr; 
+  align-items: center;
 }
 
 .input-group input {
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 100%;
-  text-align: right; /* יישור הטקסט של הקלט לימין */
+  margin-bottom: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    text-align: right; /* יישור הטקסט של הקלט לימין */
 }
 
 .bottom_line {
@@ -109,7 +112,7 @@
   cursor: pointer; /* הופך את הקישור ללחיץ */
 }
 
-.login-button {
+.submit-button {
   background-color: white; /* צבע רקע לבן */
   color: #333; /* טקסט כהה שיבלוט על הרקע הלבן */
   font-size: 1rem; /* גודל טקסט קטן יותר */
@@ -122,6 +125,6 @@
   align-self: flex-start; /* יישור לשמאל */
 }
 
-.login-button:hover {
+.submit-button:hover {
   background-color: #f1f1f1; /* צבע רקע בהיר בהצלחה */
 }
