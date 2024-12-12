@@ -1,12 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/Login/Login';  // קומפוננטת התחברות
-import SignUpDetails from './components/SignUp/SignUpDetails';  
-import SignUpCode from './components/SignUp/SignUpCode'; 
-import SignUpTerms from './components/SignUp/SignUpTerms'; 
+import SignUpDetails from './components/SignUp/DetailsPhase/SignUpDetails';  
+import SignUpCode from './components/SignUp/CodePhase/SignUpCode'; 
+import SignUpTerms from './components/SignUp/TermsPhase/SignUpTerms'; 
 import Home from './components/Home/Home';  // קומפוננטת דף הבית
-
-
 
 function App() {
   return (
