@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Import Axios for HTTP requests
 import './Login.css';
+import styles from './Login.css';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -48,7 +49,7 @@ function Login() {
   };
 
   return (
-    <div className="Login">
+    <div className="welcome-page">
       <div className="background-logo">
         <div className="image-layer"></div> {/* שכבת התמונה */}
         <div className="content">
@@ -58,7 +59,7 @@ function Login() {
             <p className="instruction">נא להזין פרטי משתמש:</p>
               <form className="login-form" onSubmit={handleSubmit}>
                 <div className="input-group">
-                  <input
+                  <input 
                       type="email"
                       name="email"
                       placeholder="מייל אוניברסיטאי"
@@ -66,7 +67,7 @@ function Login() {
                       onChange={handleChange}
                       required
                   />
-                  <input
+                  <input 
                       type="password"
                       name="password"
                       placeholder="סיסמה"
@@ -75,7 +76,7 @@ function Login() {
                       required
                   />
                 </div>
-                <button type="submit" className="login-button">התחברות</button>
+                <button type="submit" className="submit-button">התחברות</button>
               </form>
 
             <div className="bottom_line">

@@ -3,27 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './SignUpDetails.css';
 import axios from 'axios'; // Import Axios for HTTP requests
 
-function SignUp() {
+function SignUpDetails() {
     // State to hold form data
-    const termsOfUseContent = 
-        "ברוכים הבאים לשירות NegevNerds,\n" +
-        "אנא קרא בעיון את תנאי השימוש להלן לפני השימוש בשירות:\n" + 
-        "1. השימוש בשירות מותנה בקבלת תנאי השימוש המפורטים להלן.\n" +
-        "2. חל איסור מוחלט להשתמש בשירות לצרכים בלתי חוקיים או לכל מטרה שנוגדת את החוק.\n" + 
-        "3. כל המידע והנתונים המוזנים על ידך לשירות יישמרו בהתאם למדיניות הפרטיות שלנו.\n" + 
-        "4. השירות ניתן כפי שהוא (AS IS) ואנו לא נישא באחריות לכל נזק שייגרם כתוצאה מהשימוש בו.\n" +
-        "5. אנו שומרים לעצמנו את הזכות לשנות או לעדכן את תנאי השימוש בכל עת, מבלי להודיע מראש.\n" + 
-        "6. חל איסור מוחלט להעליב, לפגוע או להשתמש בשפה פוגענית כלפי משתמשים אחרים באתר, לרבות בדיווחים, בתגובות ובפורומים.\n" +
-        "   דוגמאות למילים אסורות:\n" +
-        "   - קללות: מטומטם, דפוק, זין, אפס, חרא, בן זונה\n" +
-        "   - ביטויים פוגעניים: לך תמות, אדיוט, מכוער, תסתום את הפה\n" +
-        "   - כל ביטוי נוסף שעשוי לפגוע בכבודו או בתחושותיו של משתמש אחר.\n" +
-        "על ידי לחיצה על הכפתור מטה, אתה מאשר כי קראת, הבנת והסכמת לכל תנאי השימוש, כולל סעיף האוסר על שימוש בשפה פוגענית.\n" +
-        "תודה על השימוש בשירות שלנו!\n\n\n"
-
-    const [isTermsModalOpen, setTermsModalOpen] = useState(false); // מצב עבור ה-Modal
-    const openTermsModal = () => setTermsModalOpen(true);
-    const confirmTermsModal = () => navigate('/home');
 
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
@@ -68,16 +49,16 @@ function SignUp() {
     };
 
     return (
-        <div className="SignUp">
+        <div className="welcome-page">
             <div className="background-logo">
                 <div className="image-layer"></div> {/* Image layer */}
                 <div className="content">
-                    <h1 className="signup-title">הרשמה</h1>
+                    <h1 className="welcome-title">הרשמה</h1>
 
                     {/* Registration form */}
-                    <div className="signup-container">
+                    <div className="login-container">
                         <p className="instruction">נא להזין את הפרטים הבאים:</p>
-                        <form className="signup-form" onSubmit={handleSubmit}>
+                        <form className="login-form" onSubmit={handleSubmit}>
                             <div className="input-group">
                                 <input
                                     type="text"
@@ -112,19 +93,8 @@ function SignUp() {
                                     required
                                 />
                             </div>
-                            <button type="submit" className="signup-button" onClick={handleSubmit}>הרשמה</button>
+                            <button type="submit" className="submit-button" onClick={handleSubmit}>הרשמה</button>
                         </form>
-                        {isTermsModalOpen && (
-                            <div className="modal-overlay">
-                                <div className="Termsmodal-popup">
-                                <button className="confirm-button" onClick={confirmTermsModal}>אני מסכים לתנאי השימוש</button>
-                                    <h2>תקנון האתר</h2>
-                                    <p>
-                                        {termsOfUseContent}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
                         {/* Display message based on submission success or failure */}
                         {message && <p className="message">{message}</p>}
                     </div>
@@ -134,4 +104,4 @@ function SignUp() {
     );
 }
 
-export default SignUp;
+export default SignUpDetails;
