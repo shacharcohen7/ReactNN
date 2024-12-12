@@ -4,29 +4,32 @@ import './SignUpTerms.css';
 import axios from 'axios'; // Import Axios for HTTP requests
 
 function SignUpTerms() {
-    // State to hold form data
-    const termsOfUseContent = 
-        "ברוכים הבאים לשירות NegevNerds, אנא קרא בעיון את תנאי השימוש להלן לפני השימוש בשירות:\n" + 
-        "1. השימוש בשירות מותנה בקבלת תנאי השימוש המפורטים להלן.\n" +
-        "2. חל איסור מוחלט להשתמש בשירות לצרכים בלתי חוקיים או לכל מטרה שנוגדת את החוק.\n" + 
-        "3. כל המידע והנתונים המוזנים על ידך לשירות יישמרו בהתאם למדיניות הפרטיות שלנו.\n" + 
-        "4. השירות ניתן כפי שהוא (AS IS) ואנו לא נישא באחריות לכל נזק שייגרם כתוצאה מהשימוש בו.\n" +
-        "5. אנו שומרים לעצמנו את הזכות לשנות או לעדכן את תנאי השימוש בכל עת, מבלי להודיע מראש.\n" + 
-        "6. חל איסור מוחלט להעליב, לפגוע או להשתמש בשפה פוגענית כלפי משתמשים אחרים באתר, לרבות בדיווחים, בתגובות ובפורומים.\n" +
-        "   דוגמאות למילים אסורות:\n" +
-        "   - קללות: מטומטם, דפוק, זין, אפס, חרא, בן זונה\n" +
-        "   - ביטויים פוגעניים: לך תמות, אדיוט, מכוער, תסתום את הפה\n" +
-        "   - כל ביטוי נוסף שעשוי לפגוע בכבודו או בתחושותיו של משתמש אחר.\n" +
-        "על ידי לחיצה על הכפתור מטה, אתה מאשר כי קראת, הבנת והסכמת לכל תנאי השימוש, כולל סעיף האוסר על שימוש בשפה פוגענית.\n" +
-        "תודה על השימוש בשירות שלנו!"
+    // Static terms of use content
+    const termsOfUseContent = `
+        ברוכים הבאים לשירות NegevNerds, אנא קרא בעיון את תנאי השימוש להלן לפני השימוש בשירות:
+        1. השימוש בשירות מותנה בקבלת תנאי השימוש המפורטים להלן.
+        2. חל איסור מוחלט להשתמש בשירות לצרכים בלתי חוקיים או לכל מטרה שנוגדת את החוק.
+        3. כל המידע והנתונים המוזנים על ידך לשירות יישמרו בהתאם למדיניות הפרטיות שלנו.
+        4. השירות ניתן כפי שהוא (AS IS) ואנו לא נישא באחריות לכל נזק שייגרם כתוצאה מהשימוש בו.
+        5. אנו שומרים לעצמנו את הזכות לשנות או לעדכן את תנאי השימוש בכל עת, מבלי להודיע מראש.
+        6. חל איסור מוחלט להעליב, לפגוע או להשתמש בשפה פוגענית כלפי משתמשים אחרים באתר, לרבות בדיווחים, בתגובות ובפורומים.
+        דוגמאות למילים אסורות:
+        - קללות: מטומטם, דפוק, זין, אפס, חרא, בן זונה
+        - ביטויים פוגעניים: לך תמות, אדיוט, מכוער, תסתום את הפה
+        - כל ביטוי נוסף שעשוי לפגוע בכבודו או בתחושותיו של משתמש אחר.
+        על ידי לחיצה על הכפתור מטה, אתה מאשר כי קראת, הבנת והסכמת לכל תנאי השימוש, כולל סעיף האוסר על שימוש בשפה פוגענית.
+        תודה על השימוש בשירות שלנו!
+    `;
 
-    const navigate = useNavigate();  // יצירת אובייקט navigate
+    const navigate = useNavigate();  // Create navigate object
 
     const [message, setMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);  // Track submission state
 
     // Handle form submission and make HTTP POST request
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);  // Disable submit button during submission
 
         try {
             const response = await axios.post('http://localhost:5001/api/register_termOfUse_part', {
@@ -34,15 +37,16 @@ function SignUpTerms() {
                 password: localStorage.getItem('password'),
                 first_name: localStorage.getItem('first_name'),
                 last_name: localStorage.getItem('last_name'),
-            })
+            });
 
             setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-            console.log(response.data);  // You can log the response if needed
-            navigate('/home');
+            console.log(response.data);  // Log the response if needed
+            navigate('/home');  // Navigate to the home page
         } catch (error) {
             setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
         }
-        // navigate('/home');
+
+        setIsSubmitting(false);  // Re-enable submit button after submission
     };
 
     return (
@@ -56,7 +60,13 @@ function SignUpTerms() {
                             <p className="termsofuse-text">
                                 {termsOfUseContent}
                             </p>
-                            <button type="submit" className="submit-button" onClick={handleSubmit}>אני מסכים לתנאי השימוש</button>
+                            <button
+                                type="submit"
+                                className="submit-button"
+                                disabled={isSubmitting}  // Disable the button during submission
+                            >
+                                {isSubmitting ? 'שליחה...' : 'אני מסכים לתנאי השימוש'}
+                            </button>
                         </form>
                     </div>
                 </div>
