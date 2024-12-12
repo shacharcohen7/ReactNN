@@ -1,110 +1,219 @@
-/* עיצוב ראשי */
-
-.header-page {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    direction: ltr; /* יישור לימין */
-    text-align: right;
-    font-size: 1.5rem;
-    margin: 0;
-    padding: 0;
+/* סגנון כללי */
+.home-page {
+  font-family: Arial, sans-serif;
+  direction: rtl;  /* מימין לשמאל */
+  background-color: #f9f9f9; /* רקע בהיר לכל הדף */
+  padding: 20px;
 }
 
-/* סרגל עליון */
-.header {
-display: flex;
-justify-content: space-between; /* הפרדה בין הלוגו לטקסט */
-align-items: center;
-background-color: #d38a67; /* צבע רקע */
-color: white;
-padding: 10px 20px;
-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-}
-  
-/* תפריט נפתח */
-.dropdown {
-    position: relative;
-  }
-  
-  .dropdown-menu {
-    position: absolute;
-    top: 60px; /* מרחק מהאייקון */
-    right: 0; /* יישור לימין */
-    background-color: white; /* צבע רקע */
-    color: black; /* צבע טקסט */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* צל */
-    border-radius: 8px;
-    min-width: 170px;
-    overflow: visible;
-    transform: translateX(0);
-    z-index: 1000; /* מעל כל שאר האלמנטים */
-  }
-  
-  .dropdown-username {
-    /* font-weight: bold; */
-    padding: 1px 20px;
-    text-align: right;
-    font-size: 1.5rem;
-  }
-
-  .dropdown-item {
-    padding: 1px 20px; 
-    text-align: right;
-    cursor: pointer;
-    font-size: 1.1rem;
-  }
-  
-  
-  .logout-button {
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-  }
-  
-  /* עיצוב הכפתורים */
-.icons-container {
-    display: flex;
-    gap: 10px;
+/* סגנון עבור סרגל החיפוש */
+.tabs-container {
+  display: flex;
+  justify-content: flex-end;  /* יישור הכפתורים לימין */
+  gap: 20px;
+  margin-top: 20px;
 }
 
-.icon-button {
-    background-color: transparent; /* רקע שקוף */
-    border: none; /* ללא גבול */
-    cursor: pointer; /* סמן יד */
-    color: rgb(85, 69, 69); /* צבע האייקון */
-    font-size: 28px; /* גודל האייקון */
-    padding: 10px;
+.tab {
+  background-color: #f0f0f0;
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: #20120b;
 }
 
-.icon-button:hover {
-    color: #010100; /* שינוי צבע בעת מעבר */
+.tab:hover {
+  background-color: #d38a67;
 }
 
-.icon-button i {
-    pointer-events: none; /* האייקון לא מפריע ללחיצה */
+.tab.active {
+  background-color: #d38a67;
+  font-weight: bold;
+  color: white;
 }
 
-  /* לוגו */
-  .logo-container {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-  
-  .logo {
-    height: 70px; /* גובה הלוגו */
-    width: auto;
-  }
-  
-  /* שם משתמש */
-  .user-name {
-    font-size: 1.2rem;
-  }
-  
-  /* תוכן מרכזי */
-  .content {
-    padding: 20px;
-    text-align: center;
-  }
-  
+/* סגנון כללי לשדות */
+.search-container {
+  margin-top: 20px;
+  background-color: #ffffff; /* רקע בהיר לשדות החיפוש */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* הוספת צל קל לשדות החיפוש */
+}
+
+.topic-search, .date-search {
+  display: flex;
+  gap: 20px;
+}
+
+.search-input {
+  width: 200px;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #d38a67;
+  font-size: 1rem;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #006f9f;
+  box-shadow: 0 0 5px rgba(0, 111, 159, 0.5);
+}
+
+/* סגנון לכפתור חיפוש */
+.search-button {
+  background-color: #f5a623;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #e59428;
+}
+
+/* עיצוב הריבוע של הקורסים */
+.courses-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #ffffff; /* רקע בהיר */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* הוספת צל קל */
+}
+
+.courses-section h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #20120b;
+  margin-bottom: 20px;
+}
+
+/* סגנון עבור קורסים בתוך הריבוע */
+.course-cards-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.course-card {
+  background-color: #f0f0f0;
+  padding: 15px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.course-card:hover {
+  background-color: #d38a67;
+  color: white;
+}
+
+.course-card span {
+  font-size: 1rem;
+  color: #20120b;
+}
+
+/* סגנון עבור הכפתור הוספת קורס */
+.add-course-button {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  width: 200px;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-course-button:hover {
+  background-color: #d38a67;
+}
+
+.plus-sign {
+  font-size: 2rem;
+  color: #20120b;
+}
+
+.add-course-button span {
+  font-size: 1.2rem;
+  color: #20120b;
+}
+
+/* Modal סגנון */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* הרקע החצי שקוף */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* כך ניתן למקם את ה-X ביחס ל-Modal */
+}
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #20120b;
+}
+
+/* סגנון לשדות */
+.search-input {
+  width: calc(100% - 20px); /* לוקח את כל הרוחב פחות padding */
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #d38a67;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box; /* שומר על ממדי האלמנט */
+}
+
+.search-button {
+  background-color: #f5a623;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.search-button:hover {
+  background-color: #e59428;
+}
