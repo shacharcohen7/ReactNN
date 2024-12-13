@@ -16,6 +16,8 @@ function SignUpDetails() {
 
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);  // State to manage submission status
+    const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
+
 
     // Handle form input changes
     const handleChange = (e) => {
@@ -62,11 +64,9 @@ function SignUpDetails() {
     return (
         <div className="welcome-page">
             <div className="background-logo">
-                <div className="image-layer"></div> {/* Image layer */}
+                <div className="image-layer"></div>
                 <div className="content">
                     <h1 className="welcome-title">הרשמה</h1>
-
-                    {/* Registration form */}
                     <div className="login-container">
                         <p className="instruction">נא להזין את הפרטים הבאים:</p>
                         <form className="login-form" onSubmit={handleSubmit}>
@@ -95,24 +95,40 @@ function SignUpDetails() {
                                     onChange={handleChange}
                                     required
                                 />
-                                <input
-                                    type="password"
-                                    name="password"
-                                    placeholder="סיסמה"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                />
+                                <div className="password-input-container">
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="סיסמה"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        onMouseEnter={() => setShowPasswordTooltip(true)}
+                                        onMouseLeave={() => setShowPasswordTooltip(false)}
+                                        required
+                                    />
+                                    {showPasswordTooltip && (
+                                        <div className="password-tooltip">
+                                        <p>דרישות הסיסמה:</p>
+                                        <ul>
+                                            <li>לפחות 8 תווים ולא יותר מ-20 תווים</li>
+                                            <li>אות גדולה אחת לפחות באנגלית</li>
+                                            <li>אות קטנה אחת לפחות באנגלית</li>
+                                            <li>ספרה אחת לפחות</li>
+                                            <li>תו מיוחד אחד לפחות: <code>!@$%^&*()[]{}+</code></li>
+                                            <li>יש לכלול אותיות רק באנגלית</li>
+                                        </ul>
+                                    </div>
+                                    )}
+                                </div>
                             </div>
                             <button
                                 type="submit"
                                 className="submit-button"
-                                disabled={isSubmitting}  // Disable button during submission
+                                disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'הטופס בשליחה' : "הרשמה" }
+                                {isSubmitting ? 'הטופס בשליחה' : 'הרשמה'}
                             </button>
                         </form>
-                        {/* Display message based on submission success or failure */}
                         {message && <p className="message">{message}</p>}
                     </div>
                 </div>
@@ -120,5 +136,6 @@ function SignUpDetails() {
         </div>
     );
 }
+
 
 export default SignUpDetails;
