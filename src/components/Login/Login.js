@@ -46,6 +46,8 @@ function Login() {
         if (response.data.success) {
             // Store user data (e.g., email, token) in localStorage
             localStorage.setItem('email', formData.email);
+            localStorage.setItem('firstName', response.data.firstName);
+            localStorage.setItem('lastName', response.data.lastName);
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token); // If you use a token-based system
             }
