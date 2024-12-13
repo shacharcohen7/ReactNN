@@ -1,5 +1,5 @@
 // Header.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import logo from './logoNNcircle.png';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,19 @@ import './Header.css';  // אם יש CSS ייחודי להדר
 
 function Header() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [userName, setUserName] = useState('');
     const navigate = useNavigate();  // יצירת אובייקט navigate
+
+    useEffect(() => {
+        // Retrieve user's first and last name from localStorage
+        const firstName = localStorage.getItem('first_name');
+        const lastName = localStorage.getItem('last_name');
+        if (firstName && lastName) {
+            setUserName(`${firstName} ${lastName}`);
+        } else {
+            setUserName('אורח'); // Fallback if user data is not available
+        }
+    }, []);
 
     const handleLogoutClick = async () => {
         try {
@@ -58,8 +70,8 @@ function Header() {
                     </button>
                     {isDropdownOpen && (
                         <div className="dropdown-menu">
-                            <p className="dropdown-username">שחר כהן</p>
-                            <p className="dropdown-item">הפרופיל שלי</p>
+                                <p className="dropdown-username">{userName}</p>
+                                <p className="dropdown-item">הפרופיל שלי</p>
                             <p className="dropdown-item" onClick={handleLogoutClick}>התנתקות</p>
                         </div>
                     )}
