@@ -5,6 +5,8 @@ import SignUpDetails from './components/SignUp/DetailsPhase/SignUpDetails';
 import SignUpCode from './components/SignUp/CodePhase/SignUpCode'; 
 import SignUpTerms from './components/SignUp/TermsPhase/SignUpTerms'; 
 import Home from './components/Home/Home';  // קומפוננטת דף הבית
+import OpenCourse from './components/OpenCourse/OpenCourse'; // ייבוא הדף החדש
+import Course from './components/Course/Course'; // ייבוא דף הקורס
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/signupcode" element={<SignUpCode />} />
         <Route path="/signupterms" element={<SignUpTerms />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/opencourse" element={<OpenCourse />} /> {/* מסלול לדף הוספת קורס */}
+        <Route path="/course/:courseName" element={<Course />} /> {/* דף הקורס */}
       </Routes>
     </Router>
   );
