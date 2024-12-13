@@ -1,80 +1,53 @@
 import React, { useState } from 'react';
 import './Home.css';
 import Header from '../Header/Header';
+import Footer from '../Footer/Footer';
 import { useNavigate } from 'react-router-dom';
 
-
 function Home() {
-    const [selectedSearch, setSelectedSearch] = useState('topic'); // 'topic' או 'date'
-    const [selectedCourse, setSelectedCourse] = useState(''); // עבור שדה קורס
-    const [selectedTopic, setSelectedTopic] = useState(''); // עבור שדה נושא
-    const [freeText, setFreeText] = useState(''); // עבור שדה טקסט חופשי
+    const [searchType, setSearchType] = useState('topic'); // שינוי שם למובן יותר
+    const [selectedCourse, setSelectedCourse] = useState('');
+    const [selectedTopic, setSelectedTopic] = useState('');
+    const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
 
-    // שדות עבור חיפוש לפי מועד
-    const [year, setYear] = useState('');
-    const [semester, setSemester] = useState('');
-    const [examDate, setExamDate] = useState('');
-    const [questionNumber, setQuestionNumber] = useState('');
+    const [examYear, setExamYear] = useState(''); // שינוי שם ל-examYear
+    const [examSemester, setExamSemester] = useState(''); // שינוי שם ל-examSemester
+    const [examDateSelection, setExamDateSelection] = useState(''); // שינוי שם ל-examDateSelection
+    const [questionNum, setQuestionNum] = useState(''); // שינוי שם ל-questionNum
 
-    // רשימת הקורסים והנושאים
-    const courses = ['מתמטיקה', 'פיזיקה', 'כימיה', 'מדעי המחשב']; // רשימת הקורסים
+    const courses = {
+        '202.1.1010': 'מתמטיקה',
+        '201.2.1000': 'פיזיקה',
+        '372.1.1050': 'כימיה'
+    };
     const topics = {
-        'מתמטיקה': ['אלגברה', 'גיאומטריה', 'חדו"א'],
-        'פיזיקה': ['כוחות', 'אנרגיה', 'חשמל'],
-        'כימיה': ['תהליכים כימיים', 'יסודות כימיים', 'מולקולות'],
-        'מדעי המחשב': ['תכנות', 'אלגוריתמים', 'מבני נתונים']
+        '202.1.1010': ['אלגברה', 'גיאומטריה', 'חדו"א'],
+        '201.2.1000': ['כוחות', 'אנרגיה', 'חשמל'],
+        '372.1.1050': ['תהליכים כימיים', 'יסודות כימיים', 'מולקולות'],
     };
-    const semesters = ['סתיו', 'אביב', 'קיץ']; // רשימת הסמסטרים
-    const examDates = ['א', 'ב', 'ג', 'ד']; // רשימת המועדים
+    const semesters = ['סתיו', 'אביב', 'קיץ'];
+    const examDates = ['א', 'ב', 'ג', 'ד'];
 
-    const navigate = useNavigate();  // יצירת אובייקט navigate
+    const navigate = useNavigate();
 
-    // פונקציה שתשנה את סוג החיפוש
-    const handleSearchSelection = (searchType) => {
-        setSelectedSearch(searchType);
+    const handleSearchTypeChange = (criteria) => {
+        setSearchType(criteria);
     };
 
-    // פונקציה לעדכון קורס
-    const handleCourseChange = (e) => {
+    const handleCourseSelection = (e) => {
         setSelectedCourse(e.target.value);
     };
 
-
-    // פונקציה לחיפוש (לדוגמה, הדפסת התוצאה)
-    const handleSearchClick = () => {
-        console.log("חיפוש עם פרמטרים: ", { selectedCourse, selectedTopic, freeText });
+    const handleSearch = () => {
+        console.log("חיפוש עם פרמטרים: ", { selectedCourse, selectedTopic, searchText });
     };
 
-    // ניווט לדף קורס
-    const navigateToCourse = (course) => {
-        navigate(`/course/${course}`);
+    const navigateToCoursePage = (courseId) => {
+        navigate(`/course/${courseId}`);
     };
 
-    const [showModal, setShowModal] = useState(false); // שדה לניהול הצגת ה-Modal
-    const [newCourseNumber, setNewCourseNumber] = useState(''); // שדה למספר הקורס
-    const [newCourseName, setNewCourseName] = useState(''); // שדה לשם הקורס
-    const [syllabusFile, setSyllabusFile] = useState(null); // שדה להעלאת קובץ
-    const [courseTopics, setCourseTopics] = useState(''); // שדה לרשימת נושאים
-
-    // פונקציה שתפתח את ה-modal
-    const openModal = () => {
-        setShowModal(true);
-    };
-
-    // פונקציה שתסגור את ה-modal
-    const closeModal = () => {
-        setShowModal(false);
-    };
-
-    // פונקציה לשמירת קורס חדש
-    const handleNewCourseSubmit = () => {
-        // כאן תוכל להוסיף לוגיקה להוספת קורס
-        if (!newCourseNumber || !newCourseName || !syllabusFile || !courseTopics) {
-            alert('כל השדות חובה');
-            return;
-        }
-        console.log('הקורס החדש:', { newCourseNumber, newCourseName, syllabusFile, courseTopics });
-        setShowModal(false); // סוגר את ה-modal אחרי הוספת הקורס
+    const navigateToAddNewCourse = () => {
+        navigate('/opencourse'); // ניווט לדף "פתיחת קורס חדש"
     };
 
     return (
@@ -82,45 +55,43 @@ function Home() {
             <Header />
             <main className="content">
                 <div className="tabs-container">
-                    <button 
-                        className={`tab ${selectedSearch === 'topic' ? 'active' : ''}`} 
-                        onClick={() => handleSearchSelection('topic')}
+                    <button
+                        className={`tab ${searchType === 'topic' ? 'active' : ''}`}
+                        onClick={() => handleSearchTypeChange('topic')}
                     >
                         חיפוש לפי נושא
                     </button>
-                    <button 
-                        className={`tab ${selectedSearch === 'date' ? 'active' : ''}`} 
-                        onClick={() => handleSearchSelection('date')}
+                    <button
+                        className={`tab ${searchType === 'date' ? 'active' : ''}`}
+                        onClick={() => handleSearchTypeChange('date')}
                     >
                         חיפוש לפי מועד
                     </button>
                 </div>
 
                 <div className="search-container">
-                    {selectedSearch === 'topic' && (
+                    {searchType === 'topic' && (
                         <div className="topic-search">
-                            {/* שדה קורס */}
-                            <select 
-                                value={selectedCourse} 
-                                onChange={handleCourseChange} 
-                                className="search-input"
+                            <select
+                                value={selectedCourse}
+                                onChange={handleCourseSelection}
+                                className="search-input-home"
                             >
                                 <option value="">בחר קורס</option>
-                                {courses.map((course, index) => (
-                                    <option key={index} value={course}>
-                                        {course}
+                                {Object.entries(courses).map(([courseId, courseName], index) => (
+                                    <option key={index} value={courseId}>
+                                        {courseName}
                                     </option>
                                 ))}
                             </select>
-                            {/* שדה נושא */}
-                            <select 
-                                value={selectedTopic} 
-                                onChange={(e) => setSelectedTopic(e.target.value)} 
-                                className="search-input"
-                                disabled={!selectedCourse}  // אם לא נבחר קורס, שדה הנושא יהיה מנוטרל
+
+                            <select
+                                value={selectedTopic}
+                                onChange={(e) => setSelectedTopic(e.target.value)}
+                                className="search-input-home"
+                                disabled={!selectedCourse}
                             >
                                 <option value="">בחר נושא</option>
-                                {/* אם נבחר קורס, מציג רק את הנושאים שלו */}
                                 {selectedCourse && topics[selectedCourse] && topics[selectedCourse].map((topic, index) => (
                                     <option key={index} value={topic}>
                                         {topic}
@@ -128,48 +99,44 @@ function Home() {
                                 ))}
                             </select>
 
-                            {/* שדה טקסט חופשי */}
                             <input
                                 type="text"
                                 placeholder="טקסט חופשי"
-                                value={freeText}
-                                onChange={(e) => setFreeText(e.target.value)}
-                                className="search-input"
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                className="search-input-home"
                             />
                         </div>
                     )}
 
-                    {selectedSearch === 'date' && (
+                    {searchType === 'date' && (
                         <div className="date-search">
-                            {/* שדה קורס */}
-                            <select 
-                                value={selectedCourse} 
-                                onChange={handleCourseChange} 
-                                className="search-input"
+                            <select
+                                value={selectedCourse}
+                                onChange={handleCourseSelection}
+                                className="search-input-home"
                                 required
                             >
                                 <option value="">בחר קורס</option>
-                                {courses.map((course, index) => (
-                                    <option key={index} value={course}>
-                                        {course}
+                                {Object.entries(courses).map(([courseId, courseName], index) => (
+                                    <option key={index} value={courseId}>
+                                        {courseName}
                                     </option>
                                 ))}
                             </select>
 
-                            {/* שנה */}
                             <input
                                 type="text"
                                 placeholder="שנה"
-                                value={year}
-                                onChange={(e) => setYear(e.target.value)}
-                                className="search-input"
+                                value={examYear}
+                                onChange={(e) => setExamYear(e.target.value)}
+                                className="search-input-home"
                             />
 
-                            {/* סמסטר */}
-                            <select 
-                                value={semester} 
-                                onChange={(e) => setSemester(e.target.value)} 
-                                className="search-input"
+                            <select
+                                value={examSemester}
+                                onChange={(e) => setExamSemester(e.target.value)}
+                                className="search-input-home"
                             >
                                 <option value="">בחר סמסטר</option>
                                 {semesters.map((semesterOption, index) => (
@@ -179,11 +146,10 @@ function Home() {
                                 ))}
                             </select>
 
-                            {/* מועד */}
-                            <select 
-                                value={examDate} 
-                                onChange={(e) => setExamDate(e.target.value)} 
-                                className="search-input"
+                            <select
+                                value={examDateSelection}
+                                onChange={(e) => setExamDateSelection(e.target.value)}
+                                className="search-input-home"
                             >
                                 <option value="">בחר מועד</option>
                                 {examDates.map((dateOption, index) => (
@@ -193,86 +159,44 @@ function Home() {
                                 ))}
                             </select>
 
-                            {/* מספר שאלה */}
                             <input
                                 type="number"
                                 placeholder="מספר שאלה"
-                                value={questionNumber}
-                                onChange={(e) => setQuestionNumber(e.target.value)}
-                                className="search-input"
+                                value={questionNum}
+                                onChange={(e) => setQuestionNum(e.target.value)}
+                                className="search-input-home"
                             />
                         </div>
                     )}
-
-                    {/* כפתור חיפוש */}
-                    <button className="search-button" onClick={handleSearchClick}>
+                    <button className="search-button-home" onClick={handleSearch}>
                         חפש
                     </button>
                 </div>
-  {/* ריבוע עם כותרת "הקורסים שלי" */}
-  <div className="courses-section">
+
+                <div className="courses-section">
                     <h3>הקורסים שלי</h3>
                     <div className="course-cards-container">
-                        {courses.map((course, index) => (
-                            <div 
-                                key={index} 
+                        {Object.entries(courses).map(([courseId, courseName]) => (
+                            <div
+                                key={courseId}
                                 className="course-card"
-                                onClick={() => navigateToCourse(course)} 
+                                onClick={() => navigateToCoursePage(courseId)}
                             >
-                                <span>{course}</span>
+                                <span>{courseName}</span>
+                                <p style={{ fontSize: '12px', color: 'gray' }}>
+                                    {courseId}
+                                </p>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* ריבוע להוספת קורס */}
-                <div className="add-course-button" onClick={openModal}>
+                <div className="add-course-button" onClick={navigateToAddNewCourse}>
                     <span className="plus-sign">+</span>
-                    <span>הוספת קורס</span>
+                    <span>פתיחת קורס חדש</span>
                 </div>
-
-                {/* Modal להוספת קורס */}
-                {showModal && (
-                    <div className="modal">
-                        <div className="modal-content">
-                            <span className="close-button" onClick={closeModal}>X</span>
-                            <h2>הוספת קורס</h2>
-                            <input
-                                type="text"
-                                placeholder="מספר קורס"
-                                value={newCourseNumber}
-                                onChange={(e) => setNewCourseNumber(e.target.value)}
-                                className="search-input"
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="שם קורס"
-                                value={newCourseName}
-                                onChange={(e) => setNewCourseName(e.target.value)}
-                                className="search-input"
-                                required
-                            />
-                            <input
-                                type="file"
-                                onChange={(e) => setSyllabusFile(e.target.files[0])}
-                                className="search-input"
-                                required
-                            />
-                            <textarea
-                                placeholder="הכנס רשימה של נושאים"
-                                value={courseTopics}
-                                onChange={(e) => setCourseTopics(e.target.value)}
-                                className="search-input"
-                                required
-                            />
-                            <button className="search-button" onClick={handleNewCourseSubmit}>
-                                הוסף קורס
-                            </button>
-                        </div>
-                    </div>
-                )}
             </main>
+            <Footer />
         </div>
     );
 }

@@ -35,6 +35,11 @@ function Header() {
             alert('Failed to log out. Please try again.');
         }
     };
+
+    // ניווט לדף הבית כאשר לוחצים על הלוגו
+    const handleLogoClick = () => {
+        navigate('/home');
+    };
     
 
 
@@ -45,8 +50,8 @@ function Header() {
     return (
         <div className="header-page">
         <header className="header">
-            <div className="logo-container">
-                <img src={logo} alt="Logo" className="logo" />
+        <div className="logo-container" onClick={handleLogoClick}>
+            <img src={logo} alt="Logo" className="logo" />
                 </div>
             <div className="icons-container">
                 <button className="icon-button">
