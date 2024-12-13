@@ -16,6 +16,8 @@ function Footer() {
                     <p>שלח פידבק על המערכת:</p>
                     <a href="mailto:negevnerds@example.com">negevnerds@example.com</a>
                     <p>או בטלפון 0545433476</p>
+                    <p>רק לבנות</p>
+                    <p>ושיהיו חזקים השאר</p>
                 </div>
 
                 <div className="footer-section">
