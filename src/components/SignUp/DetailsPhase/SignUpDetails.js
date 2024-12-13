@@ -4,8 +4,7 @@ import './SignUpDetails.css';
 import axios from 'axios'; // Import Axios for HTTP requests
 
 function SignUpDetails() {
-    // State to hold form data
-    const navigate = useNavigate();  // יצירת אובייקט navigate
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -15,28 +14,24 @@ function SignUpDetails() {
     });
 
     const [message, setMessage] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);  // State to manage submission status
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
+    const [showFirstNameTooltip, setShowFirstNameTooltip] = useState(false);
+    const [showLastNameTooltip, setShowLastNameTooltip] = useState(false);
 
-
-    // Handle form input changes
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
             ...formData,
-            [name]: type === 'checkbox' ? checked : value,  // Handle checkbox
+            [name]: type === 'checkbox' ? checked : value,
         });
     };
 
-    // Handle form submission and make HTTP POST request
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        setIsSubmitting(true);  // Disable the submit button during the submission process
+        setIsSubmitting(true);
 
         try {
-
-
             const response = await axios.post('http://localhost:5001/api/register', {
                 email: formData.email,
                 password: formData.password,
@@ -49,16 +44,13 @@ function SignUpDetails() {
             localStorage.setItem('first_name', formData.firstName);
             localStorage.setItem('last_name', formData.lastName);
 
-
-
-            setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-            console.log(response.data);  // You can log the response if needed
+            setMessage('ההרשמה בוצעה בהצלחה!');
             navigate('/signupcode');
         } catch (error) {
             setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
         }
 
-        setIsSubmitting(false);  // Re-enable the submit button after the process is done
+        setIsSubmitting(false);
     };
 
     return (
@@ -71,22 +63,36 @@ function SignUpDetails() {
                         <p className="instruction">נא להזין את הפרטים הבאים:</p>
                         <form className="login-form" onSubmit={handleSubmit}>
                             <div className="input-group">
-                                <input
-                                    type="text"
-                                    name="firstName"
-                                    placeholder="שם פרטי"
-                                    value={formData.firstName}
-                                    onChange={handleChange}
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    name="lastName"
-                                    placeholder="שם משפחה"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    required
-                                />
+                                <div className="input-container">
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        placeholder="שם פרטי"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        onMouseEnter={() => setShowFirstNameTooltip(true)}
+                                        onMouseLeave={() => setShowFirstNameTooltip(false)}
+                                        required
+                                    />
+                                    {showFirstNameTooltip && (
+                                        <div className="tooltip">עברית בלבד</div>
+                                    )}
+                                </div>
+                                <div className="input-container">
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        placeholder="שם משפחה"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        onMouseEnter={() => setShowLastNameTooltip(true)}
+                                        onMouseLeave={() => setShowLastNameTooltip(false)}
+                                        required
+                                    />
+                                    {showLastNameTooltip && (
+                                        <div className="tooltip">עברית בלבד</div>
+                                    )}
+                                </div>
                                 <input
                                     type="email"
                                     name="email"
@@ -108,16 +114,16 @@ function SignUpDetails() {
                                     />
                                     {showPasswordTooltip && (
                                         <div className="password-tooltip">
-                                        <p>דרישות הסיסמה:</p>
-                                        <ul>
-                                            <li>לפחות 8 תווים ולא יותר מ-20 תווים</li>
-                                            <li>אות גדולה אחת לפחות באנגלית</li>
-                                            <li>אות קטנה אחת לפחות באנגלית</li>
-                                            <li>ספרה אחת לפחות</li>
-                                            <li>תו מיוחד אחד לפחות: <code>!@$%^&*()[]{}+</code></li>
-                                            <li>יש לכלול אותיות רק באנגלית</li>
-                                        </ul>
-                                    </div>
+                                            <p>דרישות הסיסמה:</p>
+                                            <ul>
+                                                <li>לפחות 8 תווים ולא יותר מ-20 תווים</li>
+                                                <li>אות גדולה אחת לפחות באנגלית</li>
+                                                <li>אות קטנה אחת לפחות באנגלית</li>
+                                                <li>ספרה אחת לפחות</li>
+                                                <li>תו מיוחד אחד לפחות: <code>!@$%^&*()[]{}+</code></li>
+                                                <li>יש לכלול אותיות רק באנגלית</li>
+                                            </ul>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -136,6 +142,5 @@ function SignUpDetails() {
         </div>
     );
 }
-
 
 export default SignUpDetails;
