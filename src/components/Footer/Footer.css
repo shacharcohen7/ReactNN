@@ -1,46 +1,47 @@
-/* Footer container */
 .footer-container {
     background-color: #f8c6af;
-    padding: 10px 0;
-    color: #241b16;
-    font-family: 'Arial', sans-serif;
-    direction: rtl; /* הגדרת כיוון לימין לשמאל */
-
+    color: #2c2724;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    text-align: right; /* aligns text for RTL */
 }
 
-/* Footer content */
 .footer-content {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    max-width: 1000px;  /* הפחתנו את רוחב המקסימום כדי להקטין את הפוטר */
-    margin: 0 auto;
     flex-wrap: wrap;
 }
 
-/* Footer section */
 .footer-section {
-    width: 45%;  /* הקטנו את רוחב כל אזור */
-    text-align: right; /* יישור טקסט לימין */
+    width: 30%;
+    margin-bottom: 20px;
 }
 
 .footer-section h2, .footer-section h3 {
-    margin-bottom: 5px;  /* הפחתנו מרווחים */
-    font-size: 1.2rem;  /* הקטנו את גודל הפונט */
     font-weight: bold;
+    color: #2c2724;
 }
 
 .footer-section p, .footer-section a {
-    font-size: 0.9rem;  /* הקטנו את גודל הפונט */
-    margin-bottom: 5px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2c2724;
 }
 
 .footer-section a {
     text-decoration: none;
-    color: #241b16;
-    font-weight: bold;
+    color: #2c2724;
 }
 
 .footer-section a:hover {
     text-decoration: underline;
+}
+
+.footer-section p strong {
+    font-weight: bold;
+}
+
+.footer-section h3 {
+    margin-top: 20px;
 }
