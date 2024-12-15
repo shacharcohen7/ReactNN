@@ -41,7 +41,7 @@ function Login() {
         });
 
         // Log response for debugging
-        console.log('Login response:', response.data);
+        console.log('Login response:', response);
 
         if (response.data.success) {
             // Store user data (e.g., email, token) in localStorage
