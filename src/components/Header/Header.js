@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import logo from './logoNNcircle.png';
 import { useNavigate } from 'react-router-dom';
-import './Header.css';  // אם יש CSS ייחודי להדר
+import './Header.css'; 
 
 function Header() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
