@@ -43,6 +43,8 @@ function SignUpDetails() {
             localStorage.setItem('password', formData.password);
             localStorage.setItem('first_name', formData.firstName);
             localStorage.setItem('last_name', formData.lastName);
+            localStorage.setItem('user_id', response.data.user_id); // Save user_id to localStorage
+
 
             setMessage('ההרשמה בוצעה בהצלחה!');
             navigate('/signupcode');
