@@ -37,7 +37,14 @@ function SignUpTerms() {
                 password: localStorage.getItem('password'),
                 first_name: localStorage.getItem('first_name'),
                 last_name: localStorage.getItem('last_name'),
+
             });
+            if (response.data.success) {
+                // Save user_id to localStorage
+                const userId = response.data.user_id;
+                console.log('User ID:', userId);
+                localStorage.setItem('user_id', userId);
+            }
 
             setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
             console.log(response.data);  // Log the response if needed
