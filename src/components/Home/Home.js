@@ -25,25 +25,27 @@ function Home() {
     const examDates = ['א', 'ב', 'ג', 'ד'];
 
     useEffect(() => {
-        // מבצע קריאה ל-API כאשר הקומפוננטה נטענת
+        // API call to fetch all courses
         axios.get('http://localhost:5001/api/course/get_all_courses')
             .then(response => {
-                setCourses(response.data.courses);
+                // Set the courses state with the data array from the response
+                setCourses(response.data.data);
             })
             .catch(error => {
-                console.error("שגיאה בקריאה ל-API:", error);
+                console.error("שגיאה בגישה לכל הקורסים", error);
             });
-    }, []); // תבצע קריאה אחת בלבד כשקומפוננטה נטענת
+    }, []);// תבצע קריאה אחת בלבד כשקומפוננטה נטענת
 
     // קריאה לקבלת הנושאים של קורס
     useEffect(() => {
         if (selectedCourse) {
-            axios.get('http://localhost:5001/api/course/get_course_topics   http://localhost:5001/api/login', {
-                params: { course_id: selectedCourse }
+            axios.get('http://localhost:5001/api/course/get_course_topics', {
+                params: { course_id: selectedCourse },
+                headers: {}
             })
             .then(response => {
-                if (response.data.success) {
-                    setTopics(response.data.topics); // עדכון ה-state עם הנושאים של הקורס
+                if (response.data.status == 'success') {
+                    setTopics(response.data.data); // עדכון ה-state עם הנושאים של הקורס
                 } else {
                     console.error('לא ניתן להוריד נושאים');
                 }
@@ -140,7 +142,7 @@ function Home() {
                             >
                                 <option value="">בחר קורס</option>
                                 {courses.map((course) => (
-                                    <option key={course.id} value={course.id}>
+                                    <option key={course.course_id} value={course.course_id}>
                                         {course.name}
                                     </option>
                                 ))}
