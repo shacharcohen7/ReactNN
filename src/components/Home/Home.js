@@ -4,12 +4,14 @@ import './Home.css';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import { useNavigate } from 'react-router-dom';
+import OpenCourse from '../OpenCourse/OpenCourse';
 
 function Home() {
     const [courses, setCourses] = useState([]); // כאן נשמור את הקורסים של היוזר
     const [userId, setUserId] = useState(''); // כאן נשמור את ה-user ID
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
+    const [courseForQuestion, setcourseForQuestion] = useState('');
     const [topics, setTopics] = useState([]);
     const [courseId, setCourseId] = useState('');
 
@@ -23,6 +25,10 @@ function Home() {
 
     const semesters = ['סתיו', 'אביב', 'קיץ'];
     const examDates = ['א', 'ב', 'ג', 'ד'];
+
+    const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
+    const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
+    const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
 
     useEffect(() => {
         // API call to fetch all courses
@@ -85,12 +91,22 @@ function Home() {
         setSelectedCourse(e.target.value);
     };
 
+    const handleCourseSelectionForQuestion = (e) => {
+        setcourseForQuestion(e.target.value);
+    };
+
     const handleSearch = () => {
         console.log("חיפוש עם פרמטרים: ", { selectedCourse, selectedTopic, searchText });
     };
 
-    const navigateToAddQuestion = () => {
-        navigate('/addquestion');
+    const navigateToUploadQuestion = () => {
+        if (courseForQuestion) {
+            // Navigate only if courseForQuestion has a valid value
+            navigate(`/upload-question/${courseForQuestion}`);
+          } else {
+            // Optionally, you can alert the user or show a message if no course is selected
+            alert("אנא בחר קורס לפני שתמשיך.");
+          }
     };
 
     const navigateToAddExam = () => {
@@ -237,9 +253,39 @@ function Home() {
                 </div>
 
                 <div className="action-section">
-                    <div className="action-card" onClick={navigateToAddQuestion}>
+                    <button className="action-card" onClick={openQuestionModal}>
                         <span>העלאת שאלה</span>
-                    </div>
+                    </button>
+                    {isQuestionModalOpen && (
+                        <div className="modal-overlay">
+                        <div className="modal-content">
+                            <h2>בחר קורס</h2>
+                            <p>במידה והקורס לא נמצא ברשימת הקורסים, עלייך לפתוח אותו</p>
+                            <select
+                                value={courseForQuestion}
+                                onChange={handleCourseSelectionForQuestion}
+                                className="search-input-course">
+                                <option value="">בחר קורס</option>
+                                {courses.map((course) => (
+                                    <option key={course.course_id} value={course.course_id}>
+                                        {course.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="modal-buttons">
+                            <button onClick={navigateToUploadQuestion}>
+                                אישור
+                            </button>
+                            <button onClick={navigateToAddNewCourse}>
+                                פתח קורס חדש
+                            </button>
+                            <button onClick={closeQuestionModal}>
+                                סגור
+                            </button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
                     <div className="action-card" onClick={navigateToAddExam}>
                         <span>העלאת מבחן</span>
                     </div>
