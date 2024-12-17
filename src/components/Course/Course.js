@@ -5,7 +5,7 @@ import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Course.css'; 
 
-function Course() {
+function Course() { 
     const { courseName } = useParams();  // מקבלים את שם הקורס מה-URL
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSearchType, setSelectedSearchType] = useState('topic'); // הבחירה בין נושא למועד
