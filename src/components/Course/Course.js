@@ -30,8 +30,8 @@ function Course() {
     };
 
     // ניווט לדף העלאת שאלה חדשה
-    const handleAddQuestion = () => {
-        navigate('/add-question');  // יש ליצור דף זה מאוחר יותר
+    const navigateToUploadQuestion = () => {
+        navigate(`/upload-question/${courseName}`);
     };
 
     // ניווט להצגת הסילבוס
@@ -147,7 +147,7 @@ function Course() {
                     <button className="action-button" onClick={handleAddExam}>
                         העלאת מבחן חדש
                     </button>
-                    <button className="action-button" onClick={handleAddQuestion}>
+                    <button className="action-button" onClick={navigateToUploadQuestion}>
                         העלאת שאלה חדשה
                     </button>
                 </div>
