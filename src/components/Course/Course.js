@@ -5,7 +5,7 @@ import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Course.css'; 
 
-function Course() {
+function Course() { 
     const { courseName } = useParams();  // מקבלים את שם הקורס מה-URL
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSearchType, setSelectedSearchType] = useState('topic'); // הבחירה בין נושא למועד
@@ -30,8 +30,8 @@ function Course() {
     };
 
     // ניווט לדף העלאת שאלה חדשה
-    const handleAddQuestion = () => {
-        navigate('/add-question');  // יש ליצור דף זה מאוחר יותר
+    const navigateToUploadQuestion = () => {
+        navigate(`/upload-question/${courseName}`);
     };
 
     // ניווט להצגת הסילבוס
@@ -147,7 +147,7 @@ function Course() {
                     <button className="action-button" onClick={handleAddExam}>
                         העלאת מבחן חדש
                     </button>
-                    <button className="action-button" onClick={handleAddQuestion}>
+                    <button className="action-button" onClick={navigateToUploadQuestion}>
                         העלאת שאלה חדשה
                     </button>
                 </div>
