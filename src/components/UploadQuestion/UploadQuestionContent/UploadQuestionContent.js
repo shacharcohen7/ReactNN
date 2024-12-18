@@ -63,19 +63,27 @@ function UploadQuestionContent() {
                     </div>
                 </div>
                 <div className="question-content-form">
+                    <label htmlFor="file-upload-1" className="field-label">העלה שאלה:</label>
                     <input
                         className="question-content-field"
                         type="file"
                         onChange={(e) => setQuestionFile(e.target.files[0])}
                         required
                     />
+                    <label htmlFor="file-upload-1" className="field-label">העלה פתרון מרצה:</label>
+                    <input
+                        className="question-content-field"
+                        type="file"
+                        onChange={(e) => setQuestionFile(e.target.files[0])}
+                        required
+                    />
+                    <label htmlFor="file-upload-1" className="field-label">בחר נושאים לשאלה:</label>
                     <Select
                         id="multi-select"
                         options={topics.map((topic) => ({ value: topic, label: topic }))} // המרה לפורמט מתאים
                         isMulti // מאפשר בחירה מרובה
                         value={selectedTopics}
                         onChange={handleTopicChange}
-                        placeholder="בחר נושאים..."
                         className="question-content-field"
                     />
                     <div className="question-button-row">
