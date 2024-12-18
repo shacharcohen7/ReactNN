@@ -48,6 +48,11 @@ function Login() {
             localStorage.setItem('email', formData.email);
             localStorage.setItem('firstName', response.data.firstName);
             localStorage.setItem('lastName', response.data.lastName);
+            if (response.data.success) {
+              // Save user_id to localStorage
+              const userId = response.data.user_id;
+              localStorage.setItem('user_id', userId);
+            }
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token); // If you use a token-based system
             }

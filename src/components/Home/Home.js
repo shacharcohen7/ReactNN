@@ -7,8 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import OpenCourse from '../OpenCourse/OpenCourse';
 
 function Home() {
-    const [courses, setCourses] = useState([]); // כאן נשמור את הקורסים של היוזר
-    const [userId, setUserId] = useState(''); // כאן נשמור את ה-user ID
+    const [courses, setCourses] = useState([]);  // קורסים כלליים
+    const [userCourses, setUserCourses] = useState([]);  // קורסים של היוזר הספציפי    const [userId, setUserId] = useState(''); // כאן נשמור את ה-user ID
+    const [userId, setUserId] = useState('');  // מזהה היוזר
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
     const [courseForQuestion, setcourseForQuestion] = useState('');
@@ -30,6 +31,14 @@ function Home() {
     const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
     const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
 
+    useEffect(() => {
+        const storedUserId = localStorage.getItem('user_id');
+        if (storedUserId) {
+            setUserId(storedUserId);  // עדכון ה-userId
+        }
+    }, []);
+    
+    
     useEffect(() => {
         // API call to fetch all courses
         axios.get('http://localhost:5001/api/course/get_all_courses')
@@ -63,23 +72,26 @@ function Home() {
     }, [selectedCourse]); // הפעל מחדש את הקריאה כל פעם שהקורס משתנה
 
     useEffect(() => {
-        // קריאה ל-API לקבלת הקורסים של היוזר
+        // בצע קריאה ל-API כדי להשיג את הקורסים של המשתמש
+        const userId = localStorage.getItem('user_id');
         if (userId) {
-            axios.get('http://localhost:5001/api/get_user_courses', {
-                params: { user_id: userId }
-            })
-            .then(response => {
-                if (response.data.success) {
-                    setCourses(response.data.courses); // עדכון ה-state עם הקורסים
-                } else {
-                    console.error('לא ניתן להוריד קורסים');
-                }
-            })
-            .catch(error => {
-                console.error('שגיאה בקריאת ה-API עבור קורסים:', error);
-            });
+          axios.get('http://localhost:5001/api/get_user_courses', {
+            params: { user_id: userId }
+          })
+          .then(response => {
+            console.log('API Response:', response);
+            if (response.data.success) {
+              setUserCourses(response.data.courses); // עדכון הסטייט עם המערך של הקורסים
+            } else {
+              console.error('Failed to fetch user courses');
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching user courses:', error);
+          });
         }
-    }, [userId]); // קריאה ל-API כאשר userId משתנה
+      }, []);
+
 
     const navigate = useNavigate();
 
@@ -306,11 +318,11 @@ function Home() {
                 <div className="courses-section">
                     <h3>הקורסים שלי</h3>
                     <div className="course-cards-container">
-                        {courses.map((course) => (
+                        {userCourses.map((course) => (
                             <div
                                 key={course.id}
                                 className="course-card"
-                                onClick={() => navigateToCoursePage(course.id)}
+                                onClick={() => navigateToCoursePage(course.course_id)}
                             >
                                 <span>{course.name}</span>
                                 <p style={{ fontSize: '12px', color: 'gray' }}>
