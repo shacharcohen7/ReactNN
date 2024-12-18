@@ -102,7 +102,7 @@ function Home() {
     const navigateToUploadQuestion = () => {
         if (courseForQuestion) {
             // Navigate only if courseForQuestion has a valid value
-            navigate(`/upload-question/${courseForQuestion}`);
+            navigate(`/upload-question-date/${courseForQuestion}`);
           } else {
             // Optionally, you can alert the user or show a message if no course is selected
             alert("אנא בחר קורס לפני שתמשיך.");
