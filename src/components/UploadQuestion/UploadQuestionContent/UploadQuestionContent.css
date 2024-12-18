@@ -52,7 +52,7 @@
 
 .question-content-field {
     width: 100%; /* הגדרה רוחב אחיד */
-    max-width: 400px; /* מקסימום רוחב */
+    max-width: 600px; /* מקסימום רוחב */
     padding: 10px; /* ריווח פנימי */
     border: 1px solid #ccc; /* גבול */
     border-radius: 5px; /* פינות מעוגלות */
