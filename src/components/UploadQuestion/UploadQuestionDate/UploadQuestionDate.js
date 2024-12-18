@@ -1,11 +1,11 @@
 // Course.js
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer';  // ייבוא הפוטר
-import './UploadQuestion.css';
+import Header from '../../Header/Header';
+import Footer from '../../Footer/Footer';  // ייבוא הפוטר
+import './UploadQuestionDate.css';
 
-function UploadQuestion() {
+function UploadQuestionDate() {
     const { courseName } = useParams();  // מקבלים את שם הקורס מה-URL
     const navigate = useNavigate();  // יצירת אובייקט navigate
     const semesters = ['סתיו', 'אביב', 'קיץ'];
@@ -14,15 +14,27 @@ function UploadQuestion() {
     const [examSemester, setExamSemester] = useState(''); // סמסטר של המבחן
     const [examDateSelection, setExamDateSelection] = useState(''); // מועד של המבחן
     const [questionNum, setQuestionNum] = useState(''); // מספר שאלה
+
+    const navigateToUploadQuestionContent = () => {
+        if (examYear && examSemester && examDateSelection && questionNum) {
+            // search for question
+            // if null - navigate to upload-question-content page
+            navigate(`/upload-question-content/${courseName}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+            // else - navigate to question page
+          } else {
+            // Optionally, you can alert the user or show a message if no course is selected
+            alert("אנא מלא את כל השדות.");
+          }
+    };
+    
     return (
-        <div className="upload-question-page">
+        <div className="upload-question-date-page">
             <Header />
             <main className="content">
             <div className="course-header">
                 <h1>העלאת שאלה חדשה</h1>
-                <h1>{courseName} - קורס</h1>
-                <div className="search-container">
-                <div className="date-search">
+                <div className="question-search-container">
+                <div className="question-search">
                     <input
                         type="text" 
                         disabled 
@@ -73,10 +85,11 @@ function UploadQuestion() {
                         onChange={(e) => setQuestionNum(e.target.value)}
                         className="search-input-course"
                     />
+                    <button className="confirm-button-question" onClick={navigateToUploadQuestionContent}>
+                        אישור
+                    </button>
                 </div>
-                <button className="search-button-home">
-                    אישור
-                </button>
+                
                 </div>
             </div>
             </main>
@@ -85,4 +98,4 @@ function UploadQuestion() {
     );
 }
 
-export default UploadQuestion;
+export default UploadQuestionDate;

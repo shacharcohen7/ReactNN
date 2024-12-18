@@ -31,7 +31,7 @@ function Course() {
 
     // ניווט לדף העלאת שאלה חדשה
     const navigateToUploadQuestion = () => {
-        navigate(`/upload-question/${courseName}`);
+        navigate(`/upload-question-date/${courseName}`);
     };
 
     // ניווט להצגת הסילבוס
