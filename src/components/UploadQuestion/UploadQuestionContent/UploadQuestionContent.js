@@ -1,6 +1,8 @@
 // Course.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+import Select from "react-select";
 import Header from '../../Header/Header';
 import Footer from '../../Footer/Footer';  // ייבוא הפוטר
 import './UploadQuestionContent.css';
@@ -8,7 +10,35 @@ import './UploadQuestionContent.css';
 function UploadQuestionContent() {
     const { courseName, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [questionFile, setQuestionFile] = useState(null);
+    const [topics, setTopics] = useState([]);
+    const [selectedTopics, setSelectedTopics] = useState('');
     const navigate = useNavigate();  // יצירת אובייקט navigate
+
+    const handleCancelClick = () => {
+        navigate('/home');  // מנווט לעמוד ההרשמה
+      };
+
+    const handleTopicChange = (selected) => {
+        setSelectedTopics(selected || []);
+      };
+
+      useEffect(() => {
+    
+            axios.get('http://localhost:5001/api/course/get_course_topics', {
+                params: { course_id: courseName },
+                headers: {}
+            })
+            .then(response => {
+                if (response.data.status == 'success') {
+                    setTopics(response.data.data); // עדכון ה-state עם הנושאים של הקורס
+                } else {
+                    console.error('לא ניתן להוריד נושאים');
+                }
+            })
+            .catch(error => {
+                console.error('שגיאה בקריאת ה-API עבור נושאים:', error);
+            });
+        }); 
     return (
         <div className="upload-question-content-page">
             <Header />
@@ -32,16 +62,30 @@ function UploadQuestionContent() {
                         <strong>שאלה</strong> {questionNum}
                     </div>
                 </div>
-                <div className="form-content">
+                <div className="question-content-form">
                     <input
+                        className="question-content-field"
                         type="file"
                         onChange={(e) => setQuestionFile(e.target.files[0])}
-                        className="search-input-open"
                         required
                     />
+                    <Select
+                        id="multi-select"
+                        options={topics.map((topic) => ({ value: topic, label: topic }))} // המרה לפורמט מתאים
+                        isMulti // מאפשר בחירה מרובה
+                        value={selectedTopics}
+                        onChange={handleTopicChange}
+                        placeholder="בחר נושאים..."
+                        className="question-content-field"
+                    />
+                    <div className="question-button-row">
                     <button className="add-question-button">
-                        הוסף שאלה
+                        סיום
                     </button>
+                    <button className="add-question-button" onClick={handleCancelClick}>
+                        ביטול
+                    </button>
+                    </div>
                 </div>
             </div>
             </main>
