@@ -8,7 +8,7 @@ import Footer from '../../Footer/Footer';  // ייבוא הפוטר
 import './UploadQuestionContent.css';
 
 function UploadQuestionContent() {
-    const { courseName, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
+    const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [questionFile, setQuestionFile] = useState(null);
     const [topics, setTopics] = useState([]);
     const [selectedTopics, setSelectedTopics] = useState('');
@@ -25,7 +25,7 @@ function UploadQuestionContent() {
       useEffect(() => {
     
             axios.get('http://localhost:5001/api/course/get_course_topics', {
-                params: { course_id: courseName },
+                params: { course_id: courseId },
                 headers: {}
             })
             .then(response => {
@@ -47,7 +47,7 @@ function UploadQuestionContent() {
                 <h1>העלאת שאלה חדשה</h1>
                 <div className="details-container">
                     <div className="detail-item">
-                        <strong>קורס</strong> {courseName}
+                        <strong>קורס</strong> {courseId}
                     </div>
                     <div className="detail-item">
                         <strong>שנה</strong> {examYear}
@@ -63,36 +63,45 @@ function UploadQuestionContent() {
                     </div>
                 </div>
                 <div className="question-content-form">
-                    <label htmlFor="file-upload-1" className="field-label">העלה שאלה:</label>
-                    <input
-                        className="question-content-field"
-                        type="file"
-                        onChange={(e) => setQuestionFile(e.target.files[0])}
-                        required
-                    />
-                    <label htmlFor="file-upload-1" className="field-label">העלה פתרון מרצה:</label>
-                    <input
-                        className="question-content-field"
-                        type="file"
-                        onChange={(e) => setQuestionFile(e.target.files[0])}
-                        required
-                    />
-                    <label htmlFor="file-upload-1" className="field-label">בחר נושאים לשאלה:</label>
-                    <Select
-                        id="multi-select"
-                        options={topics.map((topic) => ({ value: topic, label: topic }))} // המרה לפורמט מתאים
-                        isMulti // מאפשר בחירה מרובה
-                        value={selectedTopics}
-                        onChange={handleTopicChange}
-                        className="question-content-field"
-                    />
+                    <div className="form-group">
+                        <label className="label-question-content" htmlFor="name">שאלה:</label>
+                        <div class="info-icon" title="העלה קובץ PDF של השאלה כפי שמופיעה במבחן">i</div>
+                        <input
+                            className="question-content-field"
+                            type="file"
+                            onChange={(e) => setQuestionFile(e.target.files[0])}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="label-question-content" htmlFor="name">פתרון מרצה:</label>
+                        <div class="info-icon" title="במידה וקיים ברשותך פתרון מרצה לשאלה, העלה קובץ PDF של פתרון זה">i</div>
+                        <input
+                            className="question-content-field"
+                            type="file"
+                            onChange={(e) => setQuestionFile(e.target.files[0])}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="label-question-content" htmlFor="name">נושאי השאלה:</label>
+                        <div class="info-icon" title="בחר את נושאי הקורס בהם עוסקת שאלה זו">i</div>
+                        <Select
+                            id="multi-select"
+                            options={topics.map((topic) => ({ value: topic, label: topic }))} // המרה לפורמט מתאים
+                            isMulti // מאפשר בחירה מרובה
+                            value={selectedTopics}
+                            onChange={handleTopicChange}
+                            className="question-content-field"
+                        />
+                    </div>
                     <div className="question-button-row">
-                    <button className="add-question-button">
-                        סיום
-                    </button>
-                    <button className="add-question-button" onClick={handleCancelClick}>
-                        ביטול
-                    </button>
+                        <button className="add-question-button">
+                            סיום
+                        </button>
+                        <button className="add-question-button" onClick={handleCancelClick}>
+                            ביטול
+                        </button>
                     </div>
                 </div>
             </div>

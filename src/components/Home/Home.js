@@ -269,10 +269,12 @@ function Home() {
                         <span>העלאת שאלה</span>
                     </button>
                     {isQuestionModalOpen && (
-                        <div className="modal-overlay">
-                        <div className="modal-content">
-                            <h2>בחר קורס</h2>
-                            <p>במידה והקורס לא נמצא ברשימת הקורסים, עלייך לפתוח אותו</p>
+                        <div className="modal">
+                        <div className="modal-content-question">
+                            <p>
+                                במידה והקורס לא נמצא ברשימת הקורסים, תוכל לפתוח אותו    
+                                <a href="/opencourse" target="_blank"> כאן </a>.
+                            </p>
                             <select
                                 value={courseForQuestion}
                                 onChange={handleCourseSelectionForQuestion}
@@ -285,15 +287,12 @@ function Home() {
                                 ))}
                             </select>
                             <div className="modal-buttons">
-                            <button onClick={navigateToUploadQuestion}>
-                                אישור
-                            </button>
-                            <button onClick={navigateToAddNewCourse}>
-                                פתח קורס חדש
-                            </button>
-                            <button onClick={closeQuestionModal}>
-                                סגור
-                            </button>
+                                <button class="confirm-button-question" onClick={navigateToUploadQuestion}>
+                                    אישור
+                                </button>
+                                <button class="confirm-button-question" onClick={closeQuestionModal}>
+                                    ביטול
+                                </button>
                             </div>
                         </div>
                         </div>

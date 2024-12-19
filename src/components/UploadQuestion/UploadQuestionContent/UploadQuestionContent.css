@@ -30,10 +30,12 @@
     background-color: #f5a623;
     color: white;
     padding: 10px 20px;
-    border: none;
-    border-radius: 25px;
-    font-size: 1.2rem;
+    border: 2px solid #d38a67; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
+    border-radius: 15px;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 50px; /* גובה אחיד עם השדה */
     width: 100px;
 }
 
@@ -52,18 +54,41 @@
 
 .question-content-field {
     width: 100%; /* הגדרה רוחב אחיד */
-    max-width: 600px; /* מקסימום רוחב */
+    max-width: 500px; /* מקסימום רוחב */
+    min-width: 500px; /* מקסימום רוחב */
     padding: 10px; /* ריווח פנימי */
-    border: 1px solid #ccc; /* גבול */
-    border-radius: 5px; /* פינות מעוגלות */
+    border-radius: 8px;
+    border: 1px solid #d38a67;
     font-size: 1rem; /* גודל גופן */
     box-sizing: border-box; /* כולל ריווחים בגבול */
   }
 
   .question-button-row {
     display: flex;
+    margin-top: 20px;
     justify-content: center; /* מרכז את הכפתורים אופקית */
     gap: 20px; /* רווח בין הכפתורים */
     bottom: 20px; /* ריווח מתחתית הטופס */
     width: 100%; /* רוחב מלא */
   }
+
+  
+.label-question-content {
+  min-width: 150px; /* רוחב מינימלי לתוויות */
+  text-align: right;
+  font-size: 20px;
+}
+
+.info-icon {
+  width: 20px;
+  height: 20px;
+  background-color: #3c3c3b; /* צבע רקע */
+  color: white;
+  font-size: 15px;
+  border-radius: 100%; /* מעגלי */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
