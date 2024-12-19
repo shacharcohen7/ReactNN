@@ -44,6 +44,9 @@ function SignUpTerms() {
                 const userId = response.data.user_id;
                 console.log('User ID:', userId);
                 localStorage.setItem('user_id', userId);
+                localStorage.removeItem('password');
+
+
             }
 
             setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
