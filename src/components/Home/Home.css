@@ -52,6 +52,7 @@
   flex: 1;
   min-width: 180px;
   max-width: 250px;
+  max-height: 50px;
   padding: 10px;
   margin: 10px 0;
   border-radius: 8px;
@@ -269,24 +270,27 @@
   z-index: 1000;
 }
 
-.modal-content {
+.modal-content-question {
   background-color: #ffffff;
   padding: 20px;
   border-radius: 10px;
-  width: 400px;
+  width: 290px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
   text-align: center;
+  align-items: center;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
   position: relative; /* כך ניתן למקם את ה-X ביחס ל-Modal */
+  flex-shrink: 0; /* מונע מהאלמנט להתכווץ */
+  flex-grow: 0; /* מונע מהאלמנט להתפשט */
 }
 
 .modal-buttons {
-  position: absolute; /* מיקום מוחלט ביחס לפופ-אפ */
-  bottom: 10px; /* 10 פיקסלים מהרצפה של הפופ-אפ */
-  left: 10px; /* 10 פיקסלים מהצד השמאלי של הפופ-אפ */
+  margin-top: 10px;
   display: flex;
   justify-content: flex-start; /* לרכז את הכפתורים בצד שמאל */
   gap: 10px; /* רווח בין הכפתורים */
-  margin-top: 50px;
 }
 
 /* סגנון לשדות */
