@@ -1,12 +1,13 @@
-// Course.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Course.css'; 
 
 function Course() { 
-    const { courseName } = useParams();  // מקבלים את שם הקורס מה-URL
+    const { courseId } = useParams(); // מקבלים את מזהה הקורס מה-URL
+    const [courseDetails, setCourseDetails] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedSearchType, setSelectedSearchType] = useState('topic'); // הבחירה בין נושא למועד
     const [selectedTopic, setSelectedTopic] = useState(''); // נושא שנבחר
@@ -15,9 +16,25 @@ function Course() {
     const [examDateSelection, setExamDateSelection] = useState(''); // מועד של המבחן
     const [questionNum, setQuestionNum] = useState(''); // מספר שאלה
     const navigate = useNavigate();  // יצירת אובייקט navigate
-
-    // נתיב הסילבוס (יש להחליף בנתיב האמיתי של הסילבוס)
-    const syllabusUrl = '/path-to-syllabus.pdf';
+  
+    useEffect(() => {
+        if (courseId) {
+            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
+                .then(response => {
+                    console.log('Response received:', response);
+                    
+                    if (response.data && response.data.status === 'success') {
+                        console.log('Course data:', response.data.data); // הדפס את המידע שהתקבל
+                        setCourseDetails(response.data.data);  // עדכון הסטייט עם פרטי הקורס
+                    } else {
+                        console.error('Response does not contain valid course data', response.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching course details:', error);
+                });
+        }
+    }, [courseId]); 
 
     // פונקציה לחיפוש בקורס
     const handleSearchClick = () => {
@@ -31,12 +48,7 @@ function Course() {
 
     // ניווט לדף העלאת שאלה חדשה
     const navigateToUploadQuestion = () => {
-        navigate(`/upload-question-date/${courseName}`);
-    };
-
-    // ניווט להצגת הסילבוס
-    const handleShowSyllabus = () => {
-        window.open(syllabusUrl, '_blank');  // פותח את הסילבוס בתצוגה חדשה
+        navigate(`/upload-question-date/${courseId}`);
     };
 
     return (
@@ -45,11 +57,13 @@ function Course() {
             <main className="content">
                 {/* שם הקורס + כפתור סילבוס */}
                 <div className="course-header">
-                    <h1>{courseName} - קורס</h1>
-                    <button className="show-syllabus-button" onClick={handleShowSyllabus}>
-                        הצג סילבוס
-                    </button>
-                </div>
+                {/* בדיקה אם courseDetails קיים לפני הצגת השם */}
+                {courseDetails ? (
+                    <h1>{courseDetails.course_id} - {courseDetails.name}</h1>
+                ) : (
+                    <h1>טוען...</h1>
+                )}
+            </div>
 
                 {/* סרגל חיפוש */}
                 <div className="search-container">
