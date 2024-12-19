@@ -56,9 +56,9 @@ function App() {
           <Route path="/signupterms" element={<SignUpTerms />} />
           <Route path="/home" element={<Home />} />
           <Route path="/opencourse" element={<OpenCourse />} />
-          <Route path="/upload-question-date/:courseName" element={<UploadQuestionDate />} />
+          <Route path="/upload-question-date/:courseId" element={<UploadQuestionDate />} />
           <Route
-            path="/upload-question-content/:courseName/:examYear/:examSemester/:examDateSelection/:questionNum"
+            path="/upload-question-content/:courseId/:examYear/:examSemester/:examDateSelection/:questionNum"
             element={<UploadQuestionContent />}
           />
           <Route path="/course/:courseName" element={<Course />} />
