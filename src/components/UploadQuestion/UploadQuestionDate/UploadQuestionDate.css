@@ -6,24 +6,6 @@
     padding: 20px;
 }
 
-.question-search-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px; /* מרווח בין השדות */
-    margin-top: 10px; /* מיקום מעט נמוך יותר */
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-
-.question-search {
-    display: flex;
-    flex-direction: column;
-    /* gap: 1px; */
-  }
-
   .confirm-button-question {
     background-color: #f5a623;
     color: white;
@@ -34,8 +16,26 @@
     transition: background-color 0.3s ease;
     height: 50px; /* גובה אחיד עם השדה */
     margin-top: 10px;
+    min-width: 80px;
   }
   
   .confirm-button-question:hover {
     background-color: #e59428;
   }
+
+  .form-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.question-date-field {
+  width: 100%; /* הגדרה רוחב אחיד */
+  min-width: 225px; /* מקסימום רוחב */
+  padding: 10px; /* ריווח פנימי */
+  border-radius: 8px;
+  border: 1px solid #d38a67;
+  font-size: 1rem; /* גודל גופן */
+  box-sizing: border-box; /* כולל ריווחים בגבול */
+}
