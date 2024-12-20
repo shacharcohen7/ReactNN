@@ -40,7 +40,7 @@ function UploadQuestionDate() {
         return <div>Loading...</div>;
     }
     
-    const navigateToUploadQuestionContent = () => {
+    const handleConfirmClick = () => {
         if (examYear && examSemester && examDateSelection && questionNum) {
             if(examYear < 1800){
                 alert("שנה לא תקינה");
@@ -49,10 +49,34 @@ function UploadQuestionDate() {
                 alert("מספר שאלה לא תקין");
             }
             else{
-                // search for question
-                // if null - navigate to upload-question-content page
-                navigate(`/upload-question-content/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
-                // else - navigate to question page
+                console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
+    
+                // קריאה ל-API לחיפוש לפי מועד
+                axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum
+                })
+                .then(response => {
+                    const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                    console.log(parsedResponse.status)
+                    if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
+                        const userChoice = window.confirm(
+                            "שאלה זו קיימת במאגר. האם ברצונך לעבור לדף השאלה?"
+                        );
+                        if (userChoice) {
+                            navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+                        } 
+                    } else {
+                        navigate(`/upload-question-content/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('שגיאה בחיפוש לפי מועד:', error);
+                    alert("אירעה שגיאה בחיפוש לפי מועד");
+                });
             }
           } else {
             // Optionally, you can alert the user or show a message if no course is selected
@@ -139,7 +163,7 @@ function UploadQuestionDate() {
                             min="1"
                         />
                     </div>
-                    <button className="confirm-button-question" onClick={navigateToUploadQuestionContent}>
+                    <button className="confirm-button-question" onClick={handleConfirmClick}>
                         אישור
                     </button>
                 </div>
