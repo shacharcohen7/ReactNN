@@ -42,6 +42,7 @@ import Home from './components/Home/Home';
 import OpenCourse from './components/OpenCourse/OpenCourse';
 import UploadQuestionDate from './components/UploadQuestion/UploadQuestionDate/UploadQuestionDate';
 import UploadQuestionContent from './components/UploadQuestion/UploadQuestionContent/UploadQuestionContent';
+import Question from './components/Question/Question';
 import Course from './components/Course/Course';
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
             path="/upload-question-content/:courseId/:examYear/:examSemester/:examDateSelection/:questionNum"
             element={<UploadQuestionContent />}
           />
+          <Route path="/question/:courseId/:examYear/:examSemester/:examDateSelection/:questionNum" element={<Question />} />
           <Route path="/course/:courseId" element={<Course />} />
 </Routes>
       </Router>
