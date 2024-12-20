@@ -21,11 +21,63 @@ function UploadQuestionContent() {
         navigate('/home');  // מנווט לעמוד ההרשמה
       };
 
-    const handleConfirmClick = () => {
-        // call API for add question
-        // if success - navigate to the new question page
-        navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
-      };
+    // const handleConfirmClick = () => {
+    //     // call API for add question
+    //     // if success - navigate to the new question page
+    //     navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+    //   };
+
+    const handleConfirmClick = async () => {
+        // Validate the inputs
+        if (!questionFile) {
+            alert("Please upload a question file.");
+            return;
+        }
+        if (!isAmerican) {
+            alert("Please select a question type.");
+            return;
+        }
+        if (!selectedTopics.length) {
+            alert("Please select at least one topic.");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('question_number', questionNum);
+        formData.append('is_american', isAmerican);
+        formData.append('question_topics', JSON.stringify(selectedTopics.map(topic => topic.value)));
+        formData.append('pdf_question', questionFile);
+    
+        if (solutionFile) {
+            formData.append('pdf_answer', solutionFile);
+        }
+    
+        try {
+            // Make the API call
+            const response = await axios.post('http://localhost:5001/api/course/add_question', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+    
+            // Handle success
+            if (response.data.success) {
+                alert("Question added successfully!");
+                navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+            } else {
+                // Handle failure
+                alert(`Failed to add question: ${response.data.message}`);
+            }
+        } catch (error) {
+            // Handle error
+            console.error("Error adding question:", error);
+            alert("An error occurred while adding the question.");
+        }
+    };
 
     const handleTopicChange = (selected) => {
         setSelectedTopics(selected || []);
