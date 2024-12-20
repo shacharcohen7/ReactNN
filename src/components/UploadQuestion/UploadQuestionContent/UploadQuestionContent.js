@@ -9,7 +9,10 @@ import './UploadQuestionContent.css';
 
 function UploadQuestionContent() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
+    const [courseDetails, setCourseDetails] = useState(null);
     const [questionFile, setQuestionFile] = useState(null);
+    const [solutionFile, setSolutionFile] = useState(null);
+    const [isAmerican, setAmerican] = useState(null);
     const [topics, setTopics] = useState([]);
     const [selectedTopics, setSelectedTopics] = useState('');
     const navigate = useNavigate();  // יצירת אובייקט navigate
@@ -18,27 +21,56 @@ function UploadQuestionContent() {
         navigate('/home');  // מנווט לעמוד ההרשמה
       };
 
+    const handleConfirmClick = () => {
+        navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+      };
+
     const handleTopicChange = (selected) => {
         setSelectedTopics(selected || []);
       };
 
-      useEffect(() => {
-    
-            axios.get('http://localhost:5001/api/course/get_course_topics', {
-                params: { course_id: courseId },
-                headers: {}
-            })
+    useEffect(() => {
+    if (courseId) {
+        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
             .then(response => {
-                if (response.data.status == 'success') {
-                    setTopics(response.data.data); // עדכון ה-state עם הנושאים של הקורס
+                console.log('Response received:', response);
+                
+                if (response.data && response.data.status === 'success') {
+                    console.log('Course data:', response.data.data); // הדפס את המידע שהתקבל
+                    setCourseDetails(response.data.data);  // עדכון הסטייט עם פרטי הקורס
                 } else {
-                    console.error('לא ניתן להוריד נושאים');
+                    console.error('Response does not contain valid course data', response.data);
                 }
             })
             .catch(error => {
-                console.error('שגיאה בקריאת ה-API עבור נושאים:', error);
+                console.error('Error fetching course details:', error);
             });
-        }); 
+        }
+    }, [courseId]); 
+
+    
+    
+    useEffect(() => {
+        axios.get('http://localhost:5001/api/course/get_course_topics', {
+            params: { course_id: courseId },
+            headers: {}
+        })
+        .then(response => {
+            if (response.data.status == 'success') {
+                setTopics(response.data.data); // עדכון ה-state עם הנושאים של הקורס
+            } else {
+                console.error('לא ניתן להוריד נושאים');
+            }
+        })
+        .catch(error => {
+            console.error('שגיאה בקריאת ה-API עבור נושאים:', error);
+        });
+    }); 
+
+    if (!courseDetails) {
+        return <div>Loading...</div>;
+    }
+    
     return (
         <div className="upload-question-content-page">
             <Header />
@@ -47,7 +79,7 @@ function UploadQuestionContent() {
                 <h1>העלאת שאלה חדשה</h1>
                 <div className="details-container">
                     <div className="detail-item">
-                        <strong>קורס</strong> {courseId}
+                        <strong>קורס</strong> {courseDetails.course_id} - {courseDetails.name}
                     </div>
                     <div className="detail-item">
                         <strong>שנה</strong> {examYear}
@@ -79,9 +111,30 @@ function UploadQuestionContent() {
                         <input
                             className="question-content-field"
                             type="file"
-                            onChange={(e) => setQuestionFile(e.target.files[0])}
+                            onChange={(e) => setSolutionFile(e.target.files[0])}
                             required
                         />
+                    </div>
+                    <div className="form-group">
+                        <label className="label-question-content" htmlFor="name">סוג השאלה:</label>
+                        <div class="info-icon" title="בחר את סוג השאלה - אמריקאית או פתוחה">i</div>
+                        <select
+                            value={isAmerican === null ? '' : isAmerican ? 'אמריקאית' : 'פתוחה'}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '') {
+                                    setAmerican(null); // אם בחרו אופציה ריקה, מאפסים ל-null
+                                } else {
+                                    setAmerican(value === 'אמריקאית'); // אם אמריקאית, true; אחרת false
+                                }}
+                            }
+                            className="question-content-field"
+                            required
+                        >
+                            <option value=""></option>
+                            <option>אמריקאית</option>
+                            <option>פתוחה</option>
+                        </select>
                     </div>
                     <div className="form-group">
                         <label className="label-question-content" htmlFor="name">נושאי השאלה:</label>
@@ -96,7 +149,7 @@ function UploadQuestionContent() {
                         />
                     </div>
                     <div className="question-button-row">
-                        <button className="add-question-button">
+                        <button className="add-question-button" onClick={handleConfirmClick}>
                             סיום
                         </button>
                         <button className="add-question-button" onClick={handleCancelClick}>
