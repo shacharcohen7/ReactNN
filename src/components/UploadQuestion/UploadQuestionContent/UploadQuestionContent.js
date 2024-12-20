@@ -67,7 +67,7 @@ function UploadQuestionContent() {
         .catch(error => {
             console.error('שגיאה בקריאת ה-API עבור נושאים:', error);
         });
-    }); 
+    }, []); 
 
     if (!courseDetails) {
         return <div>Loading...</div>;
