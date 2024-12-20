@@ -10,11 +10,22 @@ import './Question.css';
 function Question() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
+    const [PDF, setPDF] = useState('question'); 
+    const [messages, setMessages] = useState([]); // שמירה של רשימת ההודעות
+    const [inputMessage, setInputMessage] = useState(""); // הודעה חדשה
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
+    const handleSendMessage = (e) => {
+        e.preventDefault();
+        if (inputMessage.trim() !== "") {
+            setMessages([...messages, inputMessage]); // הוספה לרשימה
+            setInputMessage(""); // איפוס השדה
+        }
+    };
+
     useEffect(() => {
-    if (courseId) {
-        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
+        if (courseId) {
+            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -31,6 +42,9 @@ function Question() {
         }
     }, [courseId]); 
 
+    const handlePDFChange = (criteria) => {
+        setPDF(criteria);
+    };
 
     if (!courseDetails) {
         return <div>Loading...</div>;
@@ -40,7 +54,6 @@ function Question() {
         <div className="upload-question-content-page">
             <Header />
             <main className="content">
-            <div className="course-header">
                 <h1>דף שאלה</h1>
                 <div className="details-container">
                     <div className="detail-item">
@@ -59,7 +72,53 @@ function Question() {
                         <strong>שאלה</strong> {questionNum}
                     </div>
                 </div>
-            </div>
+                <div className="tabs-container">
+                    <button
+                        className={`tab ${PDF === 'question' ? 'active' : ''}`}
+                        onClick={() => handlePDFChange('question')}
+                    >
+                        שאלה
+                    </button>
+                    <button
+                        className={`tab ${PDF === 'solution' ? 'active' : ''}`}
+                        onClick={() => handlePDFChange('solution')}
+                    >
+                        פתרון
+                    </button>
+                </div>
+                {PDF === 'question' && (
+                    <div className="pdf-form">
+                        קובץ השאלה
+                    </div>
+                )}
+                {PDF === 'solution' && (
+                    <div className="pdf-form">
+                        קובץ הפתרון
+                    </div>
+                )}
+                 <div className="chat-container">
+                    <div className="chat-box">
+                        {messages.length === 0 ? (
+                            <div className="no-messages">אין עדיין תגובות, התחל את הדיון</div>
+                        ) : (
+                            messages.map((msg, index) => (
+                                <div key={index} className="chat-message">
+                                    {msg}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                    <form onSubmit={handleSendMessage} className="chat-form">
+                        <input
+                            type="text"
+                            placeholder="הקלד הודעה..."
+                            value={inputMessage}
+                            onChange={(e) => setInputMessage(e.target.value)}
+                            className="chat-input"
+                        />
+                        <button type="submit" className="chat-submit">שלח</button>
+                    </form>
+                </div>
             </main>
             <Footer />
         </div>
