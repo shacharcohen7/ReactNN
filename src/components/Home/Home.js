@@ -4,7 +4,6 @@ import './Home.css';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import { useNavigate } from 'react-router-dom';
-import OpenCourse from '../OpenCourse/OpenCourse';
 
 function Home() {
     const [courses, setCourses] = useState([]);  // קורסים כלליים
@@ -30,6 +29,10 @@ function Home() {
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
     const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
     const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
+
+    const [isCourseNotFoundModalOpen, setIsCourseNotFoundModalOpen] = useState(false); // State לשליטה במודל פתיחת קורס חדש
+
+    const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
 
     useEffect(() => {
         const storedUserId = localStorage.getItem('user_id');
@@ -107,8 +110,39 @@ function Home() {
         setcourseForQuestion(e.target.value);
     };
 
+    const navigateToQuestionPage = (questionId) => {
+        navigate(`/question/${questionId}`);  // עובר לדף השאלה עם מזהה השאלה
+    };
+
     const handleSearch = () => {
-        console.log("חיפוש עם פרמטרים: ", { selectedCourse, selectedTopic, searchText });
+        if (searchType === 'topic') {
+            console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedCourse, selectedTopic, searchText });
+            // במקרה של חיפוש לפי נושא, תוכל להוסיף את קריאת ה-API המתאימה כאן
+        } else if (searchType === 'date') {
+            console.log("חיפוש לפי מועד עם פרמטרים: ", { selectedCourse, examYear, examSemester, examDateSelection, questionNum });
+    
+            // קריאה ל-API לחיפוש לפי מועד
+            axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+                course_id: selectedCourse,
+                year: examYear || undefined,
+                semester: examSemester || undefined,
+                moed: examDateSelection || undefined,
+                question_number: questionNum || undefined
+            })
+            .then(response => {
+                const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                if (parsedResponse.status==="success" && parsedResponse.data.length > 0) {
+                    setSearchResults(parsedResponse.data);  // עדכון תוצאות החיפוש
+                } else {
+                    setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
+                }
+            })
+            .catch(error => {
+                console.error('שגיאה בחיפוש לפי מועד:', error);
+                setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
+                alert("אירעה שגיאה בחיפוש לפי מועד");
+            });
+        }
     };
 
     const navigateToUploadQuestion = () => {
@@ -125,12 +159,39 @@ function Home() {
         navigate('/addexam');
     };
 
-    const handleCourseSearch = () => {
-        if (courses.some(course => course.id === courseId)) {
-            navigate(`/course/${courseId}`);
+    const handleCourseSearch = (courseId) => {
+        console.log("Searching for course with courseId:", courseId);
+        
+        if (courseId) {
+            // מחפש את הקורס לפי ה-ID בתוך המערך של הקורסים
+            const course = courses.find(course => course.course_id === courseId);
+            if (course) {
+                const url = `http://localhost:5001/api/course/get_course/${courseId}`; // פנייה ל-API עם ה-ID של הקורס
+                console.log('API Request URL:', url);
+    
+                axios.get(url)
+                    .then(response => {
+                        console.log('Course data:', response.data);
+                        navigate(`/course/${courseId}`); // אם הקורס נמצא, מעביר לדף הקורס
+                    })
+                    .catch(error => {
+                        console.error('Error fetching course details:', error);
+                    });
+            } else {
+                openCourseNotFoundModal(); // אם הקורס לא נמצא
+            }
         } else {
-            alert("הקורס לא נמצא!");
+            console.error('Course ID is missing');
         }
+    };
+    
+
+    const openCourseNotFoundModal = () => {
+        setIsCourseNotFoundModalOpen(true);
+    };
+
+    const closeCourseNotFoundModal = () => {
+        setIsCourseNotFoundModalOpen(false);
     };
 
     const navigateToCoursePage = (courseId) => {
@@ -210,7 +271,7 @@ function Home() {
                             >
                                 <option value="">בחר קורס</option>
                                 {courses.map((course) => (
-                                    <option key={course.id} value={course.id}>
+                                    <option key={course.course_id} value={course.course_id}>
                                         {course.name}
                                     </option>
                                 ))}
@@ -222,12 +283,14 @@ function Home() {
                                 value={examYear}
                                 onChange={(e) => setExamYear(e.target.value)}
                                 className="search-input-course"
+                                disabled={selectedCourse === ''}
                             />
 
                             <select
                                 value={examSemester}
                                 onChange={(e) => setExamSemester(e.target.value)}
                                 className="search-input-course"
+                                disabled={examYear === ''}
                             >
                                 <option value="">בחר סמסטר</option>
                                 {semesters.map((semesterOption, index) => (
@@ -241,6 +304,7 @@ function Home() {
                                 value={examDateSelection}
                                 onChange={(e) => setExamDateSelection(e.target.value)}
                                 className="search-input-course"
+                                disabled={examSemester === ''}
                             >
                                 <option value="">בחר מועד</option>
                                 {examDates.map((dateOption, index) => (
@@ -256,6 +320,7 @@ function Home() {
                                 value={questionNum}
                                 onChange={(e) => setQuestionNum(e.target.value)}
                                 className="search-input-course"
+                                disabled={examDateSelection === ''}
                             />
                         </div>
                     )}
@@ -263,6 +328,25 @@ function Home() {
                         חפש
                     </button>
                 </div>
+                <div className="search-results">
+                    {searchResults.length > 0 ? (
+                        <div>
+                            <h3>התוצאות שהתקבלו</h3> {/* כותרת התוצאות */}
+                            <ul className="results-list">
+                                {searchResults.map((result) => (
+                                    <li key={result.question_id} className="result-item">
+                                        <a href={`/question/${result.question_id}`} className="result-link">
+                                            <span>מבחן {result.year} _ סמסטר {result.semester} _ מועד {result.moed} _ שאלה {result.question_number}</span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : (
+                        <p>לא נמצאו תוצאות לחיפוש זה</p>
+                    )}
+                </div>
+
 
                 <div className="action-section">
                     <button className="action-card" onClick={openQuestionModal}>
@@ -311,7 +395,7 @@ function Home() {
                         onChange={(e) => setCourseId(e.target.value)}
                         className="search-input-home"
                     />
-                    <button className="search-button-home" onClick={handleCourseSearch}>חפש קורס</button>
+                    <button className="search-button-home" onClick={() => handleCourseSearch(courseId)}>חפש קורס</button>
                 </div>
 
                 <div className="courses-section">
@@ -321,8 +405,8 @@ function Home() {
                             <div
                                 key={course.id}
                                 className="course-card"
-                                onClick={() => navigateToCoursePage(course.course_id)}
-                            >
+                                onClick={() => handleCourseSearch(course.course_id)} // קריאה לפונקציה של החיפוש
+                                >
                                 <span>{course.name}</span>
                                 <p style={{ fontSize: '12px', color: 'gray' }}>
                                     {course.id}
@@ -331,6 +415,20 @@ function Home() {
                         ))}
                     </div>
                 </div>
+
+                {isCourseNotFoundModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>הקורס לא נמצא</h2>
+                        <p>האם תרצה לפתוח קורס חדש?</p>
+                        <div className="modal-buttons">
+                            <button onClick={navigateToAddNewCourse}>כן, פתח קורס חדש</button>
+                            <button onClick={closeCourseNotFoundModal}>לא, ביטול</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
                 <div className="add-course-button" onClick={navigateToAddNewCourse}>
                     <span className="plus-sign">+</span>

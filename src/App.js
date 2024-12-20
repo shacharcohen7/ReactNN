@@ -61,8 +61,8 @@ function App() {
             path="/upload-question-content/:courseId/:examYear/:examSemester/:examDateSelection/:questionNum"
             element={<UploadQuestionContent />}
           />
-          <Route path="/course/:courseName" element={<Course />} />
-        </Routes>
+          <Route path="/course/:courseId" element={<Course />} />
+</Routes>
       </Router>
     </UserProvider>
   );

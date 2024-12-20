@@ -320,3 +320,23 @@
   background-color: #e59428;
 }
 
+.results-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.result-item {
+  margin: 10px 0;
+}
+
+.result-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.result-link:hover {
+  text-decoration: underline;
+}
+
