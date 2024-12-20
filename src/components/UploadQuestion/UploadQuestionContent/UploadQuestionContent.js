@@ -22,6 +22,8 @@ function UploadQuestionContent() {
       };
 
     const handleConfirmClick = () => {
+        // call API for add question
+        // if success - navigate to the new question page
         navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
       };
 
