@@ -33,7 +33,7 @@ function UploadQuestionContent() {
             alert("Please upload a question file.");
             return;
         }
-        if (!isAmerican) {
+        if (isAmerican === null) {
             alert("Please select a question type.");
             return;
         }
