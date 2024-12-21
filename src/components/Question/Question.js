@@ -10,6 +10,8 @@ import './Question.css';
 function Question() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
+    const [questionPdfUrl, setQuestionPdfUrl] = useState(null);
+    const [answerPdfUrl, setAnswerPdfUrl] = useState(null);
     const [PDF, setPDF] = useState('question'); 
     const [messages, setMessages] = useState([]); // שמירה של רשימת ההודעות
     const [inputMessage, setInputMessage] = useState(""); // הודעה חדשה
@@ -41,6 +43,58 @@ function Question() {
             });
         }
     }, [courseId]); 
+
+    useEffect(() => {
+        const fetchQuestionPdf = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/api/course/get_question_pdf', {
+                    params : {
+                        course_id: courseId,
+                        year: examYear,
+                        semester: examSemester,
+                        moed: examDateSelection,
+                        question_number: questionNum,
+                    },
+                    responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
+                });
+
+                // יצירת URL מה-BLOB
+                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                setQuestionPdfUrl(pdfUrl); // שמירת ה-URL למצב
+            } catch (error) {
+                console.error('Error fetching PDF:', error);
+            }
+        };
+        fetchQuestionPdf();
+    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
+
+    useEffect(() => {
+        const fetchAnswerPdf = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/api/course/get_answer_pdf', {
+                    params : {
+                        course_id: courseId,
+                        year: examYear,
+                        semester: examSemester,
+                        moed: examDateSelection,
+                        question_number: questionNum,
+                    },
+                    responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
+                });
+
+                // יצירת URL מה-BLOB
+                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                setAnswerPdfUrl(pdfUrl); // שמירת ה-URL למצב
+            } catch (error) {
+                console.error('Error fetching PDF:', error);
+            }
+        };
+        fetchAnswerPdf();
+    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
 
     const handlePDFChange = (criteria) => {
         setPDF(criteria);
@@ -88,12 +142,20 @@ function Question() {
                 </div>
                 {PDF === 'question' && (
                     <div className="pdf-form">
-                        קובץ השאלה
+                        {questionPdfUrl ? (
+                            <iframe src={questionPdfUrl} width="100%" height="600px" title="PDF Viewer" />
+                        ) : (
+                            <p>Loading PDF...</p>
+                        )}
                     </div>
                 )}
                 {PDF === 'solution' && (
                     <div className="pdf-form">
-                        קובץ הפתרון
+                        {answerPdfUrl ? (
+                            <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer" />
+                        ) : (
+                            <p>לשאלה זו אין פתרון מרצה</p>
+                        )}
                     </div>
                 )}
                  <div className="chat-container">
