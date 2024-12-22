@@ -12,9 +12,12 @@ function Question() {
     const [courseDetails, setCourseDetails] = useState(null);
     const [questionPdfUrl, setQuestionPdfUrl] = useState(null);
     const [answerPdfUrl, setAnswerPdfUrl] = useState(null);
+    const [answerFile, setAnswerFile] = useState(null);
     const [PDF, setPDF] = useState('question'); 
     const [messages, setMessages] = useState([]); // שמירה של רשימת ההודעות
     const [inputMessage, setInputMessage] = useState(""); // הודעה חדשה
+    const [isUploading, setIsUploading] = useState(false);
+    const [searchResult, setSearchResult] = useState([]);
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
     const handleSendMessage = (e) => {
@@ -24,6 +27,80 @@ function Question() {
             setInputMessage(""); // איפוס השדה
         }
     };
+
+    const handleUploadClick = () => {
+        setIsUploading(true); // מציג את טופס העלאת הקובץ
+    };
+
+    const handleCancelUploadClick = () => {
+        setIsUploading(false); // מחזיר את התצוגה המקורית
+    };
+
+    const handleConfirmUploadClick = async () => {
+        // Validate the inputs
+        if (!answerFile) {
+            alert("Please upload an answer file.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('question_number', questionNum);
+        formData.append('pdf_answer', answerFile);
+    
+        try {
+            // Make the API call
+            const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+    
+            // Handle success
+            if (response.data.success) {
+                alert("Answer uploaded successfully!");
+                navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+            } else {
+                // Handle failure
+                alert(`Failed to upload answer: ${response.data.message}`);
+            }
+        } catch (error) {
+            // Handle error
+            console.error("Error uploading answer:", error);
+            alert("An error occurred while uploading the answer.");
+        }
+    };
+
+    useEffect(() => {
+        if (courseId) {
+            console.log("חיפוש שאלה ספציפית: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
+    
+            // קריאה ל-API לחיפוש לפי מועד
+            axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+                course_id: courseId,
+                year: examYear,
+                semester: examSemester,
+                moed: examDateSelection,
+                question_number: questionNum
+            })
+            .then(response => {
+                const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
+                    setSearchResult(parsedResponse.data[0]);  // עדכון תוצאות החיפוש
+                } else {
+                    setSearchResult([]); // אם אין תוצאות או יש יותר מתוצאה אחת, לנקות את ה-state
+                }
+            })
+            .catch(error => {
+                console.error('שגיאה בחיפוש שאלה ספציפית:', error);
+                setSearchResult([]); // אם קרתה שגיאה, לנקות את ה-state
+                alert("אירעה שגיאה בחיפוש שאלה ספציפית");
+            });
+        }
+    }, [courseId]); 
 
     useEffect(() => {
         if (courseId) {
@@ -103,7 +180,6 @@ function Question() {
     if (!courseDetails) {
         return <div>Loading...</div>;
     }
-    
     return (
         <div className="upload-question-content-page">
             <Header />
@@ -114,7 +190,7 @@ function Question() {
                         <strong>קורס</strong> {courseDetails.course_id} - {courseDetails.name}
                     </div>
                     <div className="detail-item">
-                        <strong>שנה</strong> {examYear}
+                        <strong>שנה</strong> {searchResult.year}
                     </div>
                     <div className="detail-item">
                         <strong>סמסטר</strong> {examSemester}
@@ -126,6 +202,11 @@ function Question() {
                         <strong>שאלה</strong> {questionNum}
                     </div>
                 </div>
+                <div className="details-container">
+                    <div className="detail-item">
+                        <strong>נושאי השאלה:</strong> {searchResult.question_topics && JSON.parse(searchResult.question_topics).join(', ')}
+                    </div>
+                </div>
                 <div className="tabs-container">
                     <button
                         className={`tab ${PDF === 'question' ? 'active' : ''}`}
@@ -134,8 +215,8 @@ function Question() {
                         שאלה
                     </button>
                     <button
-                        className={`tab ${PDF === 'solution' ? 'active' : ''}`}
-                        onClick={() => handlePDFChange('solution')}
+                        className={`tab ${PDF === 'answer' ? 'active' : ''}`}
+                        onClick={() => handlePDFChange('answer')}
                     >
                         פתרון
                     </button>
@@ -149,12 +230,42 @@ function Question() {
                         )}
                     </div>
                 )}
-                {PDF === 'solution' && (
+                {PDF === 'answer' && (
                     <div className="pdf-form">
                         {answerPdfUrl ? (
                             <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer" />
                         ) : (
-                            <p>לשאלה זו אין פתרון מרצה</p>
+                            <div>
+                                {!isUploading ? (
+                                    // תצוגה מקורית
+                                    <div>
+                                        <p>לשאלה זו אין פתרון</p>
+                                        <button className="upload-answer-button" onClick={handleUploadClick}>העלה פתרון רשמי</button>
+                                    </div>
+                                ) : (
+                                    // טופס העלאת קובץ
+                                    <div>
+                                        <form>
+                                            <input
+                                                className="question-content-field"
+                                                type="file"
+                                                onChange={(e) => setAnswerFile(e.target.files[0])}
+                                                required
+                                            />
+                                            <div>
+                                            <div className="question-button-row">
+                                                <button className="upload-answer-button" onClick={handleConfirmUploadClick}>
+                                                    אישור
+                                                </button>
+                                                <button className="upload-answer-button" onClick={handleCancelUploadClick}>
+                                                    ביטול
+                                                </button>
+                                            </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}
@@ -178,7 +289,7 @@ function Question() {
                             onChange={(e) => setInputMessage(e.target.value)}
                             className="chat-input"
                         />
-                        <button type="submit" className="chat-submit">שלח</button>
+                        <button type="submit" className="send-message-button">שלח</button>
                     </form>
                 </div>
             </main>
