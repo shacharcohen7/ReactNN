@@ -182,8 +182,8 @@ function Course() {
         setSearchResults(sortedResults);
     };
 
-    const navigateToQuestionPage = (questionId) => {
-        navigate(`/question/${questionId}`);
+    const navigateToQuestionPage = (year, semester, moed, question_number) => {
+        navigate(`/question/${courseId}/${year}/${semester}/${moed}/${question_number}`);
     };
 
     const handleAddExam = () => {
@@ -328,7 +328,7 @@ function Course() {
                                         <td>{result.moed}</td>
                                         <td>{result.question_number}</td>
                                         <td>
-                                            <button onClick={() => navigateToQuestionPage(result.question_id)}>
+                                            <button onClick={() => navigateToQuestionPage(result.year, result.semester, result.moed, result.question_number)}>
                                                 צפה בשאלה
                                             </button>
                                         </td>
