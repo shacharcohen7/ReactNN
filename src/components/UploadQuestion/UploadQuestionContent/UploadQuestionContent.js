@@ -129,7 +129,6 @@ function UploadQuestionContent() {
         <div className="upload-question-content-page">
             <Header />
             <main className="content">
-            <div className="course-header">
                 <h1>העלאת שאלה חדשה</h1>
                 <div className="details-container">
                     <div className="detail-item">
@@ -211,7 +210,6 @@ function UploadQuestionContent() {
                         </button>
                     </div>
                 </div>
-            </div>
             </main>
             <Footer />
         </div>

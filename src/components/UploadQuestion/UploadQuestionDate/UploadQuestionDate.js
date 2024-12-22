@@ -88,7 +88,6 @@ function UploadQuestionDate() {
         <div className="upload-question-date-page">
             <Header />
             <main className="content">
-            <div className="course-header">
                 <h1>העלאת שאלה חדשה</h1>
                 <div className="question-content-form">
                     <div className="form-group">
@@ -168,7 +167,6 @@ function UploadQuestionDate() {
                     </button>
                 </div>
                 
-                </div>
             </main>
             <Footer />
         </div>
