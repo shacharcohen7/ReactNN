@@ -110,9 +110,9 @@ function Home() {
         setcourseForQuestion(e.target.value);
     };
 
-    const navigateToQuestionPage = (questionId) => {
-        navigate(`/question/${questionId}`);  // עובר לדף השאלה עם מזהה השאלה
-    };
+    // const handleQuestionClick = (year, semester, moed, question_number) => {
+    //     navigate(`/question/${selectedCourse}/${year}/${semester}/${moed}/${question_number}`);  // עובר לדף השאלה עם מזהה השאלה
+    // };
 
     const handleSearch = () => {
         if (searchType === 'topic') {
@@ -335,7 +335,7 @@ function Home() {
                             <ul className="results-list">
                                 {searchResults.map((result) => (
                                     <li key={result.question_id} className="result-item">
-                                        <a href={`/question/${result.question_id}`} className="result-link">
+                                        <a href={`/question/${selectedCourse}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
                                             <span>מבחן {result.year} _ סמסטר {result.semester} _ מועד {result.moed} _ שאלה {result.question_number}</span>
                                         </a>
                                     </li>

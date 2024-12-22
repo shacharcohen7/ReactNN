@@ -11,7 +11,7 @@ function UploadQuestionContent() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
     const [questionFile, setQuestionFile] = useState(null);
-    const [solutionFile, setSolutionFile] = useState(null);
+    const [answerFile, setAnswerFile] = useState(null);
     const [isAmerican, setAmerican] = useState(null);
     const [topics, setTopics] = useState([]);
     const [selectedTopics, setSelectedTopics] = useState('');
@@ -52,8 +52,8 @@ function UploadQuestionContent() {
         formData.append('question_topics', JSON.stringify(selectedTopics.map(topic => topic.value)));
         formData.append('pdf_question', questionFile);
     
-        if (solutionFile) {
-            formData.append('pdf_answer', solutionFile);
+        if (answerFile) {
+            formData.append('pdf_answer', answerFile);
         }
     
         try {
@@ -159,12 +159,12 @@ function UploadQuestionContent() {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="label-question-content" htmlFor="name">פתרון מרצה:</label>
-                        <div class="info-icon" title="במידה וקיים ברשותך פתרון מרצה לשאלה, העלה קובץ PDF של פתרון זה">i</div>
+                        <label className="label-question-content" htmlFor="name">פתרון רשמי:</label>
+                        <div class="info-icon" title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF של פתרון זה">i</div>
                         <input
                             className="question-content-field"
                             type="file"
-                            onChange={(e) => setSolutionFile(e.target.files[0])}
+                            onChange={(e) => setAnswerFile(e.target.files[0])}
                             required
                         />
                     </div>

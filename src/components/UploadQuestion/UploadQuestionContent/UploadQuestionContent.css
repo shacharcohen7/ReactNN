@@ -10,10 +10,12 @@
     justify-content: center; /* למרכז את כל השורה */
     align-items: center; /* יישור אנכי */
     gap: 20px; /* רווח בין האלמנטים */
-    padding: 20px;
-    border-radius: 10px; /* פינות מעוגלות */
+    padding: 10px;
+    border-radius: 1px; /* פינות מעוגלות */
+    border: 1px solid #d8d8d8;
     background-color: #f9f9f9; /* צבע רקע בהיר */
     font-family: Arial, sans-serif;
+    margin-bottom: 20px;
   }
   
   .detail-item {
