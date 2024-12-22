@@ -68,7 +68,7 @@
     flex: 1;
 }
 
-.chat-submit {
+.send-message-button {
     background-color: #f5a623;
     color: white;
     font-size: 1rem; /* הקטנה של גודל הגופן */
@@ -80,7 +80,7 @@
     height: 100%;
 }
 
-.chat-submit:hover {
+.send-message-button:hover {
     background-color: #0056b3;
 }
 
@@ -89,4 +89,22 @@
     font-size: 1.2rem;
     color: #888;
     text-align: center;
+}
+
+.upload-answer-button {
+    background-color: #d3d0d0;
+    color: rgb(0, 0, 0);
+    font-size: 1rem; /* הקטנה של גודל הגופן */
+    border-radius: 10px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 40px;
+    min-width: 80px;
+    font-size: 1rem;
+}
+
+.upload-answer-button:hover {
+    background-color: #b3b3b3;
 }
