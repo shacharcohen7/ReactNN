@@ -323,7 +323,9 @@ function SignUpDetails() {
         lastName: '',
         email: '',
         password: '',
+        confirmPassword: '',
     });
+    
 
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -342,26 +344,31 @@ function SignUpDetails() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        
 
         try {
             const response = await axios.post('http://localhost:5001/api/register', {
                 email: formData.email,
                 password: formData.password,
+                password_confirm: formData.confirmPassword,
                 first_name: formData.firstName,
                 last_name: formData.lastName,
             });
 
             if (response.data.success) {
-                const { firstName, lastName, email, password } = formData;
+                const { firstName, lastName, email } = formData;
+                const returnedPassword = response.data.password; // Extract password from response
+
+
 
                 // Debug log to verify data being saved
-                console.log('Saving to localStorage:', { firstName, lastName, email,password });
+                console.log('Saving to localStorage:', { firstName, lastName, email });
 
                 // Update localStorage
                 localStorage.setItem('email', email);
                 localStorage.setItem('first_name', firstName);
                 localStorage.setItem('last_name', lastName);
-                localStorage.setItem("password", password);
+                localStorage.setItem("password", returnedPassword);
 
 
                 // Update UserContext
@@ -453,7 +460,18 @@ function SignUpDetails() {
                                         </div>
                                     )}
                                 </div>
-                            </div>
+                            <div className="password-input-container">
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                placeholder="אימות סיסמה"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        </div>
+
                             <button
                                 type="submit"
                                 className="submit-button"
