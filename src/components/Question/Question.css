@@ -27,7 +27,7 @@
     gap: 10px; /* רווח בין הצ'אט לשדה הקלט */
 }
 
-.chat-box {
+.comments-container {
     min-height: 200px;
     display: flex;
     flex-direction: column;
@@ -38,11 +38,45 @@
     background-color: #f9f9f9;
 }
 
+.comment-box {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    align-items: flex-start;
+}
+
+.comment-header {
+    font-weight: bold;
+    font-size: 16px;
+    color: #000000;
+}
+
+.comment-content {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 8px;
+    align-items: flex-start;
+    text-align: right;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+}
+
+.comment-timestamp {
+    padding: 5px;
+    font-size: 12px;
+    color: #777;
+    text-align: right;
+}
+
 .chat-message {
     margin: 5px 0;
     padding: 10px;
     border-radius: 10px;
-    max-width: 80%;
     text-align: right;
     background-color: #dadbdb;
     display: inline-block; /* שדה יתאים את רוחבו למלל */
@@ -81,7 +115,7 @@
 }
 
 .send-message-button:hover {
-    background-color: #0056b3;
+    background-color: #e59428;
 }
 
 .no-messages {
