@@ -20,13 +20,13 @@ function Question() {
     const [searchResult, setSearchResult] = useState([]);
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
-    const handleSendMessage = (e) => {
-        e.preventDefault();
-        if (inputMessage.trim() !== "") {
-            setMessages([...messages, inputMessage]); // הוספה לרשימה
-            setInputMessage(""); // איפוס השדה
-        }
-    };
+    // const handleSendMessage = (e) => {
+    //     e.preventDefault();
+    //     if (inputMessage.trim() !== "") {
+    //         setMessages([...messages, inputMessage]); // הוספה לרשימה
+    //         setInputMessage(""); // איפוס השדה
+    //     }
+    // };
 
     const handleUploadClick = () => {
         setIsUploading(true); // מציג את טופס העלאת הקובץ
@@ -74,6 +74,66 @@ function Question() {
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault(); // מונע את ריענון הדף
+          handleSendClick()
+        }
+      };
+
+    const handleSendClick = async () => {
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('question_number', questionNum);
+        formData.append('writer_name', localStorage.getItem('first_name') + ' ' + localStorage.getItem('last_name'));
+        formData.append('prev_id', 0);
+        formData.append('comment_text', inputMessage);
+    
+        try {
+            // Make the API call
+            const response = await axios.post('http://localhost:5001/api/course/add_comment', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+    
+            // Handle success
+            if (response.data.success) {
+                axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum
+                })
+                .then(response => {
+                    const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                    if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
+                        setMessages(parsedResponse.data[0].comments_list)
+                    } else {
+                        setSearchResult([]); // אם אין תוצאות או יש יותר מתוצאה אחת, לנקות את ה-state
+                    }
+                })
+                .catch(error => {
+                    console.error('שגיאה בחיפוש שאלה ספציפית:', error);
+                    setSearchResult([]); // אם קרתה שגיאה, לנקות את ה-state
+                    alert("אירעה שגיאה בחיפוש שאלה ספציפית");
+                });
+                setInputMessage([]);
+            } else {
+                // Handle failure
+                alert(`Failed to add comment: ${response.data.message}`);
+            }
+        } catch (error) {
+            // Handle error
+            console.error("Error adding comment:", error);
+            alert("An error occurred while adding the comment.");
+        }
+    };
+
     useEffect(() => {
         if (courseId) {
             console.log("חיפוש שאלה ספציפית: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
@@ -90,6 +150,7 @@ function Question() {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
                 if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
                     setSearchResult(parsedResponse.data[0]);  // עדכון תוצאות החיפוש
+                    setMessages(parsedResponse.data[0].comments_list)
                 } else {
                     setSearchResult([]); // אם אין תוצאות או יש יותר מתוצאה אחת, לנקות את ה-state
                 }
@@ -145,7 +206,7 @@ function Question() {
             }
         };
         fetchQuestionPdf();
-    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
+    }, [courseId]);
 
     useEffect(() => {
         const fetchAnswerPdf = async () => {
@@ -171,7 +232,7 @@ function Question() {
             }
         };
         fetchAnswerPdf();
-    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
+    }, [courseId]);
 
     const handlePDFChange = (criteria) => {
         setPDF(criteria);
@@ -193,18 +254,18 @@ function Question() {
                         <strong>שנה</strong> {searchResult.year}
                     </div>
                     <div className="detail-item">
-                        <strong>סמסטר</strong> {examSemester}
+                        <strong>סמסטר</strong> {searchResult.semester}
                     </div>
                     <div className="detail-item">
-                        <strong>מועד</strong> {examDateSelection}
+                        <strong>מועד</strong> {searchResult.moed}
                     </div>
                     <div className="detail-item">
-                        <strong>שאלה</strong> {questionNum}
+                        <strong>שאלה</strong> {searchResult.question_number}
                     </div>
                 </div>
                 <div className="details-container">
                     <div className="detail-item">
-                        <strong>נושאי השאלה:</strong> {searchResult.question_topics && JSON.parse(searchResult.question_topics).join(', ')}
+                        <strong>נושאי השאלה:</strong> {searchResult.question_topics && searchResult.question_topics.join(', ')}
                     </div>
                 </div>
                 <div className="tabs-container">
@@ -270,26 +331,45 @@ function Question() {
                     </div>
                 )}
                  <div className="chat-container">
-                    <div className="chat-box">
-                        {messages.length === 0 ? (
-                            <div className="no-messages">אין עדיין תגובות, התחל את הדיון</div>
-                        ) : (
-                            messages.map((msg, index) => (
-                                <div key={index} className="chat-message">
-                                    {msg}
+                    {messages && messages.length > 0 ? (
+                        <div className="comments-container">
+                            {messages.map((comment, index) => (
+                                <div className='comment-box'>
+                                    
+                                    <div key={index} className="comment-content">
+                                    <div className="comment-header">
+                                        <span className="comment-writer">{comment.writer_name}</span>
+                                    </div>
+                                        {comment.comment_text}
+                                    </div>
+                                    <div className="comment-timestamp">
+                                        {new Date(comment.date).toLocaleString('he-IL', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                        }).replace(',', ' // ')}
+                                    </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
-                    <form onSubmit={handleSendMessage} className="chat-form">
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="comments-container">
+                            <div className="no-messages">אין תגובות</div>
+                        </div>
+                    )}
+                    <form className="chat-form">
                         <input
                             type="text"
-                            placeholder="הקלד הודעה..."
+                            placeholder="כתיבת תגובה..."
                             value={inputMessage}
+                            onKeyDown={handleKeyDown}
                             onChange={(e) => setInputMessage(e.target.value)}
                             className="chat-input"
                         />
-                        <button type="submit" className="send-message-button">שלח</button>
+                        <button type="button" className="send-message-button" onClick={handleSendClick}>שלח</button>
                     </form>
                 </div>
             </main>
