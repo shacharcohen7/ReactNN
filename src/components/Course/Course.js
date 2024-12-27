@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { faStar } from '@fortawesome/free-solid-svg-icons'; // כוכב מלא
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons'; // כוכב ריק
+import { faEye } from '@fortawesome/free-solid-svg-icons'; // עין
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
@@ -10,7 +14,6 @@ function Course() {
     const { courseId } = useParams();
     const [courseDetails, setCourseDetails] = useState(null);
     const [userId, setUserId] = useState('');  // מזהה היוזר
-    const [userCourses, setUserCourses] = useState([]); 
     const [isCourseRegistered, setIsCourseRegistered] = useState(false); // האם היוזר רשום לקורס הנוכחי
     const [topics, setTopics] = useState([]);    
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,85 +28,79 @@ function Course() {
     const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
 
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
+    const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
     
-
     useEffect(() => {
         const storedUserId = localStorage.getItem('user_id');
         setUserId(storedUserId);
-        if (courseId) {
-            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
-                .then(response => {
-                    if (response.data && response.data.status === 'success') {
-                        setCourseDetails(response.data.data);
-                    } else {
-                        console.error('Response does not contain valid course data', response.data);
+    
+        const fetchData = async () => {
+            if (courseId) {
+                try {
+                    // טעינת פרטי הקורס
+                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`);
+                    if (courseResponse.data && courseResponse.data.status === 'success') {
+                        setCourseDetails(courseResponse.data.data);
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching course details:', error);
-                });
-        }
     
-        // בדוק אם יש ליוזר קורסים
-        if (storedUserId) {
-            axios.get('http://localhost:5001/api/get_user_courses', {
-                params: { user_id: storedUserId }
-            })
-            .then(response => {
-                if (response.data.success) {
-                    setUserCourses(response.data.courses); // עדכון הסטייט עם המערך של הקורסים
-                    // בדוק אם הקורס הנוכחי נמצא ברשימה
-                    setIsCourseRegistered(response.data.courses.some(course => course.course_id === courseId)); // עדכון אם הקורס נמצא במועדפים
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching user courses:', error);
-            });
-        }
-    }, [courseId]); 
+                    // טעינת נושאי הקורס
+                    const topicsResponse = await axios.get('http://localhost:5001/api/course/get_course_topics', {
+                        params: { course_id: courseId }
+                    });
+                    if (topicsResponse.data.status === 'success') {
+                        setTopics(topicsResponse.data.data);
+                    }
     
-    useEffect(() => {
-        const storedUserId = localStorage.getItem('user_id');
-        setUserId(storedUserId);
-        if (storedUserId && courseId) {
-            axios.get('http://localhost:5001/api/get_user_courses', {
-                params: { user_id: storedUserId }
-            })
-            .then(response => {
-                if (response.data.success) {
-                    setUserCourses(response.data.courses); // עדכון הסטייט עם המערך של הקורסים
-                    // עדכון האם הקורס נמצא ברשימה
-                    const isRegistered = response.data.courses.some(course => course.course_id === courseId);
-                    setIsCourseRegistered(isRegistered); // עדכון המצב של ההרשמה
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching user courses:', error);
-            });
-        }
-    }, [courseId]);
-    // מבצע את הקריאה מחדש כשמתעדכן courseId
-    
+                    // טעינת כל השאלות של הקורס
+                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+                        course_id: courseId
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    console.log("Questions response:", questionsResponse); // לוג התגובה
+                    let parsedResponse;
+                    if (typeof questionsResponse.data.data === 'string') {
+                        parsedResponse = JSON.parse(questionsResponse.data.data); // המרת המחרוזת לאובייקט
 
-    // קריאה לקבלת הנושאים של קורס
-    useEffect(() => {
-        if (courseId) {
-            axios.get('http://localhost:5001/api/course/get_course_topics', {
-                params: { course_id: courseId },
-                headers: {}
-            })
-            .then(response => {
-                if (response.data.status == 'success') {
-                    setTopics(response.data.data); // עדכון ה-state עם הנושאים של הקורס
-                } else {
-                    console.error('לא ניתן להוריד נושאים');
+                    } else {
+                        parsedResponse = questionsResponse.data.data; // אם כבר אובייקט, השתמש בו
+                    }
+
+                    console.log("Parsed Questions:", parsedResponse); // לוג התגובה
+
+    
+                    if (parsedResponse.status === 'success' && parsedResponse.data.length > 0) {
+                        setAllQuestions(parsedResponse.data);  // עדכון תוצאות החיפוש אם הם מערך
+                        console.log("All Questions:", allQuestions); // לוג תוצאות החיפוש
+                    } else {
+                        setAllQuestions([]);  // אם לא, הפוך את allQuestions למערך ריק
+                    }
+    
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    setAllQuestions([]);  // לנקות אם יש שגיאה
                 }
-            })
-            .catch(error => {
-                console.error('שגיאה בקריאת ה-API עבור נושאים:', error);
-            });
-        }
-    }, [courseId]); // הפעל מחדש את הקריאה כל פעם שהקורס משתנה
+            }
+    
+            // טעינת קורסים שהמשתמש רשום אליהם
+            if (storedUserId) {
+                try {
+                    const userCoursesResponse = await axios.get('http://localhost:5001/api/get_user_courses', {
+                        params: { user_id: storedUserId }
+                    });
+                    if (userCoursesResponse.data.success) {
+                        setIsCourseRegistered(userCoursesResponse.data.courses.some(course => course.course_id === courseId));
+                    }
+                } catch (error) {
+                    console.error('Error fetching user courses:', error);
+                }
+            }
+        };
+    
+        fetchData();
+    }, [allQuestions, courseId, userId]);
 
     const handleSearchClick = () => {
         if (searchType === 'topic') {
@@ -158,6 +155,10 @@ function Course() {
             axios.post('http://localhost:5001/api/course/remove_student_from_course', {
                 course_id: courseId,
                 user_id: userId
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'  // הגדרת סוג התוכן כ-JSON
+                }
             })
             .then(response => {
                 if (response.data.success) {
@@ -198,104 +199,133 @@ function Course() {
         <div className="course-page">
             <Header />
             <main className="content">
-            <div className="course-header">
-                {courseDetails ? (
-                    <>
-                    <button 
-                        onClick={isCourseRegistered ? handleRemoveFromFavorites : handleAddToFavorites} 
-                        title={isCourseRegistered ? 'הסר מהקורסים שלי' : 'הוסף לקורסים שלי'}
-                        className="favorite-button">
-                        {isCourseRegistered ? '-' : '+'}
+                <div className="course-header">
+                    {courseDetails ? (
+                        <>
+                            <button
+                                onClick={isCourseRegistered ? handleRemoveFromFavorites : handleAddToFavorites}
+                                title={isCourseRegistered ? 'הסר מהקורסים שלי' : 'הוסף לקורסים שלי'}
+                                className="favorite-button"
+                            >
+                                <FontAwesomeIcon icon={isCourseRegistered ? faStar : faStarRegular} />
+                            </button>
+                            <h1>{courseDetails.course_id} - {courseDetails.name}</h1>
+                        </>
+                    ) : (
+                        <h1>טוען...</h1>
+                    )}
+                </div>
+                <div className="tabs-container">
+                    <button
+                        className={`tab ${searchType === 'topic' ? 'active' : ''}`}
+                        onClick={() => setSearchType('topic')}
+                    >
+                        חיפוש לפי נושא
                     </button>
-                        <h1>{courseDetails.course_id} - {courseDetails.name}</h1>
-                    </>
-                ) : (
-                    <h1>טוען...</h1>
-                )}
-            </div>
-                    <div className="tabs-container">
-                        <button
-                            className={`tab ${searchType === 'topic' ? 'active' : ''}`}
-                            onClick={() => setSearchType('topic')}
-                        >
-                            חיפוש לפי נושא
-                        </button>
-                        <button
-                            className={`tab ${searchType === 'date' ? 'active' : ''}`}
-                            onClick={() => setSearchType('date')}
-                        >
-                            חיפוש לפי מועד
-                        </button>
-                    </div>
+                    <button
+                        className={`tab ${searchType === 'date' ? 'active' : ''}`}
+                        onClick={() => setSearchType('date')}
+                    >
+                        חיפוש לפי מועד
+                    </button>
+                </div>
 
-                    <div className="search-container">
-                        {searchType === 'topic' && (
-                            <div className="topic-search">
-                                <select
-                                    value={selectedTopic}
-                                    onChange={(e) => setSelectedTopic(e.target.value)}
-                                    className="search-input-topic"
-                                >
+                <div className="search-container">
+                    {searchType === 'topic' && (
+                        <div className="topic-search">
+                            <select
+                                value={selectedTopic}
+                                onChange={(e) => setSelectedTopic(e.target.value)}
+                                className="search-input-topic"
+                            >
                                 <option value="">בחר נושא</option>
                                 {courseId && topics.map((topic, index) => (
                                     <option key={index} value={topic}>
                                         {topic}
                                     </option>
                                 ))}
-                                </select>
-                                <input
-                                    type="text"
-                                    placeholder="חיפוש טקסט חופשי"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="search-input-text"
-                                />
-                            </div>
-                        )}
+                            </select>
+                            <input
+                                type="text"
+                                placeholder="חיפוש טקסט חופשי"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="search-input-text"
+                            />
+                        </div>
+                    )}
 
-                        {searchType === 'date' && (
-                            <div className="date-search">
-                                <input
-                                    type="text"
-                                    placeholder="שנה"
-                                    value={examYear}
-                                    onChange={(e) => setExamYear(e.target.value)}
-                                    className="search-input-course"
-                                />
-                                <select
-                                    value={examSemester}
-                                    onChange={(e) => setExamSemester(e.target.value)}
-                                    className="search-input-course"
-                                >
-                                    <option value="">בחר סמסטר</option>
-                                    <option value="סתיו">סתיו</option>
-                                    <option value="אביב">אביב</option>
-                                    <option value="קיץ">קיץ</option>
-                                </select>
-                                <select
-                                    value={examDateSelection}
-                                    onChange={(e) => setExamDateSelection(e.target.value)}
-                                    className="search-input-course"
-                                >
-                                    <option value="">בחר מועד</option>
-                                    <option value="א">א</option>
-                                    <option value="ב">ב</option>
-                                    <option value="ג">ג</option>
-                                    <option value="ד">ד</option>
-                                </select>
-                                <input
-                                    type="number"
-                                    placeholder="מספר שאלה"
-                                    value={questionNum}
-                                    onChange={(e) => setQuestionNum(e.target.value)}
-                                    className="search-input-course"
-                                />
-                            </div>
-                        )}
+                    {searchType === 'date' && (
+                        <div className="date-search">
+                            <input
+                                type="text"
+                                placeholder="שנה"
+                                value={examYear}
+                                onChange={(e) => setExamYear(e.target.value)}
+                                className="search-input-course"
+                            />
+                            <select
+                                value={examSemester}
+                                onChange={(e) => setExamSemester(e.target.value)}
+                                className="search-input-course"
+                                disabled={examYear === ''}
+
+                            >
+                                <option value="">בחר סמסטר</option>
+                                <option value="סתיו">סתיו</option>
+                                <option value="אביב">אביב</option>
+                                <option value="קיץ">קיץ</option>
+                            </select>
+                            <select
+                                value={examDateSelection}
+                                onChange={(e) => setExamDateSelection(e.target.value)}
+                                className="search-input-course"
+                                disabled={examSemester === ''}
+
+                            >
+                                <option value="">בחר מועד</option>
+                                <option value="א">א</option>
+                                <option value="ב">ב</option>
+                                <option value="ג">ג</option>
+                                <option value="ד">ד</option>
+
+                            </select>
+                            <input
+                                type="number"
+                                placeholder="מספר שאלה"
+                                value={questionNum}
+                                onChange={(e) => setQuestionNum(e.target.value)}
+                                className="search-input-course"
+                                disabled={examDateSelection === ''}
+                            />
+                        </div>
+                    )}
 
                     <button className="search-button-home" onClick={handleSearchClick}>
                         חפש
                     </button>
+                </div>
+
+                <div className="search-results">
+                    {searchResults.length > 0 ? (
+                        <div>
+                            <h3>התוצאות שהתקבלו</h3>
+                            <ul className="results-list">
+                                {searchResults.map((result) => (
+                                    <li key={result.question_id} className="result-item">
+                                        <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
+                                            <span>מבחן {result.year} _ סמסטר {result.semester} _ מועד {result.moed} _ שאלה {result.question_number}</span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : (
+                        <div>
+                            <h3>התוצאות שהתקבלו</h3>
+                            <p>לא נמצאו תוצאות לחיפוש זה</p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="action-buttons">
@@ -316,12 +346,12 @@ function Course() {
                                 <th onClick={() => handleSort('semester')}>סמסטר</th>
                                 <th onClick={() => handleSort('moed')}>מועד</th>
                                 <th onClick={() => handleSort('question_number')}>מספר שאלה</th>
-                                <th>פעולה</th>
+                                <th>צפייה</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {searchResults.length > 0 ? (
-                                searchResults.map(result => (
+                            {allQuestions && Array.isArray(allQuestions) && allQuestions.length > 0 ? (
+                                allQuestions.map(result => (
                                     <tr key={result.question_id}>
                                         <td>{result.year}</td>
                                         <td>{result.semester}</td>
@@ -329,7 +359,7 @@ function Course() {
                                         <td>{result.question_number}</td>
                                         <td>
                                             <button onClick={() => navigateToQuestionPage(result.year, result.semester, result.moed, result.question_number)}>
-                                                צפה בשאלה
+                                                <FontAwesomeIcon icon={faEye} />
                                             </button>
                                         </td>
                                     </tr>
