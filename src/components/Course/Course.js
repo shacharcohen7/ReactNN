@@ -11,7 +11,7 @@ import './Course.css';
 
 
 function Course() {
-    const { courseId } = useParams();
+    const {courseId} = useParams();
     const [courseDetails, setCourseDetails] = useState(null);
     const [userId, setUserId] = useState('');  // מזהה היוזר
     const [isCourseRegistered, setIsCourseRegistered] = useState(false); // האם היוזר רשום לקורס הנוכחי
@@ -33,6 +33,7 @@ function Course() {
     useEffect(() => {
         const storedUserId = localStorage.getItem('user_id');
         setUserId(storedUserId);
+        console.log("course id:", courseId); // לוג המזהה של היוזר
     
         const fetchData = async () => {
             if (courseId) {
@@ -59,7 +60,6 @@ function Course() {
                             'Content-Type': 'application/json'
                         }
                     });
-                    console.log("Questions response:", questionsResponse); // לוג התגובה
                     let parsedResponse;
                     if (typeof questionsResponse.data.data === 'string') {
                         parsedResponse = JSON.parse(questionsResponse.data.data); // המרת המחרוזת לאובייקט
@@ -67,9 +67,6 @@ function Course() {
                     } else {
                         parsedResponse = questionsResponse.data.data; // אם כבר אובייקט, השתמש בו
                     }
-
-                    console.log("Parsed Questions:", parsedResponse); // לוג התגובה
-
     
                     if (parsedResponse.status === 'success' && parsedResponse.data.length > 0) {
                         setAllQuestions(parsedResponse.data);  // עדכון תוצאות החיפוש אם הם מערך
@@ -100,7 +97,7 @@ function Course() {
         };
     
         fetchData();
-    }, [allQuestions, courseId, userId]);
+    }, []);
 
     const handleSearchClick = () => {
         if (searchType === 'topic') {
