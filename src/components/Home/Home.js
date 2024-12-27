@@ -62,7 +62,7 @@ function Home() {
                 headers: {}
             })
             .then(response => {
-                if (response.data.status == 'success') {
+                if (response.data.status === 'success') {
                     setTopics(response.data.data); // עדכון ה-state עם הנושאים של הקורס
                 } else {
                     console.error('לא ניתן להוריד נושאים');
@@ -76,7 +76,6 @@ function Home() {
 
     useEffect(() => {
         // בצע קריאה ל-API כדי להשיג את הקורסים של המשתמש
-        const userId = localStorage.getItem('user_id');
         if (userId) {
           axios.get('http://localhost:5001/api/get_user_courses', {
             params: { user_id: userId }
@@ -93,7 +92,7 @@ function Home() {
             console.error('Error fetching user courses:', error);
           });
         }
-      }, []);
+      }, [userId]);
 
 
     const navigate = useNavigate();
@@ -122,7 +121,7 @@ function Home() {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { selectedCourse, examYear, examSemester, examDateSelection, questionNum });
     
             // קריאה ל-API לחיפוש לפי מועד
-            axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+            axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
                 course_id: selectedCourse,
                 year: examYear || undefined,
                 semester: examSemester || undefined,
@@ -192,10 +191,6 @@ function Home() {
 
     const closeCourseNotFoundModal = () => {
         setIsCourseNotFoundModalOpen(false);
-    };
-
-    const navigateToCoursePage = (courseId) => {
-        navigate(`/course/${courseId}`);
     };
 
     const navigateToAddNewCourse = () => {
@@ -343,13 +338,16 @@ function Home() {
                             </ul>
                         </div>
                     ) : (
-                        <p>לא נמצאו תוצאות לחיפוש זה</p>
+                        <div>
+                            <h3>התוצאות שהתקבלו</h3>
+                            <p>לא נמצאו תוצאות לחיפוש זה</p>
+                        </div>
                     )}
                 </div>
 
 
-                <div className="action-section">
-                    <button className="action-card" onClick={openQuestionModal}>
+                <div className="action-buttons">
+                    <button className="action-button" onClick={openQuestionModal}>
                         <span>העלאת שאלה</span>
                     </button>
                     {isQuestionModalOpen && (
@@ -381,7 +379,7 @@ function Home() {
                         </div>
                         </div>
                     )}
-                    <div className="action-card" onClick={navigateToAddExam}>
+                    <div className="action-button" onClick={navigateToAddExam}>
                         <span>העלאת מבחן</span>
                     </div>
                 </div>
@@ -393,7 +391,7 @@ function Home() {
                         placeholder="הכנס מזהה קורס (XXX.X.XXXX)"
                         value={courseId}
                         onChange={(e) => setCourseId(e.target.value)}
-                        className="search-input-home"
+                        className="search-input-course"
                     />
                     <button className="search-button-home" onClick={() => handleCourseSearch(courseId)}>חפש קורס</button>
                 </div>
