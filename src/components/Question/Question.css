@@ -37,8 +37,7 @@
     padding: 10px;
     border-radius: 10px;
     align-items: flex-start;
-    border-right: 2px solid #ddd; 
-    padding-right: 20px;
+    border: 2px solid #ddd; 
     position: relative;
     background-color: #f9f9f9;
 }
@@ -50,7 +49,6 @@
     width: 90%;
     align-items: flex-start;
     position: relative;
-    margin-bottom: 10px;
 }
 
 .comment-box::before {
@@ -87,12 +85,13 @@
 .comment-options {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    /* align-items: center; */
 }
 
 .comment-timestamp {
+    margin-top: 2px;
     padding: 5px;
-    font-size: 12px;
+    font-size: 13px;
     color: #777;
     text-align: right;
 }
@@ -113,6 +112,7 @@
     width: 100%;
     margin-right: 30px;
     border-right: 2px solid #ddd; /* קו אנכי עבור תגובות משנה */
+    border-radius: 10px;
     padding-right: 20px; /* רווח בין הקו לטקסט */
 }
 
@@ -120,6 +120,7 @@
     display: flex;
     align-items: center; 
     padding: 10px;
+    border: 2px solid #ddd; 
     border-radius: 10px;
     background-color: #f9f9f9;
     gap: 10px;
@@ -129,45 +130,61 @@
 .chat-input {
     padding: 10px;
     font-size: 1rem;
-    border: 1px solid #d38a67;
-    border-radius: 10px;
+    border: 1px solid #6d6d6d;
+    border-radius: 8px;
+    color: #333;
+    background-color: #fff;
     width: 100%;
     text-align: right; /* יישור הטקסט של הקלט לימין */
     flex: 1;
 }
 
 .send-button {
-    background-color: #f5a623;
+    background-color: #818181;
     color: white;
-    font-size: 1rem; /* הקטנה של גודל הגופן */
-    border: 2px solid #d38a67; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
-    border-radius: 10px;
+    font-size: 20px; /* הקטנה של גודל הגופן */
+    border: 1px solid #6d6d6d; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    padding: 10px 20px; /* התאמת גובה הכפתור לגובה הקלט */
+    padding: 7px 15px; /* התאמת גובה הכפתור לגובה הקלט */
     height: 100%;
 }
 
 .send-button:hover {
-    background-color: #e59428;
+    background-color: #6d6d6d;
 }
 
 .reply-form {
+    padding: 5px;
     display: flex;
     flex-direction: row;
+    position: relative;
     align-items: center; 
     border-radius: 10px;
     background-color: #f9f9f9;
-    gap: 20px;
-    margin-bottom: 8px;
+    gap: 5px;
     width: 80%;
 }
 
+.reply-form::before {
+    content: "";
+    position: absolute;
+    right: -20px; /* קו אופקי */
+    width: 20px;
+    height: 2px;
+    background-color: #ddd;
+  }
+
+
 .reply-input {
+    padding: 8px;
+    border: 1px solid #6d6d6d;
+    border-radius: 8px;
+    color: #333;
+    background-color: #fff;
     padding: 5px;
     font-size: 14px;
-    border: 1px solid #6d6d6d;
-    border-radius: 10px;
     width: 100%;
     text-align: right; /* יישור הטקסט של הקלט לימין */
     flex: 1;
@@ -176,9 +193,9 @@
 .reply-button {
     background-color: #818181;
     color: white;
-    font-size: 1rem; /* הקטנה של גודל הגופן */
-    border: 2px solid #6d6d6d; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
-    border-radius: 10px;
+    font-size: 14px; /* הקטנה של גודל הגופן */
+    border: 1px solid #6d6d6d; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     padding: 4px 8px; /* התאמת גובה הכפתור לגובה הקלט */
