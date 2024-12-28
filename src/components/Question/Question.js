@@ -1,9 +1,10 @@
 // Question.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaRegThumbsUp, FaRegThumbsDown  } from "react-icons/fa";
+import { BsEmojiSmile } from "react-icons/bs";
 import { FaRegCommentAlt, FaCommentAlt } from 'react-icons/fa';
+import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Question.css';
@@ -20,8 +21,15 @@ function Question() {
     const [chatInput, setchatInput] = useState(""); // הודעה חדשה
     const [replyInput, setReplyInput] = useState(""); // הודעה חדשה
     const [isUploading, setIsUploading] = useState(false);
+    const [expandReplies, setExpandReplies] = useState({});
     const [question, setQuestion] = useState([]);
-    const navigate = useNavigate();  // יצירת אובייקט navigate
+
+    const toggleExpandReplies = (commentId) => {
+        setExpandReplies((prev) => ({
+            ...prev,
+            [commentId]: !prev[commentId], // החלפת המצב של תגובה מסוימת
+        }));
+    };
 
     const handleReplyClick = (commentId) => {
         setActiveCommentId(activeCommentId === commentId ? null : commentId);
@@ -91,7 +99,7 @@ function Question() {
         })
         .then(response => {
             const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
-            if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
+            if (parsedResponse.status === "success" && parsedResponse.data.length === 1) {
                 setAllComments(parsedResponse.data[0].comments_list)
                 setchatInput([]);
                 setReplyInput([]);
@@ -108,7 +116,7 @@ function Question() {
     }
 
     const handleSendClick = async (chatInput, prevId) => {
-        if(chatInput != ""){
+        if(chatInput !== ""){
             const formData = new FormData();
             formData.append('course_id', courseId);
             formData.append('year', examYear);
@@ -156,7 +164,7 @@ function Question() {
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
-                if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
+                if (parsedResponse.status==="success" && parsedResponse.data.length === 1) {
                     setQuestion(parsedResponse.data[0]);  // עדכון תוצאות החיפוש
                     setAllComments(parsedResponse.data[0].comments_list)
                 } else {
@@ -169,7 +177,7 @@ function Question() {
                 alert("אירעה שגיאה בחיפוש שאלה ספציפית");
             });
         }
-    }, [courseId]); 
+    }, [courseId, examYear, examSemester, examDateSelection, questionNum]); 
 
     const renderComments = (comments) => {
         return comments.map((comment) => (
@@ -192,45 +200,57 @@ function Question() {
                         }).replace(',', ' // ')}
                     </div>
                     <button type="button" className="reaction-button">
-                        <FaRegThumbsUp />
-                    </button>
-                    <button type="button" className="reaction-button">
-                        <FaRegThumbsDown />
+                        <BsEmojiSmile size={"15px"}/>
                     </button>
                     <button
                         type="button"
                         className="reaction-button"
-                        onClick={() => handleReplyClick(comment.comment_id)}
+                        onClick={() => {
+                            !expandReplies[comment.comment_id] && toggleExpandReplies(comment.comment_id);
+                            handleReplyClick(comment.comment_id);
+                        }}
                     >
-                        {activeCommentId === comment.comment_id ? (<FaCommentAlt />) : (<FaRegCommentAlt />)}
+                        {activeCommentId === comment.comment_id ? <FaCommentAlt /> : <FaRegCommentAlt />}
                     </button>
+                    {comment.replies.length > 0 && (
+                        <button 
+                            type="button" 
+                            className="reaction-button" 
+                            onClick={() => {
+                                activeCommentId === comment.comment_id && setActiveCommentId(null);
+                                toggleExpandReplies(comment.comment_id)
+                            }}
+                        >
+                            {expandReplies[comment.comment_id] ? <BiSolidUpArrow size={"16px"}/> : <BiDownArrow  size={"16px"}/>}
+                        </button>
+                    )}
                 </div>            
         
                 {/* תגובות משנה */}
-                {comment.replies && (
-                <div className="replies-container">
-                    {renderComments(comment.replies)}
-                    {activeCommentId === comment.comment_id && (
-                        <form className="reply-form">
-                            <input
-                                type="text"
-                                placeholder="כתיבת תגובה..."
-                                value={replyInput}
-                                onKeyDown={handleKeyDown(replyInput, comment.comment_id)}
-                                onChange={(e) => setReplyInput(e.target.value)}
-                                className="reply-input"
-                                autoFocus
-                            />
-                            <button 
-                                type="button" 
-                                className="reply-button" 
-                                onClick={() => handleSendClick(replyInput, comment.comment_id)}
-                            >
-                                שלח
-                            </button>
-                        </form>
-                    )}
-                </div>
+                {expandReplies[comment.comment_id] && (
+                    <div className="replies-container">
+                        {renderComments(comment.replies)}
+                        {activeCommentId === comment.comment_id && (
+                            <form className="reply-form">
+                                <input
+                                    type="text"
+                                    placeholder={`כתיבת תגובה ל${comment.writer_name}...`} 
+                                    value={replyInput}
+                                    onKeyDown={handleKeyDown(replyInput, comment.comment_id)}
+                                    onChange={(e) => setReplyInput(e.target.value)}
+                                    className="reply-input"
+                                    autoFocus
+                                />
+                                <button 
+                                    type="button" 
+                                    className="reply-button" 
+                                    onClick={() => handleSendClick(replyInput, comment.comment_id)}
+                                >
+                                    שלח
+                                </button>
+                            </form>
+                        )}
+                    </div>
                 )}
             </div>
         ));
@@ -279,7 +299,7 @@ function Question() {
             }
         };
         fetchQuestionPdf();
-    }, [courseId]);
+    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
 
     useEffect(() => {
         const fetchAnswerPdf = async () => {
@@ -305,7 +325,7 @@ function Question() {
             }
         };
         fetchAnswerPdf();
-    }, [courseId]);
+    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
 
     const handlePDFChange = (criteria) => {
         setVisiblePDF(criteria);
@@ -322,7 +342,7 @@ function Question() {
       
         // יצירת היררכיה של תגובות (אם יש תגובות תחת תגובות אחרות)
         comments.forEach((comment) => {
-          if (comment.prev_id != "0") {
+          if (comment.prev_id !== "0") {
             const parentComment = commentMap.get(comment.prev_id);
             if (parentComment) {
               parentComment.replies.push(commentMap.get(comment.comment_id));
