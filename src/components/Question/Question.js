@@ -62,7 +62,7 @@ function Question() {
             // Handle success
             if (response.data.success) {
                 alert("Answer uploaded successfully!");
-                navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+                // navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
             } else {
                 // Handle failure
                 alert(`Failed to upload answer: ${response.data.message}`);
