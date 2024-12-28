@@ -42,7 +42,7 @@ function UploadQuestionDate() {
     
     const handleConfirmClick = () => {
         if (examYear && examSemester && examDateSelection && questionNum) {
-            if(examYear < 1800){
+            if(examYear < 1960){
                 alert("שנה לא תקינה");
             }
             else if(questionNum < 1){
@@ -84,6 +84,10 @@ function UploadQuestionDate() {
           }
     };
     
+    const handleCancelClick = () => {
+        navigate('/home');  // מנווט לעמוד ההרשמה
+      };
+
     return (
         <div className="upload-question-date-page">
             <Header />
@@ -119,7 +123,7 @@ function UploadQuestionDate() {
                             value={examYear}
                             onChange={(e) => {setExamYear(e.target.value)}}
                             className="question-date-field"
-                            min="1800"
+                            min="1960"
                         />
                     </div>
                     <div className="form-group">
@@ -162,9 +166,14 @@ function UploadQuestionDate() {
                             min="1"
                         />
                     </div>
-                    <button className="confirm-button-question" onClick={handleConfirmClick}>
-                        אישור
-                    </button>
+                    <div className="question-button-row">
+                        <button className="add-question-button" onClick={handleConfirmClick}>
+                            אישור
+                        </button>
+                        <button className="add-question-button" onClick={handleCancelClick}>
+                            ביטול
+                        </button>
+                    </div>
                 </div>
                 
             </main>
