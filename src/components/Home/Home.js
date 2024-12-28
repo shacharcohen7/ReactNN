@@ -355,7 +355,7 @@ function Home() {
                         <div className="modal-content-question">
                             <p>
                                 במידה והקורס לא נמצא ברשימת הקורסים, תוכל לפתוח אותו    
-                                <a href="/opencourse" target="_blank"> כאן </a>.
+                                <a href="/opencourse"> כאן </a>.
                             </p>
                             <select
                                 value={courseForQuestion}

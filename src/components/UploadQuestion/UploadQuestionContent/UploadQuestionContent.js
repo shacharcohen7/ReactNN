@@ -14,6 +14,7 @@ function UploadQuestionContent() {
     const [answerFile, setAnswerFile] = useState(null);
     const [isAmerican, setAmerican] = useState(null);
     const [topics, setTopics] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedTopics, setSelectedTopics] = useState('');
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
@@ -57,6 +58,7 @@ function UploadQuestionContent() {
         }
     
         try {
+            setIsSubmitting(true);
             // Make the API call
             const response = await axios.post('http://localhost:5001/api/course/add_question', formData, {
                 headers: {
@@ -77,6 +79,7 @@ function UploadQuestionContent() {
             console.error("Error adding question:", error);
             alert("An error occurred while adding the question.");
         }
+        setIsSubmitting(false);
     };
 
     const handleTopicChange = (selected) => {
@@ -202,7 +205,7 @@ function UploadQuestionContent() {
                         />
                     </div>
                     <div className="question-button-row">
-                        <button className="add-question-button" onClick={handleConfirmClick}>
+                        <button className="add-question-button" onClick={handleConfirmClick} disabled={isSubmitting}>
                             סיום
                         </button>
                         <button className="add-question-button" onClick={handleCancelClick}>

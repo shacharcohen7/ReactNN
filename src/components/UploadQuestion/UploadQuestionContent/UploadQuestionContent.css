@@ -41,6 +41,15 @@
     width: 100px;
 }
 
+.add-question-button:hover {
+  background-color: #e59428; /* Darker shade on hover */
+}
+
+.add-question-button:disabled {
+  background-color: #cccccc; /* Gray color when disabled */
+  border: none;
+  cursor: not-allowed;
+}
 .question-content-form {
     background-color: #ffffff;
     padding: 40px;

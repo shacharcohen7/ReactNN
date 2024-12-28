@@ -112,8 +112,8 @@
 .replies-container {
     width: 100%;
     margin-right: 30px;
-  border-right: 2px solid #ddd; /* קו אנכי עבור תגובות משנה */
-  padding-right: 20px; /* רווח בין הקו לטקסט */
+    border-right: 2px solid #ddd; /* קו אנכי עבור תגובות משנה */
+    padding-right: 20px; /* רווח בין הקו לטקסט */
 }
 
 .chat-form {
