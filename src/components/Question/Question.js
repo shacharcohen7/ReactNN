@@ -42,6 +42,7 @@ function Question() {
     }
 
     const handleAddEmoji = async (commentId, emoji) => {
+       setActiveReactedComment(null)
        const formData = new FormData();
             formData.append('course_id', courseId);
             formData.append('year', examYear);
@@ -75,6 +76,7 @@ function Question() {
       };
     
     const handleRemoveEmoji = async (comment_id, reaction_id) => {
+        setActiveReactedComment(null)
         const formData = new FormData();
             formData.append('course_id', courseId);
             formData.append('year', examYear);
