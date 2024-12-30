@@ -16,23 +16,98 @@ function Question() {
     const [answerPdfUrl, setAnswerPdfUrl] = useState(null);
     const [answerFile, setAnswerFile] = useState(null);
     const [visiblePDF, setVisiblePDF] = useState('question'); 
-    const [activeCommentId, setActiveCommentId] = useState(null);
+    const [activeRepliedComment, setActiveRepliedComment] = useState(null);
+    const [activeReactedComment, setActiveReactedComment] = useState(null);
     const [allComments, setAllComments] = useState([]); // שמירה של רשימת ההודעות
     const [chatInput, setchatInput] = useState(""); // הודעה חדשה
     const [replyInput, setReplyInput] = useState(""); // הודעה חדשה
     const [isUploading, setIsUploading] = useState(false);
     const [expandReplies, setExpandReplies] = useState({});
     const [question, setQuestion] = useState([]);
+    const emojies = {"Love":"❤️", "Like":"👍", "Thanks":"🙏🏼", "Plus":"➕", "King":"👑"};
 
-    const toggleExpandReplies = (commentId) => {
+    const handleArrowClick = (commentId) => {
         setExpandReplies((prev) => ({
             ...prev,
             [commentId]: !prev[commentId], // החלפת המצב של תגובה מסוימת
         }));
     };
 
+    const getUserReactionForComment = (comment) => {
+        // מחפש את התגובה של המשתמש עם user_id תואם
+        const userReaction = comment.reactions.find(reaction => reaction.user_id === localStorage.getItem('user_id'));
+        
+        // אם נמצאה תגובה למשתמש, מחזירים את האימוג'י שלה, אחרת מחזירים null
+        return userReaction ? userReaction : null;
+    }
+
+    const handleAddEmoji = async (commentId, emoji) => {
+       const formData = new FormData();
+            formData.append('course_id', courseId);
+            formData.append('year', examYear);
+            formData.append('semester', examSemester);
+            formData.append('moed', examDateSelection);
+            formData.append('question_number', questionNum);
+            formData.append('comment_id', commentId);
+            formData.append('user_id', localStorage.getItem('user_id'));
+            formData.append('emoji', emoji);
+        
+            try {
+                // Make the API call
+                const response = await axios.post('http://localhost:5001/api/course/add_reaction', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+        
+                // Handle success
+                if (response.data.success) {
+                    updateComments();
+                } else {
+                    // Handle failure
+                    alert(`Failed to add reaction: ${response.data.message}`);
+                }
+            } catch (error) {
+                // Handle error
+                console.error("Error adding reaction:", error);
+                alert("An error occurred while adding the reaction.");
+            }
+      };
+    
+    const handleRemoveEmoji = async (comment_id, reaction_id) => {
+        const formData = new FormData();
+            formData.append('course_id', courseId);
+            formData.append('year', examYear);
+            formData.append('semester', examSemester);
+            formData.append('moed', examDateSelection);
+            formData.append('question_number', questionNum);
+            formData.append('comment_id', comment_id);
+            formData.append('reaction_id', reaction_id);
+        
+            try {
+                // Make the API call
+                const response = await axios.post('http://localhost:5001/api/course/remove_reaction', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+        
+                // Handle success
+                if (response.data.success) {
+                    updateComments();
+                } else {
+                    // Handle failure
+                    alert(`Failed to remove reaction: ${response.data.message}`);
+                }
+            } catch (error) {
+                // Handle error
+                console.error("Error removing reaction:", error);
+                alert("An error occurred while removing the reaction.");
+            }
+      };
+
     const handleReplyClick = (commentId) => {
-        setActiveCommentId(activeCommentId === commentId ? null : commentId);
+        setActiveRepliedComment(activeRepliedComment === commentId ? null : commentId);
         setReplyInput([]);  // לדוגמה, לאפס את שדה הקלט
       };
 
@@ -103,7 +178,7 @@ function Question() {
                 setAllComments(parsedResponse.data[0].comments_list)
                 setchatInput([]);
                 setReplyInput([]);
-                setActiveCommentId(null);
+                setActiveRepliedComment(null);
             } else {
                 setQuestion([]); // אם אין תוצאות או יש יותר מתוצאה אחת, לנקות את ה-state
             }
@@ -179,17 +254,50 @@ function Question() {
         }
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]); 
 
+    const countReactionsForComment = (reactions) => {
+        const reactionsCounter = new Map()
+        Object.entries(emojies).forEach(([key, value]) => {
+            reactionsCounter.set(key, 0);
+        });
+        reactions.map((reaction) => {
+                reactionsCounter.set(reaction.emoji, reactionsCounter.get(reaction.emoji) + 1);
+            });
+        return reactionsCounter
+    }
+
+    const showUsersReactions = (reactionsCounter) => {
+        return Array.from(reactionsCounter.entries()).map(([emoji, count]) => (
+            count > 0 && <div>
+                {count}
+                {emojies[emoji]}
+            </div>
+        ))
+    }
+
     const renderComments = (comments) => {
         return comments.map((comment) => (
-            <div key={comment.comment_id} className="comment-box">
+            <div key={comment.comment_id} className="comment-box" onMouseLeave={() => setActiveReactedComment(null)}>
                 <div className="comment-content">
                     <div className="comment-header">
                         <span className="comment-writer">{comment.writer_name}</span>
                     </div>
+                    {comment.reactions.length > 0 && 
+                        <div className="users-reactions-window">
+                            {showUsersReactions(countReactionsForComment(comment.reactions))}
+                        </div>}
+                    {activeReactedComment === comment.comment_id && (
+                        <div className="emojies-window" onMouseLeave={() => setActiveReactedComment(null)}>
+                        {Object.entries(emojies).map(([word, emoji]) => (
+                                <div type="button" className="emoji" onClick={() => handleAddEmoji(comment.comment_id, word)}>
+                                    {emoji} {/* תציג את האימוג'י */}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     {comment.comment_text}
                 </div>
                 <div className="comment-options">
-                    <div className="comment-timestamp">
+                    <div className="comment-timestamp" onMouseEnter={() => setActiveReactedComment(null)}>
                         {new Date(comment.date).toLocaleString('he-IL', {
                             year: 'numeric',
                             month: '2-digit',
@@ -199,26 +307,40 @@ function Question() {
                             hour12: false,
                         }).replace(',', ' // ')}
                     </div>
-                    <button type="button" className="reaction-button">
-                        <BsEmojiSmile size={"15px"}/>
-                    </button>
+                    {getUserReactionForComment(comment) == null ? (
+                        <button 
+                            className="reaction-button" 
+                            onMouseEnter={() => setActiveReactedComment(comment.comment_id)}
+                        >
+                                <BsEmojiSmile size={"15px"} /> 
+                        </button>
+                    ) : (
+                        <button 
+                            className="small-emoji" 
+                            onClick={() => {handleRemoveEmoji(comment.comment_id, getUserReactionForComment(comment).reaction_id)}}
+                            onMouseEnter={() => setActiveReactedComment(comment.comment_id)}
+                        >
+                            {emojies[getUserReactionForComment(comment).emoji]}    
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="reaction-button"
+                        onMouseEnter={() => setActiveReactedComment(null)}
                         onClick={() => {
-                            !expandReplies[comment.comment_id] && toggleExpandReplies(comment.comment_id);
+                            !expandReplies[comment.comment_id] && handleArrowClick(comment.comment_id);
                             handleReplyClick(comment.comment_id);
                         }}
                     >
-                        {activeCommentId === comment.comment_id ? <FaCommentAlt /> : <FaRegCommentAlt />}
+                        {activeRepliedComment === comment.comment_id ? <FaCommentAlt /> : <FaRegCommentAlt />}
                     </button>
                     {comment.replies.length > 0 && (
                         <button 
                             type="button" 
                             className="reaction-button" 
                             onClick={() => {
-                                activeCommentId === comment.comment_id && setActiveCommentId(null);
-                                toggleExpandReplies(comment.comment_id)
+                                activeRepliedComment === comment.comment_id && setActiveRepliedComment(null);
+                                handleArrowClick(comment.comment_id)
                             }}
                         >
                             {expandReplies[comment.comment_id] ? <BiSolidUpArrow size={"16px"}/> : <BiDownArrow  size={"16px"}/>}
@@ -228,9 +350,9 @@ function Question() {
         
                 {/* תגובות משנה */}
                 {expandReplies[comment.comment_id] && (
-                    <div className="replies-container">
+                    <div className="replies-container" onMouseEnter={() => setActiveReactedComment(null)}>
                         {renderComments(comment.replies)}
-                        {activeCommentId === comment.comment_id && (
+                        {activeRepliedComment === comment.comment_id && (
                             <form className="reply-form">
                                 <input
                                     type="text"
@@ -465,7 +587,7 @@ function Question() {
                             onKeyDown={handleKeyDown(chatInput, "0")}
                             onFocus={() => {
                                 setReplyInput([]);
-                                setActiveCommentId(null);}}
+                                setActiveRepliedComment(null);}}
                             onChange={(e) => setchatInput(e.target.value)}
                             className="chat-input"
                         />
