@@ -53,7 +53,7 @@ function Course() {
                     }
     
                     // טעינת כל השאלות של הקורס
-                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
                         course_id: courseId
                     }, {
                         headers: {
@@ -107,7 +107,7 @@ function Course() {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
     
             // קריאה ל-API לחיפוש לפי מועד
-            axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+            axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
                 course_id: courseId,
                 year: examYear || undefined,
                 semester: examSemester || undefined,

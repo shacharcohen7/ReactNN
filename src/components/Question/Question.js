@@ -167,7 +167,7 @@ function Question() {
       };
 
     const updateComments = async () => {
-        axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+        axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
             course_id: courseId,
             year: examYear,
             semester: examSemester,
@@ -232,7 +232,7 @@ function Question() {
             console.log("חיפוש שאלה ספציפית: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
     
             // קריאה ל-API לחיפוש לפי מועד
-            axios.post('http://localhost:5001/api/course/search_exam_by_specifics', {
+            axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
                 course_id: courseId,
                 year: examYear,
                 semester: examSemester,
