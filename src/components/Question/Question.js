@@ -1,3 +1,6 @@
+// 
+
+
 // Question.js
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -8,6 +11,8 @@ import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Question.css';
+
+
 
 function Question() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
@@ -25,6 +30,8 @@ function Question() {
     const [expandReplies, setExpandReplies] = useState({});
     const [question, setQuestion] = useState([]);
     const emojies = {"Love":"❤️", "Like":"👍", "Thanks":"🙏🏼", "Plus":"➕", "King":"👑"};
+    const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
+
 
     const handleArrowClick = (commentId) => {
         setExpandReplies((prev) => ({
@@ -107,6 +114,43 @@ function Question() {
                 alert("An error occurred while removing the reaction.");
             }
       };
+      const openModal = () => setIsModalOpen(true); // Open modal
+      const closeModal = () => {
+          setIsModalOpen(false);
+          setAnswerFile(null); // Reset file input
+      };
+      const handleFileChange = (e) => setAnswerFile(e.target.files[0]);
+
+      const handleFileUpload = async () => {
+        if (!answerFile) {
+            alert("Please select a file to upload.");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('pdf_exam', answerFile); // Adjust the key if needed for your backend API
+    
+        try {
+            const response = await axios.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+    
+            if (response.data.success) {
+                alert("File uploaded successfully!");
+                closeModal();
+            } else {
+                alert(`Failed to upload file: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert("An error occurred while uploading the file.");
+        }
+    };
+    
 
     const handleReplyClick = (commentId) => {
         setActiveRepliedComment(activeRepliedComment === commentId ? null : commentId);
@@ -454,6 +498,83 @@ function Question() {
     const handlePDFChange = (criteria) => {
         setVisiblePDF(criteria);
     };
+    
+    const downloadExamPdf = async () => {
+        try {
+            const response = await axios.post(
+                'http://localhost:5001/api/course/downloadExamPdf',
+                {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                },
+                {
+                    responseType: 'blob', // Expect binary data
+                }
+            );
+    
+            if (response.headers['content-type'] === 'application/json') {
+                // Handle the case where the response is JSON (no file link exists)
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const result = JSON.parse(reader.result);
+                    if (!result.has_link) {
+                        alert(result.message);
+                    }
+                };
+                reader.readAsText(response.data);
+            } else {
+                // Handle the case where the response is a file
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+    
+                // Use the expected file name
+                const fileName = `${courseId}_${examYear}_${examSemester}_${examDateSelection}.pdf`;
+                link.setAttribute('download', fileName);
+    
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+            }
+        } catch (error) {
+            if (error.response && error.response.data.message) {
+                alert(error.response.data.message);
+            } else {
+                console.error('Error downloading exam PDF:', error);
+                alert('An error occurred while trying to download the exam.');
+            }
+        }
+    };
+    
+    
+    const adddExamPdf = async () => {
+        try {
+            const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
+                course_id: courseId,
+                year: examYear,
+                semester: examSemester,
+                moed: examDateSelection,
+            });
+
+            if (response.data.success) {
+                if (response.data.has_link) {
+                    alert("המבחן כבר קיים במערכת. את/ה מוזמנ/ת להוריד אותו");
+                } else {
+                    openModal(); // Open modal for file upload
+                }
+            } else {
+                alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error checking exam:', error);
+            alert('An error occurred while checking the exam.');
+        }
+    };
+    
+    
+
 
     const organizeComments = (comments) => {
         const commentMap = new Map();
@@ -522,6 +643,19 @@ function Question() {
                     >
                         פתרון
                     </button>
+                    <button
+                    className="tab download-tab"
+                    onClick={downloadExamPdf}
+                >
+                    הורד את כל המבחן
+                </button>
+                <button
+                    className="tab download-tab"
+                    onClick={adddExamPdf}
+                >
+                    העלאת המבחן השלם
+                </button>
+                
                 </div>
                 {visiblePDF === 'question' && (
                     <div className="pdf-form">
@@ -595,6 +729,20 @@ function Question() {
                         />
                         <button type="button" className="send-button" onClick={() => handleSendClick(chatInput, "0")}>שלח</button>
                     </form>
+                    {/* Modal */}
+                {isModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <button className="modal-close" onClick={closeModal}>X</button>
+                            <h2>Upload Exam File</h2>
+                            <input type="file" onChange={handleFileChange} />
+                            <div className="modal-actions">
+                                <button className="upload-btn" onClick={handleFileUpload}>Upload</button>
+                                <button className="cancel-btn" onClick={closeModal}>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 </div>
             </main>
             <Footer />
