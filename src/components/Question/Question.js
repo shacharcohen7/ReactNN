@@ -31,6 +31,10 @@ function Question() {
     const [question, setQuestion] = useState([]);
     const emojies = {"Love":"❤️", "Like":"👍", "Thanks":"🙏🏼", "Plus":"➕", "King":"👑"};
     const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
+    const [isSolutionModalOpen, setIsSolutionModalOpen] = useState(false);
+    const [isCourseManager, setIsCourseManager] = useState(false);
+
+
 
 
     const handleArrowClick = (commentId) => {
@@ -119,6 +123,9 @@ function Question() {
           setIsModalOpen(false);
           setAnswerFile(null); // Reset file input
       };
+      const openSolutionModal = () => setIsSolutionModalOpen(true);
+      const closeSolutionModal = () => setIsSolutionModalOpen(false);
+
       const handleFileChange = (e) => setAnswerFile(e.target.files[0]);
 
       const handleFileUpload = async () => {
@@ -236,6 +243,38 @@ function Question() {
         });
     }
 
+    const handleSolutionUpload = async () => {
+        if (!answerFile) {
+            alert("Please select a file to upload.");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('question_number', questionNum);
+        formData.append('solution_file', answerFile); // Adjust the key for your backend
+    
+        try {
+            const response = await axios.post('http://localhost:5001/api/course/uploadSolution', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+    
+            if (response.data.success) {
+                alert("Solution uploaded successfully!");
+                closeSolutionModal();
+            } else {
+                alert(`Failed to upload solution: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error("Error uploading solution:", error);
+            alert("An error occurred while uploading the solution.");
+        }
+    };
+    
+
     const handleSendClick = async (chatInput, prevId) => {
         if(chatInput !== ""){
             const formData = new FormData();
@@ -299,6 +338,28 @@ function Question() {
             });
         }
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]); 
+
+    useEffect(() => {
+        const checkCourseManager = async () => {
+            try {
+                const response = await axios.post('http://localhost:5001/api/course/is_course_manager', {
+                    course_id: courseId,
+                    user_id: localStorage.getItem('user_id'), 
+                });
+                if (response.data.success) {
+                    console.log("Course manager status:", response.data.is_manager);
+                    setIsCourseManager(response.data.is_manager);
+                } else {
+                    console.error("Error checking course manager:", response.data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching course manager status:", error);
+            }
+        };
+    
+        checkCourseManager();
+    }, [courseId]);
+    
 
     const countReactionsForComment = (reactions) => {
         const reactionsCounter = new Map()
@@ -495,10 +556,12 @@ function Question() {
         fetchAnswerPdf();
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
 
+    
     const handlePDFChange = (criteria) => {
         setVisiblePDF(criteria);
     };
     
+
     const downloadExamPdf = async () => {
         try {
             const response = await axios.post(
@@ -547,8 +610,35 @@ function Question() {
             }
         }
     };
+    const handleAddSolution = async () => {
+        try {
+            const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
+                course_id: courseId,
+                year: examYear,
+                semester: examSemester,
+                moed: examDateSelection,
+                question_number: questionNum,
+            });
+            if (response.data.success) {
+                if (response.data.has_link) {
+                    alert("הפתרון כבר קיים במערכת. את/ה מוזמנ/ת לגשת אליו");
+                } else {
+                    openSolutionModal();
+                }
+            } else {
+                alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error checking exam:', error);
+            alert('An error occurred while checking the exam.');
+        }
+    };
     
+    const handleEditQuestion = async () => {
+    }
     
+    const handleDeleteQuestion = async () => {
+    }
     const adddExamPdf = async () => {
         try {
             const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
@@ -644,18 +734,40 @@ function Question() {
                         פתרון
                     </button>
                     <button
-                    className="tab download-tab"
-                    onClick={downloadExamPdf}
-                >
-                    הורד את כל המבחן
-                </button>
-                <button
-                    className="tab download-tab"
-                    onClick={adddExamPdf}
-                >
-                    העלאת המבחן השלם
-                </button>
-                
+                        className="tab download-tab"
+                        onClick={downloadExamPdf}
+                    >
+                        הורד את כל המבחן
+                    </button>
+                    <button
+                        className="tab download-tab"
+                        onClick={adddExamPdf}
+                    >
+                        העלאת המבחן השלם
+                    </button>
+                    <button
+                        className="tab download-tab"
+                        onClick={handleAddSolution}
+                    >
+                        הוספת פתרון מרצה
+                    </button>
+                    {/* Render manager-only buttons */}
+                    {isCourseManager && (
+                        <>
+                            <button
+                                className="tab download-tab edit-question-button"
+                                onClick={handleEditQuestion}
+                            >
+                                עריכת שאלה
+                            </button>
+                            <button 
+                                className="tab download-tab button-danger" 
+                                onClick={handleDeleteQuestion}
+                            >
+                                מחיקת שאלה
+                            </button>
+                        </>
+                    )}
                 </div>
                 {visiblePDF === 'question' && (
                     <div className="pdf-form">
@@ -673,13 +785,11 @@ function Question() {
                         ) : (
                             <div>
                                 {!isUploading ? (
-                                    // תצוגה מקורית
                                     <div>
                                         <p>לשאלה זו אין פתרון</p>
                                         <button className="upload-answer-button" onClick={handleUploadClick}>העלה פתרון רשמי</button>
                                     </div>
                                 ) : (
-                                    // טופס העלאת קובץ
                                     <div>
                                         <form>
                                             <input
@@ -689,14 +799,14 @@ function Question() {
                                                 required
                                             />
                                             <div>
-                                            <div className="question-button-row">
-                                                <button className="upload-answer-button" onClick={handleConfirmUploadClick}>
-                                                    אישור
-                                                </button>
-                                                <button className="upload-answer-button" onClick={handleCancelUploadClick}>
-                                                    ביטול
-                                                </button>
-                                            </div>
+                                                <div className="question-button-row">
+                                                    <button className="upload-answer-button" onClick={handleConfirmUploadClick}>
+                                                        אישור
+                                                    </button>
+                                                    <button className="upload-answer-button" onClick={handleCancelUploadClick}>
+                                                        ביטול
+                                                    </button>
+                                                </div>
                                             </div>
                                         </form>
                                     </div>
@@ -705,7 +815,7 @@ function Question() {
                         )}
                     </div>
                 )}
-                 <div className="chat-container">
+                <div className="chat-container">
                     {allComments && allComments.length > 0 ? (
                         <div className="comments-container">
                             {renderComments(organizeComments(allComments))}
@@ -729,25 +839,36 @@ function Question() {
                         />
                         <button type="button" className="send-button" onClick={() => handleSendClick(chatInput, "0")}>שלח</button>
                     </form>
-                    {/* Modal */}
-                {isModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal-content">
-                            <button className="modal-close" onClick={closeModal}>X</button>
-                            <h2>Upload Exam File</h2>
-                            <input type="file" onChange={handleFileChange} />
-                            <div className="modal-actions">
-                                <button className="upload-btn" onClick={handleFileUpload}>Upload</button>
-                                <button className="cancel-btn" onClick={closeModal}>Cancel</button>
+                    {isModalOpen && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <button className="modal-close" onClick={closeModal}>X</button>
+                                <h2>Upload Exam File</h2>
+                                <input type="file" onChange={handleFileChange} />
+                                <div className="modal-actions">
+                                    <button className="upload-btn" onClick={handleFileUpload}>Upload</button>
+                                    <button className="cancel-btn" onClick={closeModal}>Cancel</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                    {isSolutionModalOpen && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <button className="modal-close" onClick={closeSolutionModal}>X</button>
+                                <h2>Upload Solution File</h2>
+                                <input type="file" onChange={handleFileChange} />
+                                <div className="modal-actions">
+                                    <button className="upload-btn" onClick={handleSolutionUpload}>Upload</button>
+                                    <button className="cancel-btn" onClick={closeSolutionModal}>Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
             <Footer />
         </div>
     );
-}
-
+}    
 export default Question;
