@@ -28,10 +28,50 @@ function Question() {
     const [replyInput, setReplyInput] = useState(""); // הודעה חדשה
     const [isUploading, setIsUploading] = useState(false);
     const [expandReplies, setExpandReplies] = useState({});
+    const [usernames, setUsernames] = useState({});
     const [question, setQuestion] = useState([]);
+    const [reactionsForComment, setReactionsForComment] = useState(null);
     const emojies = {"Love":"❤️", "Like":"👍", "Thanks":"🙏🏼", "Plus":"➕", "King":"👑"};
     const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
 
+    const toggleReactionsWindow = (comment) => {
+        setReactionsForComment(reactionsForComment === comment ? null : comment);
+      };
+      
+    const showReactionsDetails= (reactions) => {
+        return reactions.map((reaction, index) => (
+          <div class="reaction-table-row" key={index}>
+            <div class="reaction-table-cell">{emojies[reaction.emoji]}</div>
+            <div class="reaction-table-cell">{usernames[reaction.user_id]}</div>
+          </div>
+        ));
+      };
+
+      useEffect(() => {
+        const fetchUsernames = async () => {
+          const newUsernames = {};
+          for (const comment of allComments) {
+            for (const reaction of comment.reactions) {
+                if (!usernames[reaction.user_id]) {
+                    try {
+                        const response = await axios.get('http://localhost:5001/api/get_user_name', {
+                            params: { user_id: reaction.user_id }
+                        });
+                        console.log(response.data)
+                        if (response.data.success) {
+                            newUsernames[reaction.user_id] = response.data.data;
+                        }
+                    } catch (error) {
+                        console.error(`שגיאה בקבלת שם משתמש עבור ${reaction.user_id}:`, error);
+                    }
+                }
+            }
+          }
+          setUsernames(prev => ({ ...prev, ...newUsernames }));
+        };
+    
+        fetchUsernames();
+      }, [allComments]);
 
     const handleArrowClick = (commentId) => {
         setExpandReplies((prev) => ({
@@ -209,7 +249,7 @@ function Question() {
           handleSendClick(chatInput, prevId);
         }
       };
-
+    
     const updateComments = async () => {
         axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
             course_id: courseId,
@@ -314,7 +354,6 @@ function Question() {
     const showUsersReactions = (reactionsCounter) => {
         return Array.from(reactionsCounter.entries()).map(([emoji, count]) => (
             count > 0 && <div>
-                {count}
                 {emojies[emoji]}
             </div>
         ))
@@ -328,9 +367,10 @@ function Question() {
                         <span className="comment-writer">{comment.writer_name}</span>
                     </div>
                     {comment.reactions.length > 0 && 
-                        <div className="users-reactions-window">
+                        <button className="users-reactions-window" onClick={() => toggleReactionsWindow(comment)}>
                             {showUsersReactions(countReactionsForComment(comment.reactions))}
-                        </div>}
+                            <div style={{ fontSize: "16px" }}> {comment.reactions.length}</div>
+                        </button>}
                     {activeReactedComment === comment.comment_id && (
                         <div className="emojies-window" onMouseLeave={() => setActiveReactedComment(null)}>
                         {Object.entries(emojies).map(([word, emoji]) => (
@@ -709,6 +749,13 @@ function Question() {
                     {allComments && allComments.length > 0 ? (
                         <div className="comments-container">
                             {renderComments(organizeComments(allComments))}
+                            {reactionsForComment && (
+                                <div className="reactions-modal-overlay" onClick={()=>setReactionsForComment(null)}>
+                                    <div className="reactions-modal-content">
+                                        {showReactionsDetails(reactionsForComment.reactions)}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="comments-container">
