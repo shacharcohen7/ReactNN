@@ -219,7 +219,7 @@
 .upload-answer-button {
     background-color: #d3d0d0;
     color: rgb(0, 0, 0);
-    font-size: 1rem; /* הקטנה של גודל הגופן */
+    font-size: 1.2rem; /* הקטנה של גודל הגופן */
     border-radius: 10px;
     padding: 10px;
     border: none;
@@ -227,7 +227,7 @@
     transition: background-color 0.3s ease;
     height: 40px;
     min-width: 80px;
-    font-size: 1rem;
+    font-size: 1.2rem;
 }
 
 .upload-answer-button:hover {
@@ -336,4 +336,51 @@
 .cancel-btn {
     background: #f44336;
     color: white;
+}
+
+.edit-question-button {
+    background-color: #4CAF50;
+    color: white;
+    
+}
+
+.edit-question-button:hover {
+    background-color: #45a049;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 100%;
+}
+
+
+.delete-question-button {
+    min-width: 100px;
+    height: 40px;
+}
+
+
+.button-danger {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+}
+
+.button-danger:hover {
+    background-color: #d32f2f; /* Darker red on hover */
 }
