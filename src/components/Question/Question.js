@@ -42,7 +42,7 @@ function Question() {
         return reactions.map((reaction, index) => (
           <div class="reaction-table-row" key={index}>
             <div class="reaction-table-cell">{emojies[reaction.emoji]}</div>
-            <div class="reaction-table-cell">{usernames[reaction.user_id]}</div>
+            <div class="reaction-table-cell">{usernames[reaction.user_id] || "טוען..."}</div>
           </div>
         ));
       };
@@ -345,7 +345,7 @@ function Question() {
         Object.entries(emojies).forEach(([key, value]) => {
             reactionsCounter.set(key, 0);
         });
-        reactions.map((reaction) => {
+        reactions.forEach((reaction) => {
                 reactionsCounter.set(reaction.emoji, reactionsCounter.get(reaction.emoji) + 1);
             });
         return reactionsCounter
@@ -750,7 +750,7 @@ function Question() {
                         <div className="comments-container">
                             {renderComments(organizeComments(allComments))}
                             {reactionsForComment && (
-                                <div className="reactions-modal-overlay" onClick={()=>setReactionsForComment(null)}>
+                                <div className="modal-overlay" onClick={()=>setReactionsForComment(null)}>
                                     <div className="reactions-modal-content">
                                         {showReactionsDetails(reactionsForComment.reactions)}
                                     </div>
