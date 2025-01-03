@@ -11,6 +11,8 @@ import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Question.css';
+import { useNavigate } from "react-router-dom";
+
 
 
 
@@ -35,6 +37,10 @@ function Question() {
     const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
     const [isSolutionModalOpen, setIsSolutionModalOpen] = useState(false);
     const [isCourseManager, setIsCourseManager] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const navigate = useNavigate();
+
+
 
 
 
@@ -677,8 +683,37 @@ function Question() {
     const handleEditQuestion = async () => {
     }
     
-    const handleDeleteQuestion = async () => {
-    }
+    const handleDeleteQuestion = () => {
+        setIsDeleteModalOpen(true);
+    };
+    const confirmDeleteQuestion = async () => {
+        try {
+            // Call the backend API to delete the question
+            const response = await axios.delete('http://localhost:5001/api/course/delete_question', {
+                data: {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum,
+                }
+            });
+    
+            if (response.data.success) {
+                console.log("Question deleted successfully.");
+                setIsDeleteModalOpen(false); // Close the modal after deleting
+                navigate(`/course/${courseId}`); // Navigate to the course page
+            } else {
+                console.error("Error deleting question:", response.data.message);
+            }
+        } catch (error) {
+            console.error("Error deleting question:", error);
+        }
+    };
+    
+    const cancelDeleteQuestion = () => {
+        setIsDeleteModalOpen(false); // Close the modal without deleting
+    };
     const adddExamPdf = async () => {
         try {
             const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
@@ -899,6 +934,22 @@ function Question() {
                             </div>
                         </div>
                     )}
+                    {isDeleteModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <h2>האם את/ה בטוח/ה?</h2>
+                            <p>מחיקת השאלה תמחק את השאלה ואת כל הנתונים הקשורים אליה.</p>
+                            <div className="modal-actions">
+                                <button className="confirm-btn" onClick={confirmDeleteQuestion}>
+                                    המשך
+                                </button>
+                                <button className="cancel-btn" onClick={cancelDeleteQuestion}>
+                                    בטל
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                     {isSolutionModalOpen && (
                         <div className="modal-overlay">
                             <div className="modal-content">
