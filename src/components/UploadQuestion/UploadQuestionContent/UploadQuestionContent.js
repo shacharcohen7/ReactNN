@@ -28,6 +28,14 @@ function UploadQuestionContent() {
     //     navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
     //   };
 
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
+
     const handleConfirmClick = async () => {
         // Validate the inputs
         if (!questionFile) {
@@ -62,7 +70,8 @@ function UploadQuestionContent() {
             // Make the API call
             const response = await axios.post('http://localhost:5001/api/course/add_question', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 }
             });
     
@@ -88,7 +97,7 @@ function UploadQuestionContent() {
 
     useEffect(() => {
     if (courseId) {
-        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
+        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -110,7 +119,7 @@ function UploadQuestionContent() {
     useEffect(() => {
         axios.get('http://localhost:5001/api/course/get_course_topics', {
             params: { course_id: courseId },
-            headers: {}
+            headers: addAuthHeaders()        
         })
         .then(response => {
             if (response.data.status == 'success') {

@@ -46,9 +46,13 @@ function Question() {
     const [commentsMetadata, setCommentsMetadata] = useState([]);
 
 
-
-
-
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
 
 
     const toggleReactionsWindow = (comment) => {
@@ -124,14 +128,15 @@ function Question() {
             formData.append('moed', examDateSelection);
             formData.append('question_number', questionNum);
             formData.append('comment_id', commentId);
-            formData.append('user_id', localStorage.getItem('user_id'));
+            // formData.append('user_id', localStorage.getItem('user_id'));
             formData.append('emoji', emoji);
         
             try {
                 // Make the API call
                 const response = await axios.post('http://localhost:5001/api/course/add_reaction', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
         
@@ -164,7 +169,8 @@ function Question() {
                 // Make the API call
                 const response = await axios.post('http://localhost:5001/api/course/remove_reaction', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
         
@@ -206,7 +212,7 @@ function Question() {
     
         try {
             const response = await axios.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
             });
     
             if (response.data.success) {
@@ -254,7 +260,8 @@ function Question() {
             // Make the API call
             const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Send token in header
                 }
             });
     
@@ -308,13 +315,18 @@ function Question() {
 
     const updateComments = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
-                course_id: courseId,
-                year: examYear,
-                semester: examSemester,
-                moed: examDateSelection,
-                question_number: questionNum
-            });
+            const response = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum
+                },
+                {
+                    headers: addAuthHeaders()  // שלח את ההדרים המתאימים
+                }
+            );            
     
             const parsedResponse = JSON.parse(response.data.data);
             if (parsedResponse.status === "success" && parsedResponse.data.length === 1) {
@@ -326,7 +338,8 @@ function Question() {
     
                 // Fetch metadata for comments
                 const metadataResponse = await axios.get('http://localhost:5001/api/course/get_comments_metadata', {
-                    params: { question_id: questionData.question_id }
+                    params: { question_id: questionData.question_id }, 
+                    headers: addAuthHeaders()
                 });
     
                 if (metadataResponse.data.success) {
@@ -358,7 +371,8 @@ function Question() {
     
         try {
             const response = await axios.delete('http://localhost:5001/api/course/delete_comment', {
-                data: { comment_id: commentToDelete },
+                data: { comment_id: commentToDelete }, 
+                headers: addAuthHeaders()
             });
     
             if (response.data.success) {
@@ -401,7 +415,7 @@ function Question() {
     
         try {
             const response = await axios.post('http://localhost:5001/api/course/uploadSolution', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'multipart/form-data' , 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
             });
     
             if (response.data.success) {
@@ -424,7 +438,7 @@ function Question() {
             formData.append('year', examYear);
             formData.append('semester', examSemester);
             formData.append('moed', examDateSelection);
-            formData.append('writer_id', localStorage.getItem('user_id'));
+            // formData.append('writer_id', localStorage.getItem('user_id'));
             formData.append('question_number', questionNum);
             formData.append('writer_name', localStorage.getItem('first_name') + ' ' + localStorage.getItem('last_name'));
             formData.append('prev_id', prevId);
@@ -434,7 +448,8 @@ function Question() {
                 // Make the API call
                 const response = await axios.post('http://localhost:5001/api/course/add_comment', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data', 
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
                     }
                 });
         
@@ -464,6 +479,8 @@ function Question() {
                 semester: examSemester,
                 moed: examDateSelection,
                 question_number: questionNum
+            }, {
+                headers: addAuthHeaders()  // שלח את ההדרים המתאימים
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
@@ -661,7 +678,7 @@ function Question() {
     
     useEffect(() => {
         if (courseId) {
-            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
+            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -689,6 +706,7 @@ function Question() {
                         moed: examDateSelection,
                         question_number: questionNum,
                     },
+                    headers: addAuthHeaders(),
                     responseType: 'blob', // Make sure to receive the file as a blob
                 });
 
@@ -724,6 +742,7 @@ function Question() {
                         moed: examDateSelection,
                         question_number: questionNum,
                     },
+                    headers: addAuthHeaders(),
                     responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
                 });
 
@@ -769,6 +788,9 @@ function Question() {
                 },
                 {
                     responseType: 'blob', // Expect binary data
+                }, 
+                {
+                    headers: addAuthHeaders()
                 }
             );
     
@@ -808,11 +830,12 @@ function Question() {
     const handleAddSolution = async () => {
         try {
             const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
-                course_id: courseId,
+                params: {course_id: courseId,
                 year: examYear,
                 semester: examSemester,
                 moed: examDateSelection,
-                question_number: questionNum,
+                question_number: questionNum},
+                headers: addAuthHeaders()
             });
             if (response.data.success) {
                 if (response.data.has_link) {
@@ -845,7 +868,8 @@ function Question() {
                     semester: examSemester,
                     moed: examDateSelection,
                     question_number: questionNum,
-                }
+                }, 
+                headers: addAuthHeaders()
             });
     
             if (response.data.success) {
@@ -866,10 +890,11 @@ function Question() {
     const adddExamPdf = async () => {
         try {
             const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
-                course_id: courseId,
+                params: {course_id: courseId,
                 year: examYear,
                 semester: examSemester,
-                moed: examDateSelection,
+                moed: examDateSelection},
+                headers: addAuthHeaders()
             });
 
             if (response.data.success) {
