@@ -115,7 +115,7 @@ function Home() {
 
     const handleSearch = () => {
         if (searchType === 'topic') {
-            console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedCourse, selectedTopic, searchText });
+            console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedCourse, selectedTopic});
             // במקרה של חיפוש לפי נושא, תוכל להוסיף את קריאת ה-API המתאימה כאן
         } else if (searchType === 'date') {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { selectedCourse, examYear, examSemester, examDateSelection, questionNum });
@@ -130,7 +130,7 @@ function Home() {
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
-                if (parsedResponse.status==="success" && parsedResponse.data.length > 0) {
+                if (parsedResponse.status === "success" && parsedResponse.data.length > 0) {
                     setSearchResults(parsedResponse.data);  // עדכון תוצאות החיפוש
                 } else {
                     setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
@@ -141,9 +141,33 @@ function Home() {
                 setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
                 alert("אירעה שגיאה בחיפוש לפי מועד");
             });
+        } else if (searchType === 'text') {
+            console.log("חיפוש לפי טקסט עם פרמטרים: ", { selectedCourse, searchText });
+    
+            // קריאה ל-API לחיפוש לפי טקסט
+            axios.post('http://localhost:5001/api/course/search_questions_by_text', {
+                text: searchText,
+                course_id: selectedCourse || undefined
+            })
+            .then(response => {
+                const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                    // אם התוצאה היא לא מערך, נהפוך אותה למערך
+                    console.log('API Response:', parsedResponse);
+                    if (parsedResponse.status === "success" && parsedResponse.message.length > 0) {
+                        console.log('API22 Response:', parsedResponse.message);
+                        setSearchResults(parsedResponse.message);  // עדכון תוצאות החיפוש
+                } else {
+                    setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
+                }
+            })
+            .catch(error => {
+                console.error('שגיאה בחיפוש לפי טקסט:', error);
+                setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
+                alert("אירעה שגיאה בחיפוש לפי טקסט");
+            });
         }
     };
-
+    
     const navigateToUploadQuestion = () => {
         if (courseForQuestion) {
             // Navigate only if courseForQuestion has a valid value
@@ -201,20 +225,26 @@ function Home() {
         <div className="home-page">
             <Header />
             <main className="content">
-                <div className="tabs-container">
-                    <button
-                        className={`tab ${searchType === 'topic' ? 'active' : ''}`}
-                        onClick={() => handleSearchTypeChange('topic')}
-                    >
-                        חיפוש לפי נושא
-                    </button>
-                    <button
-                        className={`tab ${searchType === 'date' ? 'active' : ''}`}
-                        onClick={() => handleSearchTypeChange('date')}
-                    >
-                        חיפוש לפי מועד
-                    </button>
-                </div>
+            <div className="tabs-container">
+                <button
+                    className={`tab ${searchType === 'topic' ? 'active' : ''}`}
+                    onClick={() => handleSearchTypeChange('topic')}
+                >
+                    חיפוש לפי נושא
+                </button>
+                <button
+                    className={`tab ${searchType === 'date' ? 'active' : ''}`}
+                    onClick={() => handleSearchTypeChange('date')}
+                >
+                    חיפוש לפי מועד
+                </button>
+                <button
+                    className={`tab ${searchType === 'text' ? 'active' : ''}`}
+                    onClick={() => handleSearchTypeChange('text')}
+                >
+                    חיפוש לפי טקסט
+                </button>
+            </div>
 
                 <div className="search-container">
                     {searchType === 'topic' && (
@@ -245,10 +275,27 @@ function Home() {
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                    )}
+
+                    {searchType === 'text' && (
+                        <div className="text-search">
+                            <select
+                                value={selectedCourse}
+                                onChange={handleCourseSelection}
+                                className="search-input-course"
+                            >
+                                <option value="">בחר קורס</option>
+                                {courses.map((course) => (
+                                    <option key={course.course_id} value={course.course_id}>
+                                        {course.name}
+                                    </option>
+                                ))}
+                            </select>
 
                             <input
                                 type="text"
-                                placeholder="טקסט חופשי"
+                                placeholder="חפש טקסט"
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 className="search-input-text"
@@ -344,7 +391,6 @@ function Home() {
                         </div>
                     )}
                 </div>
-
 
                 <div className="action-buttons">
                     <button className="action-button" onClick={openQuestionModal}>
