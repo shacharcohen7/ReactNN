@@ -20,6 +20,8 @@ function Question() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
     const [questionPdfUrl, setQuestionPdfUrl] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null); // Define state for imageUrl
+    const [answerImageUrl, setAnswerImageUrl] = useState(null); // Define state for imageUrl
     const [answerPdfUrl, setAnswerPdfUrl] = useState(null);
     const [answerFile, setAnswerFile] = useState(null);
     const [visiblePDF, setVisiblePDF] = useState('question'); 
@@ -674,33 +676,42 @@ function Question() {
                 console.error('Error fetching course details:', error);
             });
         }
-    }, [courseId]); 
+    }, [courseId]);
 
     useEffect(() => {
-        const fetchQuestionPdf = async () => {
+        const fetchQuestionFile = async () => {
             try {
                 const response = await axios.get('http://localhost:5001/api/course/get_question_pdf', {
-                    params : {
+                    params: {
                         course_id: courseId,
                         year: examYear,
                         semester: examSemester,
                         moed: examDateSelection,
                         question_number: questionNum,
                     },
-                    responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
+                    responseType: 'blob', // Make sure to receive the file as a blob
                 });
 
-                // יצירת URL מה-BLOB
-                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const fileType = response.headers['content-type'];
+                if (fileType === 'application/pdf') {
+                    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+                    setQuestionPdfUrl(pdfUrl);
+                } else if (fileType.includes('image')) {
+                    const imageUrl = URL.createObjectURL(response.data);
+                    setImageUrl(imageUrl);
+                     // Set the image URL
+                }
+                else {console.error('Unsupported file type:', fileType);}
 
-                setQuestionPdfUrl(pdfUrl); // שמירת ה-URL למצב
             } catch (error) {
-                console.error('Error fetching PDF:', error);
+                console.error('Error fetching file:', error);
             }
         };
-        fetchQuestionPdf();
+
+        fetchQuestionFile();
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
+
 
     useEffect(() => {
         const fetchAnswerPdf = async () => {
@@ -716,11 +727,23 @@ function Question() {
                     responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
                 });
 
-                // יצירת URL מה-BLOB
-                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const fileType = response.headers['content-type'];
+                if (fileType === 'application/pdf') {
+                    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                    const answerpdfUrl = URL.createObjectURL(pdfBlob);
+                    setAnswerPdfUrl(answerpdfUrl);
+                } else if (fileType.includes('image')) {
+                    const answerImageUrl = URL.createObjectURL(response.data);
+                    setAnswerImageUrl(answerImageUrl);
+                    // Set the image URL
+                }
+                else {console.error('Unsupported file type:', fileType);}
 
-                setAnswerPdfUrl(pdfUrl); // שמירת ה-URL למצב
+                // יצירת URL מה-BLOB
+                //const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                //const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                //setAnswerPdfUrl(pdfUrl); // שמירת ה-URL למצב
             } catch (error) {
                 console.error('Error fetching PDF:', error);
             }
@@ -974,16 +997,37 @@ function Question() {
                     <div className="pdf-form">
                         {questionPdfUrl ? (
                             <iframe src={questionPdfUrl} width="100%" height="600px" title="PDF Viewer" />
+                        ) : imageUrl ? (
+                            <img
+                                src={imageUrl}
+                                alt="Question"
+                                style={{
+                                    width: '100%',      // Make the image fill its container horizontally
+                                    maxHeight: '600px', // Limit the height to 600px
+                                    objectFit: 'contain' // Ensure the image maintains its aspect ratio
+                                }}
+                            />
                         ) : (
-                            <p>Loading PDF...</p>
+                            <p>Loading file...</p>
                         )}
                     </div>
                 )}
                 {visiblePDF === 'answer' && (
                     <div className="pdf-form">
                         {answerPdfUrl ? (
-                            <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer" />
-                        ) : (
+                            <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer"/>
+                        ) : answerImageUrl ? (
+                                <img
+                                    src={answerImageUrl}
+                                    alt="Question"
+                                    style={{
+                                        width: '100%',      // Make the image fill its container horizontally
+                                        maxHeight: '600px', // Limit the height to 600px
+                                        objectFit: 'contain' // Ensure the image maintains its aspect ratio
+                                    }}
+                                />
+                            ) :
+                            (
                             <div>
                                 {!isUploading ? (
                                     <div>
