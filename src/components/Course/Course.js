@@ -127,6 +127,26 @@ function Course() {
                 setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
                 alert("אירעה שגיאה בחיפוש לפי מועד");
             });
+        } else if (searchType === 'text') {
+            console.log("חיפוש לפי טקסט עם פרמטרים: ", { searchText });
+    
+            axios.post('http://localhost:5001/api/course/search_questions_by_text', {
+                text: searchText,
+                course_id: courseId
+            })
+            .then(response => {
+                const parsedResponse = JSON.parse(response.data.data);
+                if (parsedResponse.status === "success" && parsedResponse.message.length > 0) {
+                    setSearchResults(parsedResponse.message);
+                } else {
+                    setSearchResults([]);
+                }
+            })
+            .catch(error => {
+                console.error('שגיאה בחיפוש לפי טקסט:', error);
+                setSearchResults([]);
+                alert("אירעה שגיאה בחיפוש לפי טקסט");
+            });
         }
     };
 
@@ -225,6 +245,12 @@ function Course() {
                     >
                         חיפוש לפי מועד
                     </button>
+                    <button
+                        className={`tab ${searchType === 'text' ? 'active' : ''}`}
+                        onClick={() => setSearchType('text')}
+                    >
+                        חיפוש לפי טקסט
+                    </button>
                 </div>
 
                 <div className="search-container">
@@ -247,6 +273,18 @@ function Course() {
                                 placeholder="חיפוש טקסט חופשי"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                className="search-input-text"
+                            />
+                        </div>
+                    )}
+
+                    {searchType === 'text' && (
+                        <div className="text-search">
+                            <input
+                                type="text"
+                                placeholder="חפש טקסט"
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
                                 className="search-input-text"
                             />
                         </div>
