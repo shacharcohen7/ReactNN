@@ -39,10 +39,14 @@ function Login() {
                 const { first_name, last_name, user_id } = response.data;
     
                 // Save user information in localStorage
-                localStorage.setItem('email', formData.email);
+                localStorage.setItem('access_token', response.data.access_token); // שמירת הטוקן ב-localStorage
+                // localStorage.setItem('email', formData.email);
                 localStorage.setItem('first_name', first_name);
                 localStorage.setItem('last_name', last_name);
-                localStorage.setItem('user_id', user_id);
+                // localStorage.setItem('user_id', user_id);
+
+                console.log('Login local storage:', localStorage.getItem('access_token'));
+
     
                 // Update the UserContext
                 setUser({ firstName: first_name, lastName: last_name });
