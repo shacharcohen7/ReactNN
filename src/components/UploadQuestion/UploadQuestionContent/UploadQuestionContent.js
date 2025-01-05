@@ -162,20 +162,22 @@ function UploadQuestionContent() {
                 <div className="question-content-form">
                     <div className="form-group">
                         <label className="label-question-content" htmlFor="name">שאלה:</label>
-                        <div class="info-icon" title="העלה קובץ PDF של השאלה כפי שמופיעה במבחן">i</div>
+                        <div class="info-icon" title="העלה קובץ PDF או תמונה של השאלה כפי שמופיעה במבחן">i</div>
                         <input
                             className="question-content-field"
                             type="file"
+                            accept=".pdf, .jpeg, .jpg, .png"
                             onChange={(e) => setQuestionFile(e.target.files[0])}
                             required
                         />
                     </div>
                     <div className="form-group">
                         <label className="label-question-content" htmlFor="name">פתרון רשמי:</label>
-                        <div class="info-icon" title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF של פתרון זה">i</div>
+                        <div class="info-icon" title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF או תמונה של פתרון זה">i</div>
                         <input
                             className="question-content-field"
                             type="file"
+                            accept=".pdf, .jpeg, .jpg, .png"
                             onChange={(e) => setAnswerFile(e.target.files[0])}
                             required
                         />
