@@ -42,8 +42,10 @@ function SignUpTerms() {
             if (response.data.success) {
                 // Save user_id to localStorage
                 const userId = response.data.user_id;
+                localStorage.setItem('access_token', response.data.access_token); // שמירת הטוקן ב-localStorage
+
                 console.log('User ID:', userId);
-                localStorage.setItem('user_id', userId);
+                //localStorage.setItem('user_id', userId);
                 localStorage.removeItem('password');
 
 
