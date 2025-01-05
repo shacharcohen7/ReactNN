@@ -93,6 +93,7 @@ function OpenCourse() {
           />
           <input
             type="file"
+            accept=".pdf"
             onChange={(e) => setSyllabusFile(e.target.files[0])}
             className="search-input-open"
             required
