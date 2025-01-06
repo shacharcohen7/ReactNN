@@ -15,7 +15,7 @@ function UploadQuestionContent() {
     const [isAmerican, setAmerican] = useState(null);
     const [topics, setTopics] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedTopics, setSelectedTopics] = useState('');
+    const [selectedTopics, setSelectedTopics] = useState([]);
     const navigate = useNavigate();  // יצירת אובייקט navigate
 
     const handleCancelClick = () => {
@@ -36,10 +36,6 @@ function UploadQuestionContent() {
         }
         if (isAmerican === null) {
             alert("Please select a question type.");
-            return;
-        }
-        if (!selectedTopics.length) {
-            alert("Please select at least one topic.");
             return;
         }
     

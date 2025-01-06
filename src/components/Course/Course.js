@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { faStar } from '@fortawesome/free-solid-svg-icons'; // כוכב מלא
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons'; // כוכב ריק
 import { faEye } from '@fortawesome/free-solid-svg-icons'; // עין
@@ -8,6 +8,7 @@ import axios from 'axios';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import './Course.css';
+import { useNavigate } from "react-router-dom";
 
 
 function Course() {
@@ -30,6 +31,12 @@ function Course() {
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
     const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
     
+    const uniqueExams = allQuestions.filter((result, index, self) => 
+        index === self.findIndex((r) => 
+            r.year === result.year && r.semester === result.semester && r.moed === result.moed
+        )
+    );
+
     useEffect(() => {
         const storedUserId = localStorage.getItem('user_id');
         setUserId(storedUserId);
@@ -150,6 +157,13 @@ function Course() {
         }
     };
 
+    const sortedQuestions = [...uniqueExams].sort((a, b) => {
+        // מיון לפי שנה
+        if (a.year !== b.year) {
+            return a.year - b.year;
+        }
+    });
+    
     const handleAddToFavorites = () => {
         if (userId) {
             axios.post('http://localhost:5001/api/course/register_to_course', {
@@ -200,8 +214,8 @@ function Course() {
         setSearchResults(sortedResults);
     };
 
-    const navigateToQuestionPage = (year, semester, moed, question_number) => {
-        navigate(`/question/${courseId}/${year}/${semester}/${moed}/${question_number}`);
+    const navigateToExamPage = (year, semester, moed) => {
+        navigate(`/exam/${courseId}/${year}/${semester}/${moed}`);
     };
 
     const handleAddExam = () => {
@@ -250,6 +264,13 @@ function Course() {
                         onClick={() => setSearchType('text')}
                     >
                         חיפוש לפי טקסט
+                    </button>
+                    <button
+                        className='tab download-tab'
+                        onClick={() => navigate(`/home`)}
+                        title="לדף הבית"
+                    >
+                        <i className="fas fa-arrow-left"></i> 
                     </button>
                 </div>
 
@@ -346,10 +367,10 @@ function Course() {
                         <div>
                             <h3>התוצאות שהתקבלו</h3>
                             <ul className="results-list">
-                                {searchResults.map((result) => (
-                                    <li key={result.question_id} className="result-item">
-                                        <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
-                                            <span>מבחן {result.year} _ סמסטר {result.semester} _ מועד {result.moed} _ שאלה {result.question_number}</span>
+                               {searchResults.map((result) => (
+                                    <li key={`${result.year}-${result.semester}-${result.moed}`} className="result-item">
+                                        <a href={`/exam/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
+                                            <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed} / שאלה {result.question_number}</span>
                                         </a>
                                     </li>
                                 ))}
@@ -364,7 +385,7 @@ function Course() {
                 </div>
 
                 <div className="action-buttons">
-                    <button className="action-button" onClick={handleAddExam}>
+                    <button className="action-button">
                         העלאת מבחן חדש
                     </button>
                     <button className="action-button" onClick={navigateToUploadQuestion}>
@@ -373,28 +394,41 @@ function Course() {
                 </div>
 
                 <div className="updates-container">
-                    <h3>שאלות בקורס</h3>
-                    <table className="search-results-table">
+                    <h3>מבחנים בקורס זה</h3>
+                        {/* <ul className="results-list">
+                            {sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
+                                sortedQuestions.map((result) => (
+                                    <li key={result.question_id} className="result-item">
+                                        <a href={`/exam/${courseId}/${result.year}/${result.semester}/${result.moed}`} className="result-link">
+                                            <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed}</span>
+                                        </a>
+                                    </li>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5">לא נמצאו מבחנים</td>
+                                </tr>
+                            )}
+                        </ul> */}
+                        <table className='search-results-table'>
                         <thead>
                             <tr>
                                 <th onClick={() => handleSort('year')}>שנה</th>
                                 <th onClick={() => handleSort('semester')}>סמסטר</th>
                                 <th onClick={() => handleSort('moed')}>מועד</th>
-                                <th onClick={() => handleSort('question_number')}>מספר שאלה</th>
-                                <th>צפייה</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {allQuestions && Array.isArray(allQuestions) && allQuestions.length > 0 ? (
-                                allQuestions.map(result => (
+                            {sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
+                                sortedQuestions.map(result => (
                                     <tr key={result.question_id}>
                                         <td>{result.year}</td>
                                         <td>{result.semester}</td>
                                         <td>{result.moed}</td>
-                                        <td>{result.question_number}</td>
                                         <td>
-                                            <button onClick={() => navigateToQuestionPage(result.year, result.semester, result.moed, result.question_number)}>
-                                                <FontAwesomeIcon icon={faEye} />
+                                            <button onClick={() => navigateToExamPage(result.year, result.semester, result.moed)}>
+                                            <i className="fas fa-arrow-left"></i> 
                                             </button>
                                         </td>
                                     </tr>
@@ -405,7 +439,7 @@ function Course() {
                                 </tr>
                             )}
                         </tbody>
-                    </table>
+                        </table>
                 </div>
             </main>
             <Footer />
