@@ -28,6 +28,14 @@ function UploadQuestionContent() {
     //     navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
     //   };
 
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
+
     const handleConfirmClick = async () => {
         // Validate the inputs
         if (!questionFile) {
@@ -58,7 +66,8 @@ function UploadQuestionContent() {
             // Make the API call
             const response = await axios.post('http://localhost:5001/api/course/add_question', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 }
             });
     
@@ -84,7 +93,7 @@ function UploadQuestionContent() {
 
     useEffect(() => {
     if (courseId) {
-        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
+        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -106,7 +115,7 @@ function UploadQuestionContent() {
     useEffect(() => {
         axios.get('http://localhost:5001/api/course/get_course_topics', {
             params: { course_id: courseId },
-            headers: {}
+            headers: addAuthHeaders()        
         })
         .then(response => {
             if (response.data.status == 'success') {
@@ -149,20 +158,22 @@ function UploadQuestionContent() {
                 <div className="question-content-form">
                     <div className="form-group">
                         <label className="label-question-content" htmlFor="name">שאלה:</label>
-                        <div class="info-icon" title="העלה קובץ PDF של השאלה כפי שמופיעה במבחן">i</div>
+                        <div class="info-icon" title="העלה קובץ PDF או תמונה של השאלה כפי שמופיעה במבחן">i</div>
                         <input
                             className="question-content-field"
                             type="file"
+                            accept=".pdf, .jpeg, .jpg, .png"
                             onChange={(e) => setQuestionFile(e.target.files[0])}
                             required
                         />
                     </div>
                     <div className="form-group">
                         <label className="label-question-content" htmlFor="name">פתרון רשמי:</label>
-                        <div class="info-icon" title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF של פתרון זה">i</div>
+                        <div class="info-icon" title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF או תמונה של פתרון זה">i</div>
                         <input
                             className="question-content-field"
                             type="file"
+                            accept=".pdf, .jpeg, .jpg, .png"
                             onChange={(e) => setAnswerFile(e.target.files[0])}
                             required
                         />

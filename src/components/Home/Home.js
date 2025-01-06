@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 function Home() {
     const [courses, setCourses] = useState([]);  // קורסים כלליים
     const [userCourses, setUserCourses] = useState([]);  // קורסים של היוזר הספציפי    const [userId, setUserId] = useState(''); // כאן נשמור את ה-user ID
-    const [userId, setUserId] = useState('');  // מזהה היוזר
+    const [token, setToken] = useState('');  // מזהה היוזר
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
     const [courseResults, setCourseResults] = useState('');
@@ -35,23 +35,39 @@ function Home() {
 
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
 
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
+    
     useEffect(() => {
-        const storedUserId = localStorage.getItem('user_id');
-        if (storedUserId) {
-            setUserId(storedUserId);  // עדכון ה-userId
+        const storedToken = localStorage.getItem('access_token');
+        if (storedToken) {
+            setToken(storedToken);
         }
     }, []);
     
     useEffect(() => {
         // API call to fetch all courses
-        axios.get('http://localhost:5001/api/course/get_all_courses')
-            .then(response => {
-                // Set the courses state with the data array from the response
-                setCourses(response.data.data);
-            })
-            .catch(error => {
-                console.error("שגיאה בגישה לכל הקורסים", error);
-            });
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            console.log("Sending request with token get all courses:", token);
+            axios.get('http://localhost:5001/api/course/get_all_courses', {
+                headers: addAuthHeaders()
+                })
+                .then(response => {
+                    // Set the courses state with the data array from the response
+                    console.log("Response received get all courses:", response);  // הדפסה של התשובה שהתקבלה
+
+                    setCourses(response.data.data);
+                })
+                .catch(error => {
+                    console.error("שגיאה בגישה לכל הקורסים", error);
+                });
+        }
     }, []);// תבצע קריאה אחת בלבד כשקומפוננטה נטענת
 
     // קריאה לקבלת הנושאים של קורס
@@ -59,7 +75,7 @@ function Home() {
         if (selectedCourse) {
             axios.get('http://localhost:5001/api/course/get_course_topics', {
                 params: { course_id: selectedCourse },
-                headers: {}
+                headers: addAuthHeaders()
             })
             .then(response => {
                 if (response.data.status === 'success') {
@@ -76,9 +92,9 @@ function Home() {
 
     useEffect(() => {
         // בצע קריאה ל-API כדי להשיג את הקורסים של המשתמש
-        if (userId) {
+        if (token) {
           axios.get('http://localhost:5001/api/get_user_courses', {
-            params: { user_id: userId }
+            headers: addAuthHeaders()
           })
           .then(response => {
             console.log('API Response:', response);
@@ -92,7 +108,7 @@ function Home() {
             console.error('Error fetching user courses:', error);
           });
         }
-      }, [userId]);
+      }, [token]);
 
 
     const navigate = useNavigate();
@@ -133,6 +149,8 @@ function Home() {
                 semester: examSemester || undefined,
                 moed: examDateSelection || undefined,
                 question_number: questionNum || undefined
+            }, {
+                headers: addAuthHeaders()
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
@@ -153,8 +171,8 @@ function Home() {
             // קריאה ל-API לחיפוש לפי טקסט
             axios.post('http://localhost:5001/api/course/search_questions_by_text', {
                 text: searchText,
-                course_id: selectedCourse || undefined
-            })
+                course_id: selectedCourse || undefined},
+            {headers: addAuthHeaders()})
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
                     // אם התוצאה היא לא מערך, נהפוך אותה למערך
@@ -196,10 +214,9 @@ function Home() {
             // מחפש את הקורס לפי ה-ID בתוך המערך של הקורסים
             const course = courses.find(course => course.course_id === courseId);
             if (course) {
-                const url = `http://localhost:5001/api/course/get_course/${courseId}`; // פנייה ל-API עם ה-ID של הקורס
-                console.log('API Request URL:', url);
-    
-                axios.get(url)
+                axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
+                    headers: addAuthHeaders()
+                })
                     .then(response => {
                         console.log('Course data:', response.data);
                         navigate(`/course/${courseId}`); // אם הקורס נמצא, מעביר לדף הקורס
