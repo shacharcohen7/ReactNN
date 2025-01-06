@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 function Course() {
     const {courseId} = useParams();
     const [courseDetails, setCourseDetails] = useState(null);
-    const [userId, setUserId] = useState('');  // מזהה היוזר
+    const [token, setToken] = useState('');  // מזהה היוזר
     const [isCourseRegistered, setIsCourseRegistered] = useState(false); // האם היוזר רשום לקורס הנוכחי
     const [topics, setTopics] = useState([]);    
     const [searchQuery, setSearchQuery] = useState('');
@@ -36,37 +36,51 @@ function Course() {
             r.year === result.year && r.semester === result.semester && r.moed === result.moed
         )
     );
+  
+    // פונקציה שתוסיף את ההדר המתאים לכל בקשה
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
+
 
     useEffect(() => {
-        const storedUserId = localStorage.getItem('user_id');
-        setUserId(storedUserId);
-        console.log("course id:", courseId); // לוג המזהה של היוזר
+        const storedToken = localStorage.getItem('access_token');
+        setToken(storedToken);
+        console.log("course id:", courseId);
     
         const fetchData = async () => {
             if (courseId) {
                 try {
                     // טעינת פרטי הקורס
-                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`);
+                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
+                        headers: addAuthHeaders()  
+                    });
                     if (courseResponse.data && courseResponse.data.status === 'success') {
                         setCourseDetails(courseResponse.data.data);
                     }
     
                     // טעינת נושאי הקורס
                     const topicsResponse = await axios.get('http://localhost:5001/api/course/get_course_topics', {
-                        params: { course_id: courseId }
+                        params: { course_id: courseId },
+                        headers: addAuthHeaders()  
                     });
                     if (topicsResponse.data.status === 'success') {
                         setTopics(topicsResponse.data.data);
                     }
     
                     // טעינת כל השאלות של הקורס
-                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
-                        course_id: courseId
-                    }, {
-                        headers: {
-                            'Content-Type': 'application/json'
+                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                        {
+                            course_id: courseId,  // העברת הנתונים בגוף הבקשה, לא ב-params
+                        }, 
+                        {
+                            headers: addAuthHeaders()  // הוספת הכותרת המתאימה
                         }
-                    });
+                    );
                     let parsedResponse;
                     if (typeof questionsResponse.data.data === 'string') {
                         parsedResponse = JSON.parse(questionsResponse.data.data); // המרת המחרוזת לאובייקט
@@ -89,10 +103,11 @@ function Course() {
             }
     
             // טעינת קורסים שהמשתמש רשום אליהם
-            if (storedUserId) {
+            if (storedToken) {
                 try {
                     const userCoursesResponse = await axios.get('http://localhost:5001/api/get_user_courses', {
-                        params: { user_id: storedUserId }
+                        params: { access_token: storedToken },
+                        headers: addAuthHeaders()
                     });
                     if (userCoursesResponse.data.success) {
                         setIsCourseRegistered(userCoursesResponse.data.courses.some(course => course.course_id === courseId));
@@ -104,11 +119,11 @@ function Course() {
         };
     
         fetchData();
-    }, []);
+    }, [courseId, allQuestions]);
 
     const handleSearchClick = () => {
         if (searchType === 'topic') {
-            console.log("חיפוש לפי נושא עם פרמטרים: ", { courseId, selectedTopic, searchText });
+            console.log("חיפוש לפי נושא עם פרמטרים: ", { courseId, selectedTopic});
             // במקרה של חיפוש לפי נושא, תוכל להוסיף את קריאת ה-API המתאימה כאן
         } else if (searchType === 'date') {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
@@ -116,10 +131,12 @@ function Course() {
             // קריאה ל-API לחיפוש לפי מועד
             axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
                 course_id: courseId,
-                year: examYear || undefined,
-                semester: examSemester || undefined,
-                moed: examDateSelection || undefined,
-                question_number: questionNum || undefined
+                year: examYear || undefined,  // לא נשלח אם לא קיים
+                semester: examSemester || undefined,  // לא נשלח אם לא קיים
+                moed: examDateSelection || undefined,  // לא נשלח אם לא קיים
+                question_number: questionNum || undefined  // לא נשלח אם לא קיים
+            }, {
+                headers: addAuthHeaders()  // הוספת כותרת האותנטיקציה המתאימה
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
@@ -138,8 +155,10 @@ function Course() {
             console.log("חיפוש לפי טקסט עם פרמטרים: ", { searchText });
     
             axios.post('http://localhost:5001/api/course/search_questions_by_text', {
-                text: searchText,
-                course_id: courseId
+                text: searchText,      // הטקסט לחיפוש
+                course_id: courseId    // מזהה הקורס
+            }, {
+                headers: addAuthHeaders()  // הוספת כותרת האותנטיקציה המתאימה
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);
@@ -165,10 +184,10 @@ function Course() {
     });
     
     const handleAddToFavorites = () => {
-        if (userId) {
+        if (token) {
             axios.post('http://localhost:5001/api/course/register_to_course', {
-                course_id: courseId,
-                user_id: userId
+                params: {course_id: courseId}, 
+                headers: addAuthHeaders()
             })
             .then(response => {
                 if (response.data.success) {
@@ -182,14 +201,11 @@ function Course() {
     };
     
     const handleRemoveFromFavorites = () => {
-        if (userId) {
+        if (token) {
             axios.post('http://localhost:5001/api/course/remove_student_from_course', {
-                course_id: courseId,
-                user_id: userId
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'  // הגדרת סוג התוכן כ-JSON
-                }
+                params: {course_id: courseId,
+                access_token: token},
+                headers: addAuthHeaders()
             })
             .then(response => {
                 if (response.data.success) {

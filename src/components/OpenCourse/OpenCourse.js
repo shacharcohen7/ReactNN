@@ -19,17 +19,17 @@ function OpenCourse() {
     }
   
     // Retrieve user_id dynamically
-    const userId = localStorage.getItem('user_id');
-    if (!userId) {
-      alert('User ID is missing. Please log in again.');
-      return;
-    }
+    // const userId = localStorage.getItem('user_id');
+    // if (!userId) {
+    //   alert('User ID is missing. Please log in again.');
+    //   return;
+    // }
   
     try {
       // Create a FormData instance
       const formData = new FormData();
       formData.append('course_id', newCourseNumber); // Course ID
-      formData.append('user_id', userId);            // User ID
+      // formData.append('user_id', userId);            // User ID
       formData.append('name', newCourseName);        // Course Name
       formData.append('syllabus_content_pdf', syllabusFile); // Syllabus PDF file
   
@@ -40,6 +40,7 @@ function OpenCourse() {
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,  // Send token in header
           },
         }
       );
@@ -57,10 +58,6 @@ function OpenCourse() {
     }
   };
   
-  
-
-    
-
 
   return (
     <div className="open-course-page">
@@ -93,6 +90,7 @@ function OpenCourse() {
           />
           <input
             type="file"
+            accept=".pdf"
             onChange={(e) => setSyllabusFile(e.target.files[0])}
             className="search-input-open"
             required

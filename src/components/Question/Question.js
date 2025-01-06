@@ -20,6 +20,8 @@ function Question() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
     const [questionPdfUrl, setQuestionPdfUrl] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null); // Define state for imageUrl
+    const [answerImageUrl, setAnswerImageUrl] = useState(null); // Define state for imageUrl
     const [answerPdfUrl, setAnswerPdfUrl] = useState(null);
     const [answerFile, setAnswerFile] = useState(null);
     const [visiblePDF, setVisiblePDF] = useState('question'); 
@@ -44,9 +46,13 @@ function Question() {
     const [commentsMetadata, setCommentsMetadata] = useState([]);
 
 
-
-
-
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
 
 
     const toggleReactionsWindow = (comment) => {
@@ -122,14 +128,15 @@ function Question() {
             formData.append('moed', examDateSelection);
             formData.append('question_number', questionNum);
             formData.append('comment_id', commentId);
-            formData.append('user_id', localStorage.getItem('user_id'));
+            // formData.append('user_id', localStorage.getItem('user_id'));
             formData.append('emoji', emoji);
         
             try {
                 // Make the API call
                 const response = await axios.post('http://localhost:5001/api/course/add_reaction', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
         
@@ -162,7 +169,8 @@ function Question() {
                 // Make the API call
                 const response = await axios.post('http://localhost:5001/api/course/remove_reaction', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
         
@@ -204,7 +212,7 @@ function Question() {
     
         try {
             const response = await axios.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
             });
     
             if (response.data.success) {
@@ -248,13 +256,14 @@ function Question() {
     //     formData.append('question_number', questionNum);
     //     formData.append('pdf_answer', answerFile);
     
-    //     try {
-    //         // Make the API call
-    //         const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data'
-    //             }
-    //         });
+    //    try {
+    //        // Make the API call
+    //        const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
+    //            headers: {
+    //                'Content-Type': 'multipart/form-data',
+    //                'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Send token in header
+    //            }
+    //        });
     
     //         // Handle success
     //         if (response.data.success) {
@@ -306,13 +315,18 @@ function Question() {
 
     const updateComments = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
-                course_id: courseId,
-                year: examYear,
-                semester: examSemester,
-                moed: examDateSelection,
-                question_number: questionNum
-            });
+            const response = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum
+                },
+                {
+                    headers: addAuthHeaders()  // שלח את ההדרים המתאימים
+                }
+            );            
     
             const parsedResponse = JSON.parse(response.data.data);
             if (parsedResponse.status === "success" && parsedResponse.data.length === 1) {
@@ -324,7 +338,8 @@ function Question() {
     
                 // Fetch metadata for comments
                 const metadataResponse = await axios.get('http://localhost:5001/api/course/get_comments_metadata', {
-                    params: { question_id: questionData.question_id }
+                    params: { question_id: questionData.question_id }, 
+                    headers: addAuthHeaders()
                 });
     
                 if (metadataResponse.data.success) {
@@ -356,7 +371,8 @@ function Question() {
     
         try {
             const response = await axios.delete('http://localhost:5001/api/course/delete_comment', {
-                data: { comment_id: commentToDelete },
+                data: { comment_id: commentToDelete }, 
+                headers: addAuthHeaders()
             });
     
             if (response.data.success) {
@@ -399,7 +415,7 @@ function Question() {
     
         try {
             const response = await axios.post('http://localhost:5001/api/course/uploadSolution', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'multipart/form-data' , 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
             });
     
             if (response.data.success) {
@@ -422,7 +438,7 @@ function Question() {
             formData.append('year', examYear);
             formData.append('semester', examSemester);
             formData.append('moed', examDateSelection);
-            formData.append('writer_id', localStorage.getItem('user_id'));
+            // formData.append('writer_id', localStorage.getItem('user_id'));
             formData.append('question_number', questionNum);
             formData.append('writer_name', localStorage.getItem('first_name') + ' ' + localStorage.getItem('last_name'));
             formData.append('prev_id', prevId);
@@ -432,7 +448,8 @@ function Question() {
                 // Make the API call
                 const response = await axios.post('http://localhost:5001/api/course/add_comment', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data', 
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
                     }
                 });
         
@@ -462,6 +479,8 @@ function Question() {
                 semester: examSemester,
                 moed: examDateSelection,
                 question_number: questionNum
+            }, {
+                headers: addAuthHeaders()  // שלח את ההדרים המתאימים
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
@@ -659,7 +678,7 @@ function Question() {
     
     useEffect(() => {
         if (courseId) {
-            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`)
+            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -674,33 +693,43 @@ function Question() {
                 console.error('Error fetching course details:', error);
             });
         }
-    }, [courseId]); 
+    }, [courseId]);
 
     useEffect(() => {
-        const fetchQuestionPdf = async () => {
+        const fetchQuestionFile = async () => {
             try {
                 const response = await axios.get('http://localhost:5001/api/course/get_question_pdf', {
-                    params : {
+                    params: {
                         course_id: courseId,
                         year: examYear,
                         semester: examSemester,
                         moed: examDateSelection,
                         question_number: questionNum,
                     },
-                    responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
+                    headers: addAuthHeaders(),
+                    responseType: 'blob', // Make sure to receive the file as a blob
                 });
 
-                // יצירת URL מה-BLOB
-                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const fileType = response.headers['content-type'];
+                if (fileType === 'application/pdf') {
+                    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+                    setQuestionPdfUrl(pdfUrl);
+                } else if (fileType.includes('image')) {
+                    const imageUrl = URL.createObjectURL(response.data);
+                    setImageUrl(imageUrl);
+                     // Set the image URL
+                }
+                else {console.error('Unsupported file type:', fileType);}
 
-                setQuestionPdfUrl(pdfUrl); // שמירת ה-URL למצב
             } catch (error) {
-                console.error('Error fetching PDF:', error);
+                console.error('Error fetching file:', error);
             }
         };
-        fetchQuestionPdf();
+
+        fetchQuestionFile();
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
+
 
     useEffect(() => {
         const fetchAnswerPdf = async () => {
@@ -713,14 +742,27 @@ function Question() {
                         moed: examDateSelection,
                         question_number: questionNum,
                     },
+                    headers: addAuthHeaders(),
                     responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
                 });
 
-                // יצירת URL מה-BLOB
-                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const fileType = response.headers['content-type'];
+                if (fileType === 'application/pdf') {
+                    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                    const answerpdfUrl = URL.createObjectURL(pdfBlob);
+                    setAnswerPdfUrl(answerpdfUrl);
+                } else if (fileType.includes('image')) {
+                    const answerImageUrl = URL.createObjectURL(response.data);
+                    setAnswerImageUrl(answerImageUrl);
+                    // Set the image URL
+                }
+                else {console.error('Unsupported file type:', fileType);}
 
-                setAnswerPdfUrl(pdfUrl); // שמירת ה-URL למצב
+                // יצירת URL מה-BLOB
+                //const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                //const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                //setAnswerPdfUrl(pdfUrl); // שמירת ה-URL למצב
             } catch (error) {
                 console.error('Error fetching PDF:', error);
             }
@@ -746,6 +788,9 @@ function Question() {
                 },
                 {
                     responseType: 'blob', // Expect binary data
+                }, 
+                {
+                    headers: addAuthHeaders()
                 }
             );
     
@@ -782,29 +827,31 @@ function Question() {
             }
         }
     };
-    // const handleAddSolution = async () => {
-    //     try {
-    //         const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
-    //             course_id: courseId,
-    //             year: examYear,
-    //             semester: examSemester,
-    //             moed: examDateSelection,
-    //             question_number: questionNum,
-    //         });
-    //         if (response.data.success) {
-    //             if (response.data.has_link) {
-    //                 alert("הפתרון כבר קיים במערכת. את/ה מוזמנ/ת לגשת אליו");
-    //             } else {
-    //                 openSolutionModal();
-    //             }
-    //         } else {
-    //             alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error checking exam:', error);
-    //         alert('An error occurred while checking the exam.');
-    //     }
-    // };
+    
+   // const handleAddSolution = async () => {
+      //  try {
+      //      const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
+      //          params: {course_id: courseId,
+      //          year: examYear,
+      //          semester: examSemester,
+      //          moed: examDateSelection,
+      //          question_number: questionNum},
+      //          headers: addAuthHeaders()
+      //      });
+      //      if (response.data.success) {
+      //          if (response.data.has_link) {
+      //              alert("הפתרון כבר קיים במערכת. את/ה מוזמנ/ת לגשת אליו");
+      //          } else {
+      //              openSolutionModal();
+      //          }
+      //      } else {
+      //          alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
+      //      }
+      //  } catch (error) {
+      //      console.error('Error checking exam:', error);
+      //      alert('An error occurred while checking the exam.');
+      //  }
+    //};
     
     const handleEditQuestion = async () => {
     }
@@ -822,7 +869,8 @@ function Question() {
                     semester: examSemester,
                     moed: examDateSelection,
                     question_number: questionNum,
-                }
+                }, 
+                headers: addAuthHeaders()
             });
     
             if (response.data.success) {
@@ -843,10 +891,11 @@ function Question() {
     const adddExamPdf = async () => {
         try {
             const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
-                course_id: courseId,
+                params: {course_id: courseId,
                 year: examYear,
                 semester: examSemester,
-                moed: examDateSelection,
+                moed: examDateSelection},
+                headers: addAuthHeaders()
             });
 
             if (response.data.success) {
@@ -982,16 +1031,37 @@ function Question() {
                     <div className="pdf-form">
                         {questionPdfUrl ? (
                             <iframe src={questionPdfUrl} width="100%" height="600px" title="PDF Viewer" />
+                        ) : imageUrl ? (
+                            <img
+                                src={imageUrl}
+                                alt="Question"
+                                style={{
+                                    width: '100%',      // Make the image fill its container horizontally
+                                    maxHeight: '600px', // Limit the height to 600px
+                                    objectFit: 'contain' // Ensure the image maintains its aspect ratio
+                                }}
+                            />
                         ) : (
-                            <p>Loading PDF...</p>
+                            <p>Loading file...</p>
                         )}
                     </div>
                 )}
                 {visiblePDF === 'answer' && (
                     <div className="pdf-form">
                         {answerPdfUrl ? (
-                            <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer" />
-                        ) : (
+                            <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer"/>
+                        ) : answerImageUrl ? (
+                                <img
+                                    src={answerImageUrl}
+                                    alt="Question"
+                                    style={{
+                                        width: '100%',      // Make the image fill its container horizontally
+                                        maxHeight: '600px', // Limit the height to 600px
+                                        objectFit: 'contain' // Ensure the image maintains its aspect ratio
+                                    }}
+                                />
+                            ) :
+                            (
                             <div>
                                 {!isUploading ? (
                                     <div>
