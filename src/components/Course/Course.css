@@ -38,6 +38,7 @@
 }
 
 .search-results-table th {
+    cursor: pointer;
     background-color: #f4f4f4; /* צבע רקע בהיר לכותרות */
     font-weight: bold; /* כותרות בולטות */
 }
