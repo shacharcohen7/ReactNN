@@ -18,6 +18,7 @@ function Exam() {
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
     const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
     const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
+    const [token, setToken] = useState('');  // מזהה היוזר
     const [examFile, setExamFile] = useState(null);
     const [examExist, setExamExist] = useState(false);
     const { courseId, examYear, examSemester, examDateSelection } = useParams();  // מקבלים את שם הקורס מה-URL
@@ -26,6 +27,14 @@ function Exam() {
 
     const handleFileChange = (e) => setExamFile(e.target.files[0]);
 
+    const addAuthHeaders = (headers = {}) => {
+        const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+        }
+        return headers;
+    };
+    
     const handleFileUpload = async () => {
         if (!examFile) {
             alert("Please select a file to upload.");
@@ -62,34 +71,44 @@ function Exam() {
     };
 
     useEffect(() => {
+        const storedToken = localStorage.getItem('access_token');
+        setToken(storedToken);
         const fetchData = async () => {
             if (courseId) {
                 try {
                     // טעינת פרטי הקורס
-                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`);
+                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
+                        headers: addAuthHeaders()  
+                    });
                     if (courseResponse.data && courseResponse.data.status === 'success') {
                         setCourseDetails(courseResponse.data.data);
                     }
 
                     // טעינת קובץ המבחן האם קיים
-                    const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
-                        course_id: courseId,
-                        year: examYear,
-                        semester: examSemester,
-                        moed: examDateSelection,
-                    });
+                    const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', 
+                        {
+                            course_id: courseId,
+                            year: examYear,
+                            semester: examSemester,
+                            moed: examDateSelection,  // העברת הנתונים בגוף הבקשה, לא ב-params
+                        }, 
+                        {
+                            headers: addAuthHeaders()  // הוספת הכותרת המתאימה
+                        } 
+                    );
                     if (response.data.success) {
                         setExamExist(response.data.has_link)
                     } 
 
                     // טעינת כל השאלות של המבחן
-                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
-                        course_id: courseId
-                    }, {
-                        headers: {
-                            'Content-Type': 'application/json'
+                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                        {
+                            course_id: courseId,  // העברת הנתונים בגוף הבקשה, לא ב-params
+                        }, 
+                        {
+                            headers: addAuthHeaders()  // הוספת הכותרת המתאימה
                         }
-                    });
+                    );
                     let parsedResponse;
                     if (typeof questionsResponse.data.data === 'string') {
                         parsedResponse = JSON.parse(questionsResponse.data.data); // המרת המחרוזת לאובייקט
@@ -149,6 +168,9 @@ function Exam() {
                     moed: examDateSelection,
                 },
                 {
+                    headers: addAuthHeaders()  
+                },
+                {
                     responseType: 'blob', // Expect binary data
                 }
             );
@@ -195,12 +217,17 @@ function Exam() {
       
     const adddExamPdf = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
-                course_id: courseId,
-                year: examYear,
-                semester: examSemester,
-                moed: examDateSelection,
-            });
+            const response = await axios.post('http://localhost:5001/api/checkExamFullPdf',
+                {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,  // העברת הנתונים בגוף הבקשה, לא ב-params
+                }, 
+                {
+                    headers: addAuthHeaders()  // הוספת הכותרת המתאימה
+                } 
+            );
 
             if (response.data.success) {
                 if (response.data.has_link) {

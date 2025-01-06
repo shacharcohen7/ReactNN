@@ -91,7 +91,6 @@ function Course() {
     
                     if (parsedResponse.status === 'success' && parsedResponse.data.length > 0) {
                         setAllQuestions(parsedResponse.data);  // עדכון תוצאות החיפוש אם הם מערך
-                        console.log("All Questions:", allQuestions); // לוג תוצאות החיפוש
                     } else {
                         setAllQuestions([]);  // אם לא, הפוך את allQuestions למערך ריק
                     }
@@ -385,7 +384,7 @@ function Course() {
                             <ul className="results-list">
                                {searchResults.map((result) => (
                                     <li key={`${result.year}-${result.semester}-${result.moed}`} className="result-item">
-                                        <a href={`/exam/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
+                                        <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
                                             <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed} / שאלה {result.question_number}</span>
                                         </a>
                                     </li>
