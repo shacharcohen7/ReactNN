@@ -44,6 +44,7 @@ import UploadQuestionDate from './components/UploadQuestion/UploadQuestionDate/U
 import UploadQuestionContent from './components/UploadQuestion/UploadQuestionContent/UploadQuestionContent';
 import Question from './components/Question/Question';
 import Course from './components/Course/Course';
+import Exam from './components/Exam/Exam';
 
 function App() {
   return (
@@ -63,8 +64,9 @@ function App() {
             element={<UploadQuestionContent />}
           />
           <Route path="/question/:courseId/:examYear/:examSemester/:examDateSelection/:questionNum" element={<Question />} />
+          <Route path="/exam/:courseId/:examYear/:examSemester/:examDateSelection" element={<Exam />} />
           <Route path="/course/:courseId" element={<Course />} />
-</Routes>
+        </Routes>
       </Router>
     </UserProvider>
   );

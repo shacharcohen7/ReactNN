@@ -192,8 +192,8 @@ function Question() {
           setIsModalOpen(false);
           setAnswerFile(null); // Reset file input
       };
-      const openSolutionModal = () => setIsSolutionModalOpen(true);
-      const closeSolutionModal = () => setIsSolutionModalOpen(false);
+    //   const openSolutionModal = () => setIsSolutionModalOpen(true);
+    //   const closeSolutionModal = () => setIsSolutionModalOpen(false);
 
       const handleFileChange = (e) => setAnswerFile(e.target.files[0]);
 
@@ -241,44 +241,44 @@ function Question() {
         setIsUploading(false); // מחזיר את התצוגה המקורית
     };
 
-    const handleConfirmUploadClick = async () => {
-        // Validate the inputs
-        if (!answerFile) {
-            alert("Please upload an answer file.");
-            return;
-        }
+    // const handleConfirmUploadClick = async () => {
+    //     // Validate the inputs
+    //     if (!answerFile) {
+    //         alert("Please upload an answer file.");
+    //         return;
+    //     }
 
-        const formData = new FormData();
-        formData.append('course_id', courseId);
-        formData.append('year', examYear);
-        formData.append('semester', examSemester);
-        formData.append('moed', examDateSelection);
-        formData.append('question_number', questionNum);
-        formData.append('pdf_answer', answerFile);
+    //     const formData = new FormData();
+    //     formData.append('course_id', courseId);
+    //     formData.append('year', examYear);
+    //     formData.append('semester', examSemester);
+    //     formData.append('moed', examDateSelection);
+    //     formData.append('question_number', questionNum);
+    //     formData.append('pdf_answer', answerFile);
     
-        try {
-            // Make the API call
-            const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Send token in header
-                }
-            });
+    //    try {
+    //        // Make the API call
+    //        const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
+    //            headers: {
+    //                'Content-Type': 'multipart/form-data',
+    //                'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Send token in header
+    //            }
+    //        });
     
-            // Handle success
-            if (response.data.success) {
-                alert("Answer uploaded successfully!");
-                // navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
-            } else {
-                // Handle failure
-                alert(`Failed to upload answer: ${response.data.message}`);
-            }
-        } catch (error) {
-            // Handle error
-            console.error("Error uploading answer:", error);
-            alert("An error occurred while uploading the answer.");
-        }
-    };
+    //         // Handle success
+    //         if (response.data.success) {
+    //             alert("Answer uploaded successfully!");
+    //             // navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+    //         } else {
+    //             // Handle failure
+    //             alert(`Failed to upload answer: ${response.data.message}`);
+    //         }
+    //     } catch (error) {
+    //         // Handle error
+    //         console.error("Error uploading answer:", error);
+    //         alert("An error occurred while uploading the answer.");
+    //     }
+    // };
 
     const handleKeyDown = (chatInput, prevId) => (e) => {
         if (e.key === 'Enter') {
@@ -420,7 +420,7 @@ function Question() {
     
             if (response.data.success) {
                 alert("Solution uploaded successfully!");
-                closeSolutionModal();
+                // closeSolutionModal();
             } else {
                 alert(`Failed to upload solution: ${response.data.message}`);
             }
@@ -827,30 +827,31 @@ function Question() {
             }
         }
     };
-    const handleAddSolution = async () => {
-        try {
-            const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
-                params: {course_id: courseId,
-                year: examYear,
-                semester: examSemester,
-                moed: examDateSelection,
-                question_number: questionNum},
-                headers: addAuthHeaders()
-            });
-            if (response.data.success) {
-                if (response.data.has_link) {
-                    alert("הפתרון כבר קיים במערכת. את/ה מוזמנ/ת לגשת אליו");
-                } else {
-                    openSolutionModal();
-                }
-            } else {
-                alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
-            }
-        } catch (error) {
-            console.error('Error checking exam:', error);
-            alert('An error occurred while checking the exam.');
-        }
-    };
+    
+   // const handleAddSolution = async () => {
+      //  try {
+      //      const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
+      //          params: {course_id: courseId,
+      //          year: examYear,
+      //          semester: examSemester,
+      //          moed: examDateSelection,
+      //          question_number: questionNum},
+      //          headers: addAuthHeaders()
+      //      });
+      //      if (response.data.success) {
+      //          if (response.data.has_link) {
+      //              alert("הפתרון כבר קיים במערכת. את/ה מוזמנ/ת לגשת אליו");
+      //          } else {
+      //              openSolutionModal();
+      //          }
+      //      } else {
+      //          alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
+      //      }
+      //  } catch (error) {
+      //      console.error('Error checking exam:', error);
+      //      alert('An error occurred while checking the exam.');
+      //  }
+    //};
     
     const handleEditQuestion = async () => {
     }
@@ -964,11 +965,12 @@ function Question() {
                         <strong>שאלה</strong> {question.question_number}
                     </div>
                 </div>
+                {question.question_topics && question.question_topics.length > 0 &&
                 <div className="details-container">
                     <div className="detail-item">
                         <strong>נושאי השאלה:</strong> {question.question_topics && question.question_topics.join(', ')}
                     </div>
-                </div>
+                </div>}
                 <div className="tabs-container">
                     <button
                         className={`tab ${visiblePDF === 'question' ? 'active' : ''}`}
@@ -983,6 +985,13 @@ function Question() {
                         פתרון
                     </button>
                     <button
+                        className='tab download-tab'
+                        onClick={() => navigate(`/exam/${courseId}/${examYear}/${examSemester}/${examDateSelection}`)}
+                        title="לדף המבחן"
+                    >
+                        <i className="fas fa-arrow-left"></i> 
+                    </button>
+                    {/* <button
                         className="tab download-tab"
                         onClick={downloadExamPdf}
                     >
@@ -993,13 +1002,13 @@ function Question() {
                         onClick={adddExamPdf}
                     >
                         העלאת המבחן השלם
-                    </button>
-                    <button
+                    </button> */}
+                    {/* <button
                         className="tab download-tab"
                         onClick={handleAddSolution}
                     >
                         הוספת פתרון מרצה
-                    </button>
+                    </button> */}
                     {/* Render manager-only buttons */}
                     {isCourseManager && (
                         <>
@@ -1070,7 +1079,7 @@ function Question() {
                                             />
                                             <div>
                                                 <div className="question-button-row">
-                                                    <button className="upload-answer-button" onClick={handleConfirmUploadClick}>
+                                                    <button className="upload-answer-button" onClick={handleSolutionUpload}>
                                                         אישור
                                                     </button>
                                                     <button className="upload-answer-button" onClick={handleCancelUploadClick}>
@@ -1161,7 +1170,7 @@ function Question() {
                     </div>
                 </div>
             )}
-                    {isSolutionModalOpen && (
+                    {/* {isSolutionModalOpen && (
                         <div className="modal-overlay">
                             <div className="modal-content">
                                 <button className="modal-close" onClick={closeSolutionModal}>X</button>
@@ -1173,7 +1182,7 @@ function Question() {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
                 </div>
             </main>
             <Footer />

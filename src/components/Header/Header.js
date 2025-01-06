@@ -96,6 +96,9 @@ function Header() {
                             </div>
                         )}
                     </div>
+                    <button className="icon-button" aria-label="Notifications" onClick={() => handleLogoClick()}>
+                        <i className="fas fa-home"></i>
+                    </button>
                 </div>
             </header>
         </div>
