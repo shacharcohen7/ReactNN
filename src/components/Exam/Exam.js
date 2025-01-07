@@ -305,9 +305,7 @@ function Exam() {
                                     </li>
                                 ))
                             ) : (
-                                <tr>
-                                    <td colSpan="5">לא נמצאו מבחנים</td>
-                                </tr>
+                                <p>לא נמצאו שאלות</p>
                             )}
                         </ul>
                     {/* <table className="search-results-table">
