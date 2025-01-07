@@ -48,7 +48,7 @@
     margin-top: 20px; /* מיקום מעט נמוך יותר */
 }
 
-.topic-search, .date-search {
+.topic-search, .date-search, .text-search {
   display: flex;
   gap: 20px;
 }
@@ -141,7 +141,7 @@
   border-radius: 10px;
   font-size: 1.2rem;
   cursor: pointer;
-  width: 200px;
+  width: 220px;
   transition: background-color 0.3s ease;
 }
 

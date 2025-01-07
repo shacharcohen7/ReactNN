@@ -11,6 +11,7 @@ function Home() {
     const [token, setToken] = useState('');  // מזהה היוזר
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
+    const [courseResults, setCourseResults] = useState('');
     const [courseForQuestion, setcourseForQuestion] = useState('');
     const [topics, setTopics] = useState([]);
     const [courseId, setCourseId] = useState('');
@@ -125,6 +126,11 @@ function Home() {
         setSelectedCourse(e.target.value);
     };
 
+    const getCourseName = (course_id) => {
+        const course = courses.find(course => course.course_id === course_id);
+        return course ? course.name : null; // מחזיר את שם הקורס או null אם לא נמצא
+    }
+
     const handleCourseSelectionForQuestion = (e) => {
         setcourseForQuestion(e.target.value);
     };
@@ -134,6 +140,7 @@ function Home() {
     // };
 
     const handleSearch = () => {
+        setSearchResults([])
         if (searchType === 'topic') {
             console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedCourse, selectedTopic});
             // במקרה של חיפוש לפי נושא, תוכל להוסיף את קריאת ה-API המתאימה כאן
@@ -189,6 +196,7 @@ function Home() {
                 alert("אירעה שגיאה בחיפוש לפי טקסט");
             });
         }
+        setCourseResults(selectedCourse)
     };
     
     const navigateToUploadQuestion = () => {
@@ -247,6 +255,7 @@ function Home() {
         <div className="home-page">
             <Header />
             <main className="content">
+            <h1>דף הבית</h1>
             <div className="tabs-container">
                 <button
                     className={`tab ${searchType === 'topic' ? 'active' : ''}`}
@@ -415,8 +424,11 @@ function Home() {
                 </div>
 
                 <div className="action-buttons">
+                    <button className="action-button">
+                        <span>העלאת מבחן חדש</span>
+                    </button>
                     <button className="action-button" onClick={openQuestionModal}>
-                        <span>העלאת שאלה</span>
+                        <span>העלאת שאלה חדשה</span>
                     </button>
                     {isQuestionModalOpen && (
                         <div className="modal">
@@ -447,9 +459,6 @@ function Home() {
                         </div>
                         </div>
                     )}
-                    <div className="action-button" onClick={navigateToAddExam}>
-                        <span>העלאת מבחן</span>
-                    </div>
                 </div>
                 <div className="course-search-container">
                     <label className="search-label" htmlFor="courseId">חפש קורס:</label>
