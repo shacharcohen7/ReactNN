@@ -41,6 +41,11 @@ function Home() {
         }
         return headers;
     };
+
+    const courseIdToNameMap = {};
+    courses.forEach((course) => {
+        courseIdToNameMap[course.course_id] = course.name;
+    });
     
     useEffect(() => {
         const storedToken = localStorage.getItem('access_token');
@@ -142,6 +147,7 @@ function Home() {
                 semester: examSemester || undefined,
                 moed: examDateSelection || undefined,
                 question_number: questionNum || undefined
+
             }, {
                 headers: addAuthHeaders()
             })
@@ -393,8 +399,8 @@ function Home() {
                             <ul className="results-list">
                                 {searchResults.map((result) => (
                                     <li key={result.question_id} className="result-item">
-                                        <a href={`/question/${selectedCourse}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
-                                            <span>מבחן {result.year} _ סמסטר {result.semester} _ מועד {result.moed} _ שאלה {result.question_number}</span>
+                                        <a href={`/question/${result.course_id}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
+                                            <span>{courseIdToNameMap[result.course_id] || "לא ידוע"}_{result.year}_סמסטר-{result.semester}_מועד-{result.moed}_שאלה-{result.question_number}</span>
                                         </a>
                                     </li>
                                 ))}
