@@ -450,7 +450,7 @@ function Course() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5">לא נמצאו שאלות</td>
+                                    <td colSpan="5">לא נמצאו מבחנים</td>
                                 </tr>
                             )}
                         </tbody>
