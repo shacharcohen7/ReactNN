@@ -5,6 +5,8 @@ import axios from 'axios';
 import logo from './logoNNcircle.png';
 import './Header.css';
 import { UserContext } from '../../context/UserContext';
+import axiosInstance from '../../utils/axiosInstance';
+
 
 function Header() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -29,7 +31,7 @@ function Header() {
                 return;
             }
 
-            const response = await axios.post(`${API_BASE_URL}/api/logout`,
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/logout`,
                 {},  // לא נדרש לשלוח גוף אם הטוקן בכותרת
                 {
                     headers: {
