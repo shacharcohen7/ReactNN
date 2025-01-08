@@ -32,7 +32,7 @@
 //         setIsSubmitting(true);
 
 //         try {
-//             const response = await axios.post('http://localhost:5001/api/register', {
+//             const response = await axios.post(`${API_BASE_URL}/api/register', {
 //                 email: formData.email,
 //                 password: formData.password,
 //                 first_name: formData.firstName,
@@ -185,7 +185,7 @@
 //         setIsSubmitting(true);
 
 //         try {
-//             const response = await axios.post('http://localhost:5001/api/register', {
+//             const response = await axios.post(`${API_BASE_URL}/api/register', {
 //                 email: formData.email,
 //                 password: formData.password,
 //                 first_name: formData.firstName,
@@ -320,6 +320,7 @@ import axiosInstance from '../../../utils/axiosInstance';
 function SignUpDetails() {
     const navigate = useNavigate();
     const { setUser } = useContext(UserContext); // Access setUser from UserContext
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -350,7 +351,7 @@ function SignUpDetails() {
         
 
         try {
-            const response = await axiosInstance.post('http://localhost:5001/api/register', {
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/register`, {
                 email: formData.email,
                 password: formData.password,
                 password_confirm: formData.confirmPassword,

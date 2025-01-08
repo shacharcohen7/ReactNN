@@ -19,6 +19,7 @@ function UploadQuestionContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedTopics, setSelectedTopics] = useState([]);
     const navigate = useNavigate();  // יצירת אובייקט navigate
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const handleCancelClick = () => {
         navigate('/home');  // מנווט לעמוד ההרשמה
@@ -66,7 +67,7 @@ function UploadQuestionContent() {
         try {
             setIsSubmitting(true);
             // Make the API call
-            const response = await axiosInstance.post('http://localhost:5001/api/course/add_question', formData, {
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/course/add_question`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -95,7 +96,7 @@ function UploadQuestionContent() {
 
     useEffect(() => {
     if (courseId) {
-        axiosInstance.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
+        axiosInstance.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -115,7 +116,7 @@ function UploadQuestionContent() {
     
     
     useEffect(() => {
-        axiosInstance.get('http://localhost:5001/api/course/get_course_topics', {
+        axiosInstance.get(`${API_BASE_URL}/api/course/get_course_topics`, {
             params: { course_id: courseId },
             headers: addAuthHeaders()        
         })

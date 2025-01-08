@@ -12,7 +12,7 @@ function OpenCourse() {
   const [newCourseName, setNewCourseName] = useState('');
   const [syllabusFile, setSyllabusFile] = useState(null);
   const [showCourseNumberTooltip, setShowCourseNumberTooltip] = useState(false); // Tooltip state
-
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleNewCourseSubmit = async () => {
     if (!newCourseNumber || !newCourseName || !syllabusFile) {
@@ -37,7 +37,7 @@ function OpenCourse() {
   
       // Send FormData to backend
       const response = await axiosInstance.post(
-        'http://localhost:5001/api/course/open_course',
+        `${API_BASE_URL}/api/course/open_course`,
         formData,
         {
           headers: {
