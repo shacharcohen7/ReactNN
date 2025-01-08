@@ -22,6 +22,7 @@ function SignUpTerms() {
     `;
 
     const navigate = useNavigate();  // Create navigate object
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);  // Track submission state
@@ -32,7 +33,7 @@ function SignUpTerms() {
         setIsSubmitting(true);  // Disable submit button during submission
 
         try {
-            const response = await axios.post('http://localhost:5001/api/register_termOfUse_part', {
+            const response = await axios.post(`${API_BASE_URL}/api/register_termOfUse_part`, {
                 email: localStorage.getItem('email'),
                 password: localStorage.getItem('password'),
                 first_name: localStorage.getItem('first_name'),

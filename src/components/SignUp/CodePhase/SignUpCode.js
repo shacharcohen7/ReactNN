@@ -5,6 +5,8 @@ import axios from 'axios';
 
 function SignUpCode() {
     const navigate = useNavigate(); // Create navigate object
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
     const [formData, setFormData] = useState({
         auth_code: '', // Form field for auth_code
     });
@@ -27,7 +29,7 @@ function SignUpCode() {
         console.log('Form Data on Submit:', formData); // Log form data before submitting
 
         try {
-            const response = await axios.post('http://localhost:5001/api/register_authentication_part', {
+            const response = await axios.post(`${API_BASE_URL}/api/register_authentication_part`, {
                 auth_code: formData.auth_code,
                 email: localStorage.getItem('email'),
                 // Send auth_code from formData
