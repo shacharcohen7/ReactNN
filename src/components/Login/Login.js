@@ -13,6 +13,7 @@ function Login() {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
     const { setUser } = useContext(UserContext);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const handleSignUpClick = () => {
         navigate('/signupdetails');
@@ -29,7 +30,7 @@ function Login() {
         console.log('Attempting login with:', formData);
     
         try {
-            const response = await axiosInstance.post('http://localhost:5001/api/login', {
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/login`, {
                 email: formData.email,
                 password: formData.password,
             });
