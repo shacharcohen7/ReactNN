@@ -385,7 +385,7 @@ function Question() {
             formData.append('comment_id', commentToDelete);
 
         try {
-            const response = await axiosInstance.delete(`${API_BASE_URL}/api/course/delete_comment`, {
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/course/delete_comment`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data', 
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
