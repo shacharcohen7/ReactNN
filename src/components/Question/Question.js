@@ -8,9 +8,11 @@ import axios from 'axios';
 import { BsEmojiSmile } from "react-icons/bs";
 import { FaRegCommentAlt, FaCommentAlt } from 'react-icons/fa';
 import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
+import { FaRegTrashAlt } from "react-icons/fa";
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Question.css';
+import TokenManager from '../../utils/TokenManager';
 import { useNavigate } from "react-router-dom";
 
 
@@ -78,9 +80,14 @@ function Question() {
                 if (!usernames[reaction.user_id]) {
                     try {
                         const response = await axios.get(`${API_BASE_URL}/api/get_user_name`, {
-                            params: { user_id: reaction.user_id }
+
+                            params: {
+                                user_id: reaction.user_id  
+                            },
+                            headers: addAuthHeaders()  
                         });
-                        console.log(response.data)
+                        
+                        console.log("response from get name by user_id", response.data)
                         if (response.data.success) {
                             newUsernames[reaction.user_id] = response.data.data;
                         }
@@ -115,27 +122,27 @@ function Question() {
 
     const getUserReactionForComment = (comment) => {
         // מחפש את התגובה של המשתמש עם user_id תואם
-        const userReaction = comment.reactions.find(reaction => reaction.user_id === localStorage.getItem('user_id'));
+        const userReaction = comment.reactions.find(reaction => reaction.user_id === TokenManager.getUserIdFromToken());
         
         // אם נמצאה תגובה למשתמש, מחזירים את האימוג'י שלה, אחרת מחזירים null
         return userReaction ? userReaction : null;
     }
 
     const handleAddEmoji = async (commentId, emoji) => {
-       setActiveReactedComment(null)
-       const formData = new FormData();
+        setActiveReactedComment(null)
+        const formData = new FormData();
             formData.append('course_id', courseId);
             formData.append('year', examYear);
             formData.append('semester', examSemester);
             formData.append('moed', examDateSelection);
             formData.append('question_number', questionNum);
             formData.append('comment_id', commentId);
-            // formData.append('user_id', localStorage.getItem('user_id'));
             formData.append('emoji', emoji);
         
             try {
                 // Make the API call
                 const response = await axios.post(`${API_BASE_URL}/api/course/add_reaction`, formData, {
+
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
@@ -370,16 +377,25 @@ function Question() {
 
     const confirmDeleteComment = async () => {
         if (!commentToDelete) return; // Ensure a comment is selected
-    
+        const formData = new FormData();
+            formData.append('course_id', courseId);
+            formData.append('year', examYear);
+            formData.append('semester', examSemester);
+            formData.append('moed', examDateSelection);
+            formData.append('question_number', questionNum);
+            formData.append('comment_id', commentToDelete);
+
         try {
             const response = await axios.delete(`${API_BASE_URL}/api/course/delete_comment`, {
-                data: { comment_id: commentToDelete }, 
-                headers: addAuthHeaders()
+
+                headers: {
+                    'Content-Type': 'multipart/form-data', 
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
+                }
             });
     
             if (response.data.success) {
                 updateComments(); // Refresh comments after deletion
-                alert("התגובה נמחקה בהצלחה.");
             } else {
                 alert(`שגיאה במחיקת התגובה: ${response.data.message}`);
             }
@@ -440,7 +456,7 @@ function Question() {
             formData.append('year', examYear);
             formData.append('semester', examSemester);
             formData.append('moed', examDateSelection);
-            // formData.append('writer_id', localStorage.getItem('user_id'));
+            formData.append('writer_id', TokenManager.getUserIdFromToken());
             formData.append('question_number', questionNum);
             formData.append('writer_name', localStorage.getItem('first_name') + ' ' + localStorage.getItem('last_name'));
             formData.append('prev_id', prevId);
@@ -506,10 +522,9 @@ function Question() {
             try {
                 const response = await axios.post(`${API_BASE_URL}/api/course/is_course_manager`, {
                     course_id: courseId,
-                    user_id: localStorage.getItem('user_id'), 
-                });
+                },{headers: addAuthHeaders()})  
                 if (response.data.success) {
-                    console.log("Course manager status:", response.data.is_manager);
+                    console.log("user is course manager:", response.data.is_manager);
                     setIsCourseManager(response.data.is_manager);
                 } else {
                     console.error("Error checking course manager:", response.data.message);
@@ -543,37 +558,41 @@ function Question() {
     }
 
     const renderComments = (comments) => {
-        const loggedInUserId = localStorage.getItem('user_id'); // Current logged-in user
+        const loggedInUserId = TokenManager.getUserIdFromToken(); // Current logged-in user
         return comments.map((comment) => {
             const commentMetadata = commentsMetadata.find(metadata => metadata.comment_id === comment.comment_id);
     
             return (
                 <div key={comment.comment_id} className="comment-box" onMouseLeave={() => setActiveReactedComment(null)}>
                     <div className="comment-content">
-                        <div className="comment-header">
-                            <span className="comment-writer">{comment.writer_name}</span>
-                        </div>
-                        {comment.reactions.length > 0 && (
-                            <button className="users-reactions-window" onClick={() => toggleReactionsWindow(comment)}>
-                                {showUsersReactions(countReactionsForComment(comment.reactions))}
-                                <div style={{ fontSize: "16px" }}> {comment.reactions.length}</div>
-                            </button>
-                        )}
-                        {activeReactedComment === comment.comment_id && (
-                            <div className="emojies-window" onMouseLeave={() => setActiveReactedComment(null)}>
-                                {Object.entries(emojies).map(([word, emoji]) => (
-                                    <div
-                                        key={word}
-                                        type="button"
-                                        className="emoji"
-                                        onClick={() => handleAddEmoji(comment.comment_id, word)}
-                                    >
-                                        {emoji}
-                                    </div>
-                                ))}
+                        {comment.deleted ? (<em>תגובה זו נמחקה</em>):(
+                            <>
+                            <div className="comment-header">
+                                <span className="comment-writer">{comment.writer_name}</span>
                             </div>
+                            {comment.reactions.length > 0 && (
+                                <button className="users-reactions-window" onClick={() => toggleReactionsWindow(comment)}>
+                                    {showUsersReactions(countReactionsForComment(comment.reactions))}
+                                    <div style={{ fontSize: "16px" }}> {comment.reactions.length}</div>
+                                </button>
+                            )}
+                            {activeReactedComment === comment.comment_id && (
+                                <div className="emojies-window" onMouseLeave={() => setActiveReactedComment(null)}>
+                                    {Object.entries(emojies).map(([word, emoji]) => (
+                                        <div
+                                            key={word}
+                                            type="button"
+                                            className="emoji"
+                                            onClick={() => handleAddEmoji(comment.comment_id, word)}
+                                        >
+                                            {emoji}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {comment.comment_text}
+                            </>
                         )}
-                        {comment.comment_text}
                     </div>
                     <div className="comment-options">
                         <div className="comment-timestamp" onMouseEnter={() => setActiveReactedComment(null)}>
@@ -586,7 +605,8 @@ function Question() {
                                 hour12: false,
                             }).replace(',', ' // ')}
                         </div>
-                        {getUserReactionForComment(comment) === null ? (
+                        {!comment.deleted && (
+                            getUserReactionForComment(comment) === null ? (
                             <button
                                 className="reaction-button"
                                 onMouseEnter={() => setActiveReactedComment(comment.comment_id)}
@@ -606,8 +626,8 @@ function Question() {
                             >
                                 {emojies[getUserReactionForComment(comment).emoji]}
                             </button>
-                        )}
-                        <button
+                        ))}
+                        {!comment.deleted && (<button
                             type="button"
                             className="reaction-button"
                             onMouseEnter={() => setActiveReactedComment(null)}
@@ -617,36 +637,36 @@ function Question() {
                             }}
                         >
                             {activeRepliedComment === comment.comment_id ? <FaCommentAlt /> : <FaRegCommentAlt />}
-                        </button>
+                        </button>)}
                         <div className="comment-options">
-                    {(isCourseManager || (commentMetadata && loggedInUserId === commentMetadata.writer_id)) && (
-                        <button
-                            type="button"
-                            className="reaction-button delete-comment-button"
-                            onClick={() => handleDeleteComment(comment.comment_id)}
-                        >
-                            🗑️
-                        </button>
-                    )}
-                </div>
-                        {comment.replies.length > 0 && (
+                        {(isCourseManager || (commentMetadata && loggedInUserId === commentMetadata.writer_id)) && (
+                            !comment.deleted && (
                             <button
                                 type="button"
-                                className="reaction-button"
-                                onClick={() => {
-                                    activeRepliedComment === comment.comment_id && setActiveRepliedComment(null);
-                                    handleArrowClick(comment.comment_id);
-                                }}
+                                className="reaction-button delete-comment-button"
+                                onClick={() => handleDeleteComment(comment.comment_id)}
                             >
-                                {expandReplies[comment.comment_id] ? (
-                                    <BiSolidUpArrow size={"16px"} />
-                                ) : (
-                                    <BiDownArrow size={"16px"} />
-                                )}
+                                <FaRegTrashAlt />
                             </button>
+                            ))}
+                </div>
+                {comment.replies.length > 0 && (
+                    <button
+                        type="button"
+                        className="reaction-button"
+                        onClick={() => {
+                            activeRepliedComment === comment.comment_id && setActiveRepliedComment(null);
+                            handleArrowClick(comment.comment_id);
+                        }}
+                    >
+                        {expandReplies[comment.comment_id] ? (
+                            <BiSolidUpArrow size={"16px"} />
+                        ) : (
+                            <BiDownArrow size={"16px"} />
                         )}
-                    </div>
-    
+                    </button>
+                )}
+                </div>
                     {/* Replies Section */}
                     {expandReplies[comment.comment_id] && (
                         <div className="replies-container" onMouseEnter={() => setActiveReactedComment(null)}>
@@ -684,6 +704,7 @@ function Question() {
             .then(response => {
                 console.log('Response received:', response);
                 
+
                 if (response.data && response.data.status === 'success') {
                     console.log('Course data:', response.data.data); // הדפס את המידע שהתקבל
                     setCourseDetails(response.data.data);  // עדכון הסטייט עם פרטי הקורס
