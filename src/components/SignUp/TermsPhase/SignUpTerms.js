@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUpTerms.css';
 import axios from 'axios'; // Import Axios for HTTP requests
+import axiosInstance from '../../../utils/axiosInstance';
+
 
 function SignUpTerms() {
     // Static terms of use content
@@ -32,7 +34,7 @@ function SignUpTerms() {
         setIsSubmitting(true);  // Disable submit button during submission
 
         try {
-            const response = await axios.post('http://localhost:5001/api/register_termOfUse_part', {
+            const response = await axiosInstance.post('http://localhost:5001/api/register_termOfUse_part', {
                 email: localStorage.getItem('email'),
                 password: localStorage.getItem('password'),
                 first_name: localStorage.getItem('first_name'),

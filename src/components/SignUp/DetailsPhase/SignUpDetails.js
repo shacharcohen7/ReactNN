@@ -314,6 +314,8 @@ import { useNavigate } from 'react-router-dom';
 import './SignUpDetails.css';
 import axios from 'axios'; // Import Axios for HTTP requests
 import { UserContext } from '../../../context/UserContext'; // Import UserContext
+import axiosInstance from '../../../utils/axiosInstance';
+
 
 function SignUpDetails() {
     const navigate = useNavigate();
@@ -348,7 +350,7 @@ function SignUpDetails() {
         
 
         try {
-            const response = await axios.post('http://localhost:5001/api/register', {
+            const response = await axiosInstance.post('http://localhost:5001/api/register', {
                 email: formData.email,
                 password: formData.password,
                 password_confirm: formData.confirmPassword,

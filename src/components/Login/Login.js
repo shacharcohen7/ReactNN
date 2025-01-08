@@ -3,6 +3,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import { UserContext } from './UserContext';
 import { UserContext } from '../../context/UserContext';
+import axiosInstance from '../../utils/axiosInstance';
 
 import axios from 'axios';
 import './Login.css';
@@ -28,7 +29,7 @@ function Login() {
         console.log('Attempting login with:', formData);
     
         try {
-            const response = await axios.post('http://localhost:5001/api/login', {
+            const response = await axiosInstance.post('http://localhost:5001/api/login', {
                 email: formData.email,
                 password: formData.password,
             });
