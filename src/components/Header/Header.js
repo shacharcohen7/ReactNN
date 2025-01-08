@@ -10,6 +10,8 @@ function Header() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { user, setUser } = useContext(UserContext);
     const navigate = useNavigate();
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
     useEffect(() => {
         const firstName = localStorage.getItem('first_name');
@@ -27,7 +29,7 @@ function Header() {
                 return;
             }
 
-            const response = await axios.post('http://localhost:5001/api/logout',
+            const response = await axios.post(`${API_BASE_URL}/api/logout`,
                 {},  // לא נדרש לשלוח גוף אם הטוקן בכותרת
                 {
                     headers: {

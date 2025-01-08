@@ -24,6 +24,8 @@ function Exam() {
     const { courseId, examYear, examSemester, examDateSelection } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
     const navigate = useNavigate();
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
     const handleFileChange = (e) => setExamFile(e.target.files[0]);
 
@@ -49,7 +51,7 @@ function Exam() {
         formData.append('pdf_exam', examFile); // Adjust the key if needed for your backend API
     
         try {
-            const response = await axios.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
+            const response = await axios.post(`${API_BASE_URL}/api/course/uploadFullExamPdf`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
     
@@ -77,7 +79,7 @@ function Exam() {
             if (courseId) {
                 try {
                     // טעינת פרטי הקורס
-                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
+                    const courseResponse = await axios.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, {
                         headers: addAuthHeaders()  
                     });
                     if (courseResponse.data && courseResponse.data.status === 'success') {
@@ -85,7 +87,7 @@ function Exam() {
                     }
 
                     // טעינת קובץ המבחן האם קיים
-                    const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', 
+                    const response = await axios.post(`${API_BASE_URL}/api/checkExamFullPdf`, 
                         {
                             course_id: courseId,
                             year: examYear,
@@ -101,7 +103,7 @@ function Exam() {
                     } 
 
                     // טעינת כל השאלות של המבחן
-                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                    const questionsResponse = await axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, 
                         {
                             course_id: courseId,  // העברת הנתונים בגוף הבקשה, לא ב-params
                         }, 
@@ -160,7 +162,7 @@ function Exam() {
     const downloadExamPdf = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:5001/api/course/downloadExamPdf',
+                `${API_BASE_URL}/api/course/downloadExamPdf`,
                 {
                     course_id: courseId,
                     year: examYear,
@@ -217,7 +219,7 @@ function Exam() {
       
     const adddExamPdf = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/checkExamFullPdf',
+            const response = await axios.post(`${API_BASE_URL}/api/checkExamFullPdf`,
                 {
                     course_id: courseId,
                     year: examYear,

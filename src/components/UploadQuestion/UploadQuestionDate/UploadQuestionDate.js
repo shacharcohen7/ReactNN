@@ -16,6 +16,7 @@ function UploadQuestionDate() {
     const [examSemester, setExamSemester] = useState(''); // סמסטר של המבחן
     const [examDateSelection, setExamDateSelection] = useState(''); // מועד של המבחן
     const [questionNum, setQuestionNum] = useState(''); // מספר שאלה
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const addAuthHeaders = () => {
         const token = localStorage.getItem('access_token'); // או מקורות אחרים לשמירת ה-token
@@ -27,7 +28,7 @@ function UploadQuestionDate() {
     
     useEffect(() => {
         if (courseId) {
-            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, { headers: addAuthHeaders() })
+            axios.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, { headers: addAuthHeaders() })
                 .then(response => {
                     console.log('Response received:', response);
                     
@@ -60,7 +61,7 @@ function UploadQuestionDate() {
                 console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
                 
                 // קריאה ל-API לחיפוש לפי מועד
-                axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
+                axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
                     course_id: courseId,
                     year: examYear,
                     semester: examSemester,
