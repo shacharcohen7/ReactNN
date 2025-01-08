@@ -8,6 +8,8 @@ import axios from 'axios';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import './Course.css';
+import axiosInstance from '../../utils/axiosInstance';
+
 import { useNavigate } from "react-router-dom";
 
 
@@ -56,7 +58,7 @@ function Course() {
             if (courseId) {
                 try {
                     // טעינת פרטי הקורס
-                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
+                    const courseResponse = await axiosInstance.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
                         headers: addAuthHeaders()  
                     });
                     if (courseResponse.data && courseResponse.data.status === 'success') {
@@ -64,7 +66,7 @@ function Course() {
                     }
     
                     // טעינת נושאי הקורס
-                    const topicsResponse = await axios.get('http://localhost:5001/api/course/get_course_topics', {
+                    const topicsResponse = await axiosInstance.get('http://localhost:5001/api/course/get_course_topics', {
                         params: { course_id: courseId },
                         headers: addAuthHeaders()  
                     });
@@ -73,7 +75,7 @@ function Course() {
                     }
     
                     // טעינת כל השאלות של הקורס
-                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                    const questionsResponse = await axiosInstance.post('http://localhost:5001/api/course/search_question_by_specifics', 
                         {
                             course_id: courseId,  // העברת הנתונים בגוף הבקשה, לא ב-params
                         }, 
@@ -104,7 +106,7 @@ function Course() {
             // טעינת קורסים שהמשתמש רשום אליהם
             if (storedToken) {
                 try {
-                    const userCoursesResponse = await axios.get('http://localhost:5001/api/get_user_courses', {
+                    const userCoursesResponse = await axiosInstance.get('http://localhost:5001/api/get_user_courses', {
                         params: { access_token: storedToken },
                         headers: addAuthHeaders()
                     });
@@ -128,7 +130,7 @@ function Course() {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
     
             // קריאה ל-API לחיפוש לפי מועד
-            axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
+            axiosInstance.post('http://localhost:5001/api/course/search_question_by_specifics', {
                 course_id: courseId,
                 year: examYear || undefined,  // לא נשלח אם לא קיים
                 semester: examSemester || undefined,  // לא נשלח אם לא קיים
@@ -153,7 +155,7 @@ function Course() {
         } else if (searchType === 'text') {
             console.log("חיפוש לפי טקסט עם פרמטרים: ", { searchText });
     
-            axios.post('http://localhost:5001/api/course/search_questions_by_text', {
+            axiosInstance.post('http://localhost:5001/api/course/search_questions_by_text', {
                 text: searchText,      // הטקסט לחיפוש
                 course_id: courseId    // מזהה הקורס
             }, {
@@ -184,7 +186,7 @@ function Course() {
     
     const handleAddToFavorites = () => {
         if (token) {
-            axios.post('http://localhost:5001/api/course/register_to_course', {
+            axiosInstance.post('http://localhost:5001/api/course/register_to_course', {
                 params: {course_id: courseId}, 
                 headers: addAuthHeaders()
             })
@@ -201,7 +203,7 @@ function Course() {
     
     const handleRemoveFromFavorites = () => {
         if (token) {
-            axios.post('http://localhost:5001/api/course/remove_student_from_course', {
+            axiosInstance.post('http://localhost:5001/api/course/remove_student_from_course', {
                 params: {course_id: courseId,
                 access_token: token},
                 headers: addAuthHeaders()

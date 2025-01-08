@@ -6,6 +6,8 @@ import Select from "react-select";
 import Header from '../../Header/Header';
 import Footer from '../../Footer/Footer';  // ייבוא הפוטר
 import './UploadQuestionContent.css';
+import axiosInstance from '../../../utils/axiosInstance';
+
 
 function UploadQuestionContent() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
@@ -64,7 +66,7 @@ function UploadQuestionContent() {
         try {
             setIsSubmitting(true);
             // Make the API call
-            const response = await axios.post('http://localhost:5001/api/course/add_question', formData, {
+            const response = await axiosInstance.post('http://localhost:5001/api/course/add_question', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -93,7 +95,7 @@ function UploadQuestionContent() {
 
     useEffect(() => {
     if (courseId) {
-        axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
+        axiosInstance.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -113,7 +115,7 @@ function UploadQuestionContent() {
     
     
     useEffect(() => {
-        axios.get('http://localhost:5001/api/course/get_course_topics', {
+        axiosInstance.get('http://localhost:5001/api/course/get_course_topics', {
             params: { course_id: courseId },
             headers: addAuthHeaders()        
         })

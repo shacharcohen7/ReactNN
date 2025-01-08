@@ -12,6 +12,8 @@ import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Exam.css';
+import axiosInstance from '../../utils/axiosInstance';
+
 import { useNavigate } from "react-router-dom";
 
 function Exam() {
@@ -49,8 +51,10 @@ function Exam() {
         formData.append('pdf_exam', examFile); // Adjust the key if needed for your backend API
     
         try {
-            const response = await axios.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+            const response = await axiosInstance.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' , 
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,  // הוספת הטוקן להדר
+            },
             });
     
             if (response.data.success) {
@@ -77,7 +81,7 @@ function Exam() {
             if (courseId) {
                 try {
                     // טעינת פרטי הקורס
-                    const courseResponse = await axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
+                    const courseResponse = await axiosInstance.get(`http://localhost:5001/api/course/get_course/${courseId}`, {
                         headers: addAuthHeaders()  
                     });
                     if (courseResponse.data && courseResponse.data.status === 'success') {
@@ -85,7 +89,7 @@ function Exam() {
                     }
 
                     // טעינת קובץ המבחן האם קיים
-                    const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', 
+                    const response = await axiosInstance.post('http://localhost:5001/api/checkExamFullPdf', 
                         {
                             course_id: courseId,
                             year: examYear,
@@ -101,7 +105,7 @@ function Exam() {
                     } 
 
                     // טעינת כל השאלות של המבחן
-                    const questionsResponse = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+                    const questionsResponse = await axiosInstance.post('http://localhost:5001/api/course/search_question_by_specifics', 
                         {
                             course_id: courseId,  // העברת הנתונים בגוף הבקשה, לא ב-params
                         }, 
@@ -159,7 +163,7 @@ function Exam() {
 
     const downloadExamPdf = async () => {
         try {
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:5001/api/course/downloadExamPdf',
                 {
                     course_id: courseId,
@@ -217,7 +221,7 @@ function Exam() {
       
     const adddExamPdf = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/checkExamFullPdf',
+            const response = await axiosInstance.post('http://localhost:5001/api/checkExamFullPdf',
                 {
                     course_id: courseId,
                     year: examYear,

@@ -3,6 +3,8 @@ import './OpenCourse.css'; // יש לוודא שהקובץ הזה קיים
 import Header from '../Header/Header'; // נניח שאתה משתמש בהדר ב-header עצמאי
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import axios from 'axios'; // Ensure Axios is imported
+import axiosInstance from '../../utils/axiosInstance';
+
 
 
 function OpenCourse() {
@@ -34,7 +36,7 @@ function OpenCourse() {
       formData.append('syllabus_content_pdf', syllabusFile); // Syllabus PDF file
   
       // Send FormData to backend
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         'http://localhost:5001/api/course/open_course',
         formData,
         {
