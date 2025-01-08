@@ -5,6 +5,8 @@ import axios from 'axios';
 import Header from '../../Header/Header';
 import Footer from '../../Footer/Footer';  // ייבוא הפוטר
 import './UploadQuestionDate.css';
+import axiosInstance from '../../../utils/axiosInstance';
+
 
 function UploadQuestionDate() {
     const { courseId } = useParams();  // מקבלים את שם הקורס מה-URL
@@ -28,7 +30,7 @@ function UploadQuestionDate() {
     
     useEffect(() => {
         if (courseId) {
-            axios.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, { headers: addAuthHeaders() })
+            axiosInstance.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, { headers: addAuthHeaders() })
                 .then(response => {
                     console.log('Response received:', response);
                     
@@ -61,7 +63,7 @@ function UploadQuestionDate() {
                 console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
                 
                 // קריאה ל-API לחיפוש לפי מועד
-                axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
+                axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
                     course_id: courseId,
                     year: examYear,
                     semester: examSemester,

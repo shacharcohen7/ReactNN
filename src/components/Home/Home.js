@@ -4,6 +4,7 @@ import './Home.css';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../utils/axiosInstance';
 
 function Home() {
     const [courses, setCourses] = useState([]);  // קורסים כלליים
@@ -62,7 +63,7 @@ function Home() {
         const token = localStorage.getItem('access_token');
         if (token) {
             console.log("Sending request with token get all courses:", token);
-            axios.get(`${API_BASE_URL}/api/course/get_all_courses`, {
+            axiosInstance.get(`${API_BASE_URL}/api/course/get_all_courses`, {
                 headers: addAuthHeaders()
                 })
                 .then(response => {
@@ -80,7 +81,8 @@ function Home() {
     // קריאה לקבלת הנושאים של קורס
     useEffect(() => {
         if (selectedCourse) {
-            axios.get(`${API_BASE_URL}/api/course/get_course_topics`, {
+
+            axiosInstance.get(`${API_BASE_URL}/api/course/get_course_topics`, {
                 params: { course_id: selectedCourse },
                 headers: addAuthHeaders()
             })
@@ -100,7 +102,7 @@ function Home() {
     useEffect(() => {
         // בצע קריאה ל-API כדי להשיג את הקורסים של המשתמש
         if (token) {
-          axios.get(`${API_BASE_URL}/api/get_user_courses`, {
+          axiosInstance.get(`${API_BASE_URL}/api/get_user_courses`, {
             headers: addAuthHeaders()
           })
           .then(response => {
@@ -150,7 +152,7 @@ function Home() {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { selectedCourse, examYear, examSemester, examDateSelection, questionNum });
     
             // קריאה ל-API לחיפוש לפי מועד
-            axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
+            axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
                 course_id: selectedCourse,
                 year: examYear || undefined,
                 semester: examSemester || undefined,
@@ -177,7 +179,7 @@ function Home() {
             console.log("חיפוש לפי טקסט עם פרמטרים: ", { selectedCourse, searchText });
     
             // קריאה ל-API לחיפוש לפי טקסט
-            axios.post(`${API_BASE_URL}/api/course/search_questions_by_text`, {
+            axiosInstance.post(`${API_BASE_URL}/api/course/search_questions_by_text`, {
                 text: searchText,
                 course_id: selectedCourse || undefined},
             {headers: addAuthHeaders()})
@@ -222,7 +224,7 @@ function Home() {
             // מחפש את הקורס לפי ה-ID בתוך המערך של הקורסים
             const course = courses.find(course => course.course_id === courseId);
             if (course) {
-                axios.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, {
+                axiosInstance.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, {
                     headers: addAuthHeaders()
                 })
                     .then(response => {

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUpCode.css';
 import axios from 'axios';
+import axiosInstance from '../../../utils/axiosInstance';
+
 
 function SignUpCode() {
     const navigate = useNavigate(); // Create navigate object
@@ -29,7 +31,7 @@ function SignUpCode() {
         console.log('Form Data on Submit:', formData); // Log form data before submitting
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/register_authentication_part`, {
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/register_authentication_part`, {
                 auth_code: formData.auth_code,
                 email: localStorage.getItem('email'),
                 // Send auth_code from formData
