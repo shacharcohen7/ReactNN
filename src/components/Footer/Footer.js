@@ -4,6 +4,7 @@ import './Footer.css';
 
 function Footer() {
     const [showModal, setShowModal] = useState(false); // ניהול מצב המודל
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const termsOfUseContent = ` 
         ברוכים הבאים לשירות NegevNerds, אנא קרא בעיון את תנאי השימוש להלן לפני השימוש בשירות:

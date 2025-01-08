@@ -44,6 +44,8 @@ function Question() {
     const [isDeleteCommentModalOpen, setIsDeleteCommentModalOpen] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null); // Store the comment ID to delete
     const [commentsMetadata, setCommentsMetadata] = useState([]);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
 
     const addAuthHeaders = (headers = {}) => {
@@ -75,7 +77,7 @@ function Question() {
             for (const reaction of comment.reactions) {
                 if (!usernames[reaction.user_id]) {
                     try {
-                        const response = await axios.get('http://localhost:5001/api/get_user_name', {
+                        const response = await axios.get(`${API_BASE_URL}/api/get_user_name`, {
                             params: { user_id: reaction.user_id }
                         });
                         console.log(response.data)
@@ -133,7 +135,7 @@ function Question() {
         
             try {
                 // Make the API call
-                const response = await axios.post('http://localhost:5001/api/course/add_reaction', formData, {
+                const response = await axios.post(`${API_BASE_URL}/api/course/add_reaction`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
@@ -167,7 +169,7 @@ function Question() {
         
             try {
                 // Make the API call
-                const response = await axios.post('http://localhost:5001/api/course/remove_reaction', formData, {
+                const response = await axios.post(`${API_BASE_URL}/api/course/remove_reaction`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
@@ -211,7 +213,7 @@ function Question() {
         formData.append('pdf_exam', answerFile); // Adjust the key if needed for your backend API
     
         try {
-            const response = await axios.post('http://localhost:5001/api/course/uploadFullExamPdf', formData, {
+            const response = await axios.post(`${API_BASE_URL}/api/course/uploadFullExamPdf`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
             });
     
@@ -258,7 +260,7 @@ function Question() {
     
     //    try {
     //        // Make the API call
-    //        const response = await axios.post('http://localhost:5001/api/course/upload_answer', formData, {
+    //        const response = await axios.post(`${API_BASE_URL}/api/course/upload_answer', formData, {
     //            headers: {
     //                'Content-Type': 'multipart/form-data',
     //                'Authorization': `Bearer ${localStorage.getItem('access_token')}` // Send token in header
@@ -288,7 +290,7 @@ function Question() {
       };
     
     // const updateComments = async () => {
-    //     axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
+    //     axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics', {
     //         course_id: courseId,
     //         year: examYear,
     //         semester: examSemester,
@@ -315,7 +317,7 @@ function Question() {
 
     const updateComments = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/course/search_question_by_specifics', 
+            const response = await axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, 
                 {
                     course_id: courseId,
                     year: examYear,
@@ -337,7 +339,7 @@ function Question() {
                 setActiveRepliedComment(null);
     
                 // Fetch metadata for comments
-                const metadataResponse = await axios.get('http://localhost:5001/api/course/get_comments_metadata', {
+                const metadataResponse = await axios.get(`${API_BASE_URL}/api/course/get_comments_metadata`, {
                     params: { question_id: questionData.question_id }, 
                     headers: addAuthHeaders()
                 });
@@ -370,7 +372,7 @@ function Question() {
         if (!commentToDelete) return; // Ensure a comment is selected
     
         try {
-            const response = await axios.delete('http://localhost:5001/api/course/delete_comment', {
+            const response = await axios.delete(`${API_BASE_URL}/api/course/delete_comment`, {
                 data: { comment_id: commentToDelete }, 
                 headers: addAuthHeaders()
             });
@@ -414,7 +416,7 @@ function Question() {
         formData.append('solution_file', answerFile); // Adjust the key for your backend
     
         try {
-            const response = await axios.post('http://localhost:5001/api/course/uploadSolution', formData, {
+            const response = await axios.post(`${API_BASE_URL}/api/course/uploadSolution`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' , 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
             });
     
@@ -446,7 +448,7 @@ function Question() {
         
             try {
                 // Make the API call
-                const response = await axios.post('http://localhost:5001/api/course/add_comment', formData, {
+                const response = await axios.post(`${API_BASE_URL}/api/course/add_comment`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data', 
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
@@ -473,7 +475,7 @@ function Question() {
             console.log("חיפוש שאלה ספציפית: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
     
             // קריאה ל-API לחיפוש לפי מועד
-            axios.post('http://localhost:5001/api/course/search_question_by_specifics', {
+            axios.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
                 course_id: courseId,
                 year: examYear,
                 semester: examSemester,
@@ -502,7 +504,7 @@ function Question() {
     useEffect(() => {
         const checkCourseManager = async () => {
             try {
-                const response = await axios.post('http://localhost:5001/api/course/is_course_manager', {
+                const response = await axios.post(`${API_BASE_URL}/api/course/is_course_manager`, {
                     course_id: courseId,
                     user_id: localStorage.getItem('user_id'), 
                 });
@@ -678,7 +680,7 @@ function Question() {
     
     useEffect(() => {
         if (courseId) {
-            axios.get(`http://localhost:5001/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
+            axios.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, {headers: addAuthHeaders()})
             .then(response => {
                 console.log('Response received:', response);
                 
@@ -698,7 +700,7 @@ function Question() {
     useEffect(() => {
         const fetchQuestionFile = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/api/course/get_question_pdf', {
+                const response = await axios.get(`${API_BASE_URL}/api/course/get_question_pdf`, {
                     params: {
                         course_id: courseId,
                         year: examYear,
@@ -734,7 +736,7 @@ function Question() {
     useEffect(() => {
         const fetchAnswerPdf = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/api/course/get_answer_pdf', {
+                const response = await axios.get(`${API_BASE_URL}/api/course/get_answer_pdf`, {
                     params : {
                         course_id: courseId,
                         year: examYear,
@@ -779,7 +781,7 @@ function Question() {
     const downloadExamPdf = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:5001/api/course/downloadExamPdf',
+                `${API_BASE_URL}/api/course/downloadExamPdf`,
                 {
                     course_id: courseId,
                     year: examYear,
@@ -830,7 +832,7 @@ function Question() {
     
    // const handleAddSolution = async () => {
       //  try {
-      //      const response = await axios.post('http://localhost:5001/api/checkExistSolution', {
+      //      const response = await axios.post(`${API_BASE_URL}/api/checkExistSolution', {
       //          params: {course_id: courseId,
       //          year: examYear,
       //          semester: examSemester,
@@ -862,7 +864,7 @@ function Question() {
     const confirmDeleteQuestion = async () => {
         try {
             // Call the backend API to delete the question
-            const response = await axios.delete('http://localhost:5001/api/course/delete_question', {
+            const response = await axios.delete(`${API_BASE_URL}/api/course/delete_question`, {
                 data: {
                     course_id: courseId,
                     year: examYear,
@@ -890,7 +892,7 @@ function Question() {
     };
     const adddExamPdf = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/api/checkExamFullPdf', {
+            const response = await axios.post(`${API_BASE_URL}/api/checkExamFullPdf`, {
                 params: {course_id: courseId,
                 year: examYear,
                 semester: examSemester,
