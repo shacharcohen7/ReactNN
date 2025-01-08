@@ -173,8 +173,8 @@ function Exam() {
                 },
                 {
                     headers: addAuthHeaders()  
-                },
-                {
+                ,
+                
                     responseType: 'blob', // Expect binary data
                 }
             );
