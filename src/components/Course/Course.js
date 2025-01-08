@@ -118,7 +118,7 @@ function Course() {
         };
     
         fetchData();
-    }, [courseId, allQuestions]);
+    }, []);
 
     const handleSearchClick = () => {
         if (searchType === 'topic') {
