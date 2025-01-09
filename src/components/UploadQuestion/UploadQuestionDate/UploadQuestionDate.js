@@ -53,7 +53,7 @@ function UploadQuestionDate() {
     
     const handleConfirmClick = () => {
         if (examYear && examSemester && examDateSelection && questionNum) {
-            if(examYear < 1960){
+            if(examYear < 1960 || examYear > new Date().getFullYear()){
                 alert("שנה לא תקינה");
             }
             else if(questionNum < 1){
@@ -137,6 +137,7 @@ function UploadQuestionDate() {
                             onChange={(e) => {setExamYear(e.target.value)}}
                             className="question-date-field"
                             min="1960"
+                            max={new Date().getFullYear()}
                         />
                     </div>
                     <div className="form-group">
