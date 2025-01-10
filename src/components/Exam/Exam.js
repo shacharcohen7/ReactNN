@@ -258,7 +258,7 @@ function Exam() {
                 </a>
                 <IoIosArrowBack />
                 <a>
-                    <span>מבחן {examYear} סמסטר {examSemester} מועד {examDateSelection}</span>
+                    <span>{examYear} סמסטר {examSemester} מועד {examDateSelection}</span>
                 </a>
             </div>
             <main className="content">
