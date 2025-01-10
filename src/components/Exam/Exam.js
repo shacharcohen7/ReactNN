@@ -1,14 +1,8 @@
 // Exam.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { faStar } from '@fortawesome/free-solid-svg-icons'; // כוכב מלא
-import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons'; // כוכב ריק
-import { faEye } from '@fortawesome/free-solid-svg-icons'; // עין
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { BsEmojiSmile } from "react-icons/bs";
-import { FaRegCommentAlt, FaCommentAlt } from 'react-icons/fa';
-import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
+import { useParams } from 'react-router-dom'
+import { IoIosArrowBack } from "react-icons/io";
+
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import './Exam.css';
@@ -254,6 +248,19 @@ function Exam() {
     return (
         <div className="upload-question-content-page">
             <Header />
+            <div className='links-container'>
+                <a href={`/home`} className="nav-result-link">
+                    <span>דף הבית</span>
+                </a>
+                <IoIosArrowBack />
+                <a href={`/course/${courseDetails.course_id}`} className="nav-result-link">
+                    <span>קורס {courseDetails.course_id} - {courseDetails.name}</span>
+                </a>
+                <IoIosArrowBack />
+                <a>
+                    <span>מבחן {examYear} סמסטר {examSemester} מועד {examDateSelection}</span>
+                </a>
+            </div>
             <main className="content">
                 <h1>דף מבחן</h1>
                 <div className="details-container">
@@ -289,13 +296,6 @@ function Exam() {
                     >
                         העלאת שאלה חדשה
                     </button>
-                    <button
-                        className='tab download-tab'
-                        onClick={() => navigate(`/course/${courseId}`)}
-                        title="לדף הקורס"
-                    >
-                        <i className="fas fa-arrow-left"></i> 
-                    </button>
                 </div>
                 <div className="updates-container">
                     <h3>שאלות במבחן זה</h3>
@@ -304,7 +304,7 @@ function Exam() {
                                 sortedQuestions.map((result) => (
                                     <li key={result.question_id} className="result-item">
                                         <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
-                                            <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed} / שאלה {result.question_number}</span>
+                                            <span>שאלה מספר {result.question_number}</span>
                                         </a>
                                     </li>
                                 ))

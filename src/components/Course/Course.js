@@ -4,6 +4,7 @@ import { faStar } from '@fortawesome/free-solid-svg-icons'; // כוכב מלא
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons'; // כוכב ריק
 import { faEye } from '@fortawesome/free-solid-svg-icons'; // עין
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IoIosArrowBack } from "react-icons/io";
 import axios from 'axios';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
@@ -251,6 +252,17 @@ function Course() {
     return (
         <div className="course-page">
             <Header />
+            {courseDetails && (
+                <div className='links-container'>
+                    <a href={`/home`} className="nav-result-link">
+                        <span>דף הבית</span>
+                    </a>
+                    <IoIosArrowBack />
+                    <a>
+                        <span>קורס {courseDetails.course_id} - {courseDetails.name}</span>
+                    </a>
+                </div> 
+            )}
             <main className="content">
                 <div className="course-header">
                     {courseDetails ? (
@@ -286,13 +298,6 @@ function Course() {
                         onClick={() => setSearchType('text')}
                     >
                         חיפוש לפי טקסט
-                    </button>
-                    <button
-                        className='tab download-tab'
-                        onClick={() => navigate(`/home`)}
-                        title="לדף הבית"
-                    >
-                        <i className="fas fa-arrow-left"></i> 
                     </button>
                 </div>
 
