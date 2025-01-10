@@ -8,6 +8,7 @@ import axios from 'axios';
 import { BsEmojiSmile } from "react-icons/bs";
 import { FaRegCommentAlt, FaCommentAlt } from 'react-icons/fa';
 import { BiDownArrow, BiSolidUpArrow } from "react-icons/bi";
+import { IoIosArrowBack } from "react-icons/io";
 import { FaRegTrashAlt } from "react-icons/fa";
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
@@ -966,6 +967,23 @@ function Question() {
     return (
         <div className="upload-question-content-page">
             <Header />
+            <div className='links-container'>
+                <a href={`/home`} className="nav-result-link">
+                    <span>דף הבית</span>
+                </a>
+                <IoIosArrowBack />
+                <a href={`/course/${courseDetails.course_id}`} className="nav-result-link">
+                    <span>קורס {courseDetails.course_id} - {courseDetails.name}</span>
+                </a>
+                <IoIosArrowBack />
+                <a href={`/exam/${courseDetails.course_id}/${examYear}/${examSemester}/${examDateSelection}`} className="nav-result-link">
+                    <span>מבחן {examYear} סמסטר {examSemester} מועד {examDateSelection}</span>
+                </a>
+                <IoIosArrowBack />
+                <a>
+                    <span>שאלה {questionNum}</span>
+                </a>
+            </div>
             <main className="content">
                 <h1>דף שאלה</h1>
                 <div className="details-container">
@@ -1003,13 +1021,6 @@ function Question() {
                         onClick={() => handlePDFChange('answer')}
                     >
                         פתרון
-                    </button>
-                    <button
-                        className='tab download-tab'
-                        onClick={() => navigate(`/exam/${courseId}/${examYear}/${examSemester}/${examDateSelection}`)}
-                        title="לדף המבחן"
-                    >
-                        <i className="fas fa-arrow-left"></i> 
                     </button>
                     {/* <button
                         className="tab download-tab"
@@ -1178,7 +1189,7 @@ function Question() {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>האם את/ה בטוח/ה?</h2>
-                        <p>מחיקת התגובה תמחק את כל הנתונים הקשורים אליה.</p>
+                        <p>מחיקת התגובה תמחק את כל התוכן שלה לצמיתות.</p>
                         <div className="modal-actions">
                             <button className="confirm-btn" onClick={confirmDeleteComment}>
                                 המשך
