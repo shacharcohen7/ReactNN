@@ -413,7 +413,7 @@ function Home() {
                                 {searchResults.map((result) => (
                                     <li key={result.question_id} className="result-item">
                                         <a href={`/question/${result.course_id}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
-                                            <span>{courseIdToNameMap[result.course_id] || "לא ידוע"}_{result.year}_סמסטר-{result.semester}_מועד-{result.moed}_שאלה-{result.question_number}</span>
+                                            <span>{courseIdToNameMap[result.course_id] || "לא ידוע"} / {result.year} / {result.semester} / מועד {result.moed} / שאלה {result.question_number}</span>
                                         </a>
                                     </li>
                                 ))}
