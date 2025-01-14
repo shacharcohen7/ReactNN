@@ -160,7 +160,10 @@ function UploadQuestionContent() {
                 </div>
                 <div className="question-content-form">
                     <div className="form-group">
-                        <label className="label-question-content" htmlFor="name">שאלה:</label>
+                    <label className="label-question-content" htmlFor="name">
+                        <span className="required-asterisk" title="שדה חובה">*</span> {/* הוספת title לכוכבית */}
+                            שאלה:
+                        </label>
                         <div class="info-icon" title="העלה קובץ PDF או תמונה של השאלה כפי שמופיעה במבחן">i</div>
                         <input
                             className="question-content-field"
@@ -182,7 +185,10 @@ function UploadQuestionContent() {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="label-question-content" htmlFor="name">סוג השאלה:</label>
+                    <label className="label-question-content" htmlFor="name">
+                        <span className="required-asterisk" title="שדה חובה">*</span>
+                            סוג השאלה:
+                    </label>
                         <div class="info-icon" title="בחר את סוג השאלה - אמריקאית או פתוחה">i</div>
                         <select
                             value={isAmerican === null ? '' : isAmerican ? 'אמריקאית' : 'פתוחה'}
@@ -203,7 +209,10 @@ function UploadQuestionContent() {
                         </select>
                     </div>
                     <div className="form-group">
-                        <label className="label-question-content" htmlFor="name">נושאי השאלה:</label>
+                    <label className="label-question-content" htmlFor="name">
+                        <span className="required-asterisk" title="שדה חובה">*</span>
+                            נושאי השאלה:
+                        </label>
                         <div class="info-icon" title="בחר את נושאי הקורס בהם עוסקת שאלה זו">i</div>
                         <Select
                             id="multi-select"
