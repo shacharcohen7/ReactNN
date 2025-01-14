@@ -61,6 +61,18 @@
     width: 100%;
 }
 
+/* Style for the input field */
+.password-input-container input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 40px; /* Space for the eye button inside the input field */
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    direction: rtl; /* Hebrew alignment */
+}
+
 /* Tooltip for password rules */
 .password-tooltip {
     position: absolute;
@@ -138,4 +150,21 @@
     .submit-button {
         max-width: 90%; /* Adjust width for smaller screens */
     }
+}
+
+.eye-button {
+    position: absolute;
+    top: 50%;
+    left: 10px; /* Position the eye button on the left side */
+    transform: translateY(-50%); /* Vertically centers the button */
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 20px; /* Adjust the size of the eye icon */
+    color: #656f77; /* Color of the eye icon */
+}
+
+.eye-button:hover {
+    color: #43494e; /* Darker color on hover */
 }
