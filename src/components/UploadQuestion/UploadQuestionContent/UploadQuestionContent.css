@@ -104,3 +104,9 @@
   cursor: pointer;
   position: relative;
 }
+
+.required-asterisk {
+  color: red; /* צבע אדום */
+  font-weight: bold; /* הדגשה */
+  margin-left: 5px; /* רווח קטן אחרי השם */
+}
