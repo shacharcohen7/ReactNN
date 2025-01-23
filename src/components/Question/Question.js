@@ -1007,7 +1007,7 @@ function Question() {
             if (response.data.success) {
                 console.log("Question deleted successfully.");
                 setIsDeleteModalOpen(false); // Close the modal after deleting
-                navigate(`/course/${courseId}`); // Navigate to the course page
+                navigate(`/exam/${courseDetails.course_id}/${examYear}/${examSemester}/${examDateSelection}`); // Navigate to the course page
             } else {
                 console.error("Error deleting question:", response.data.message);
             }
@@ -1173,15 +1173,23 @@ function Question() {
                         {questionPdfUrl ? (
                             <iframe src={questionPdfUrl} width="100%" height="600px" title="PDF Viewer" />
                         ) : imageUrl ? (
-                            <img
-                                src={imageUrl}
-                                alt="Question"
+                            <div 
                                 style={{
-                                    width: '100%',      // Make the image fill its container horizontally
-                                    maxHeight: '600px', // Limit the height to 600px
-                                    objectFit: 'contain' // Ensure the image maintains its aspect ratio
+                                    width: '100%', 
+                                    height: '600px',  // Fixed height for container
+                                    overflow: 'auto'  // Enables vertical scrolling
                                 }}
-                            />
+                            >
+                                <img
+                                    src={imageUrl}
+                                    alt="Question"
+                                    style={{
+                                        width: '100%',      // Full width of container
+                                        height: 'auto',     // Automatically adjust height
+                                        objectFit: 'contain' // Maintain aspect ratio
+                                    }}
+                                />
+                            </div>
                         ) : (
                             <p>Loading file...</p>
                         )}

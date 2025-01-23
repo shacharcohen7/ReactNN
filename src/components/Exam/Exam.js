@@ -19,6 +19,10 @@ function Exam() {
     const [examExist, setExamExist] = useState(false);
     const { courseId, examYear, examSemester, examDateSelection } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
+    const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
+    const [questionNum, setQuestionNum] = useState(''); // מספר שאלה
+    const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
+    const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -155,6 +159,44 @@ function Exam() {
         setSearchResults(sortedResults);
     };
 
+    const handleConfirmClick = () => {
+            if(questionNum < 1){
+                alert("מספר שאלה לא תקין");
+            }
+            else{
+                console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
+                
+                // קריאה ל-API לחיפוש לפי מועד
+                axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum
+                }, {
+                    headers: addAuthHeaders()
+                })
+                .then(response => {
+                    const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                    console.log(parsedResponse.status)
+                    if (parsedResponse.status==="success" && parsedResponse.data.length == 1) {
+                        const userChoice = window.confirm(
+                            "שאלה זו קיימת במאגר. האם ברצונך לעבור לדף השאלה?"
+                        );
+                        if (userChoice) {
+                            navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+                        } 
+                    } else {
+                        navigate(`/upload-question-content/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('שגיאה בחיפוש לפי מועד:', error);
+                    alert("אירעה שגיאה בחיפוש לפי מועד");
+                });
+            }
+    };
+
     const downloadExamPdf = async () => {
         try {
             const response = await axiosInstance.post(
@@ -277,25 +319,54 @@ function Exam() {
                         <strong>מועד</strong> {examDateSelection}
                     </div>
                 </div>
-                <div className="tabs-container">
+                <div className="action-buttons">
                    {examExist ? 
                     (<button
-                        className="tab download-tab"
+                        className="action-button"
                         onClick={downloadExamPdf}
                     >
                         הורדת המבחן המלא
                     </button>):
                     (<button
-                        className="tab download-tab"
+                        className="action-button"
                         onClick={adddExamPdf}
                     >
                         העלאת המבחן המלא
                     </button>)}
                     <button
-                        className="tab download-tab"
+                        className="action-button"
+                        onClick={() => {
+                            openQuestionModal();
+                            console.log(isQuestionModalOpen);
+                        }}
                     >
                         העלאת שאלה חדשה
                     </button>
+                    {isQuestionModalOpen && (
+                        <div className="modal">
+                        <div className="modal-content-question">
+                            <p>
+                                 הזן את מספר השאלה שברצונך להעלות
+                            </p>
+                            <input
+                                type="number"
+                                value={questionNum}
+                                onChange={(e) => setQuestionNum(e.target.value)}
+                                placeholder='מספר שאלה'
+                                className="search-input-question"
+                                min="1"
+                            />
+                            <div className="modal-buttons">
+                                <button class="confirm-button-question" onClick={() => handleConfirmClick()}>
+                                    אישור
+                                </button>
+                                <button class="confirm-button-question" onClick={closeQuestionModal}>
+                                    ביטול
+                                </button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
                 </div>
                 <div className="updates-container">
                     <h3>שאלות במבחן זה</h3>
