@@ -16,7 +16,7 @@ function Home() {
     const [courseForQuestion, setcourseForQuestion] = useState('');
     const [topics, setTopics] = useState([]);
     const [courseId, setCourseId] = useState('');
-
+    const [activeSearch, setActiveSearch] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
     const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
 
@@ -401,11 +401,14 @@ function Home() {
                             />
                         </div>
                     )}
-                    <button className="search-button-home" onClick={handleSearch}>
+                    <button className="search-button-home" onClick={() => {handleSearch(); setActiveSearch(true);}}>
                         חפש
                     </button>
+                    <button className="search-button-home" onClick={() => {setActiveSearch(false);}}>
+                        נקה
+                    </button>
                 </div>
-                <div className="search-results">
+                {activeSearch && (<div className="search-results">
                     {searchResults.length > 0 ? (
                         <div>
                             <h3>התוצאות שהתקבלו</h3> {/* כותרת התוצאות */}
@@ -425,7 +428,7 @@ function Home() {
                             <p>לא נמצאו תוצאות לחיפוש זה</p>
                         </div>
                     )}
-                </div>
+                </div>)}
 
                 <div className="action-buttons">
                     <button className="action-button">
