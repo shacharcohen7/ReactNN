@@ -130,8 +130,32 @@ function Course() {
 
     const handleSearchClick = () => {
         if (searchType === 'topic') {
-            console.log("חיפוש לפי נושא עם פרמטרים: ", { courseId, selectedTopic});
-            // במקרה של חיפוש לפי נושא, תוכל להוסיף את קריאת ה-API המתאימה כאן
+            console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedTopic });
+    
+            // קריאה ל-API לחיפוש לפי נושא
+            axiosInstance.post(`${API_BASE_URL}/api/course/search_questions_by_topic`, {
+                topic: selectedTopic,
+                course_id: courseId || undefined
+            }, {
+                headers: addAuthHeaders()
+            })
+            .then(response => {
+                const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט
+                console.log("תוצאות חיפוש לפי נושא: ", parsedResponse);
+    
+                // אם התוצאה היא לא מערך, נהפוך אותה למערך
+                if (parsedResponse.status === "success" && parsedResponse.data.length > 0) {
+                    console.log("תוצאות החיפוש: ", parsedResponse.data);
+                    setSearchResults(parsedResponse.data);  // עדכון תוצאות החיפוש
+                } else {
+                    setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
+                }
+            })
+            .catch(error => {
+                console.error('שגיאה בחיפוש לפי נושא:', error);
+                setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
+                alert("אירעה שגיאה בחיפוש לפי נושא");
+            });
         } else if (searchType === 'date') {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { courseId, examYear, examSemester, examDateSelection, questionNum });
     
@@ -316,13 +340,6 @@ function Course() {
                                     </option>
                                 ))}
                             </select>
-                            <input
-                                type="text"
-                                placeholder="חיפוש טקסט חופשי"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="search-input-text"
-                            />
                         </div>
                     )}
 
