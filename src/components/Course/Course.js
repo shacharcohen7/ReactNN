@@ -26,6 +26,8 @@ function Course() {
     const [examSemester, setExamSemester] = useState('');
     const [examDateSelection, setExamDateSelection] = useState('');
     const [questionNum, setQuestionNum] = useState('');
+    const [activeSearch, setActiveSearch] = useState(false);
+    
     const navigate = useNavigate();
 
     const [selectedTopic, setSelectedTopic] = useState('');
@@ -384,12 +386,15 @@ function Course() {
                         </div>
                     )}
 
-                    <button className="search-button-home" onClick={handleSearchClick}>
+                    <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
                         חפש
+                    </button>
+                    <button className="search-button-home" onClick={() => {setActiveSearch(false);}}>
+                        נקה
                     </button>
                 </div>
 
-                <div className="search-results">
+                {activeSearch && (<div className="search-results">
                     {searchResults.length > 0 ? (
                         <div>
                             <h3>התוצאות שהתקבלו</h3>
@@ -409,7 +414,7 @@ function Course() {
                             <p>לא נמצאו תוצאות לחיפוש זה</p>
                         </div>
                     )}
-                </div>
+                </div>)}
 
                 <div className="action-buttons">
                     <button className="action-button">
