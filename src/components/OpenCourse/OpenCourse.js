@@ -5,6 +5,7 @@ import Footer from '../Footer/Footer';  // ייבוא הפוטר
 import axios from 'axios'; // Ensure Axios is imported
 import axiosInstance from '../../utils/axiosInstance';
 
+import { useNavigate } from "react-router-dom";
 
 
 function OpenCourse() {
@@ -13,6 +14,7 @@ function OpenCourse() {
   const [syllabusFile, setSyllabusFile] = useState(null);
   const [showCourseNumberTooltip, setShowCourseNumberTooltip] = useState(false); // Tooltip state
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const navigate = useNavigate();
 
   const handleNewCourseSubmit = async () => {
     if (!newCourseNumber || !newCourseName || !syllabusFile) {
@@ -51,6 +53,8 @@ function OpenCourse() {
       if (response.data.success) {
         alert('הקורס נוסף בהצלחה!'); // Success message
         console.log('Response:', response.data); // Log response for debugging
+        navigate(`/course/${newCourseNumber}`);
+
       } else {
         alert(`שגיאה: ${response.data.message}`); // Backend error message
       }

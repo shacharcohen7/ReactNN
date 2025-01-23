@@ -1007,7 +1007,7 @@ function Question() {
             if (response.data.success) {
                 console.log("Question deleted successfully.");
                 setIsDeleteModalOpen(false); // Close the modal after deleting
-                navigate(`/course/${courseId}`); // Navigate to the course page
+                navigate(`/exam/${courseDetails.course_id}/${examYear}/${examSemester}/${examDateSelection}`); // Navigate to the course page
             } else {
                 console.error("Error deleting question:", response.data.message);
             }
