@@ -350,7 +350,10 @@ function Exam() {
                             <div className="modal-content">
                                 <button className="modal-close" onClick={closeModal}>X</button>
                                 <h2>Upload Exam File</h2>
-                                <input type="file" onChange={handleFileChange} />
+                                <input type="file"
+                                 onChange={handleFileChange}
+                                 accept=".pdf"
+                                  />
                                 <div className="modal-actions">
                                     <button className="upload-btn" onClick={handleFileUpload}>Upload</button>
                                     <button className="cancel-btn" onClick={closeModal}>Cancel</button>
