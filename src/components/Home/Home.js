@@ -520,7 +520,12 @@ function Home() {
                                 </p>
                             </div>
                         ))}
+                        <div className="course-card" onClick={navigateToAddNewCourse}>
+                            <span className="plus-sign"> + </span>
+                            <span>פתיחת קורס חדש</span>
+                        </div>
                     </div>
+                    
                 </div>
 
                 {isCourseNotFoundModalOpen && (
@@ -535,12 +540,6 @@ function Home() {
                     </div>
                 </div>
             )}
-
-
-                <div className="add-course-button" onClick={navigateToAddNewCourse}>
-                    <span className="plus-sign">+</span>
-                    <span>פתיחת קורס חדש</span>
-                </div>
             </main>
             <Footer />
         </div>
