@@ -218,10 +218,10 @@ function Course() {
     
     const handleAddToFavorites = () => {
         if (token) {
-            axiosInstance.post(`${API_BASE_URL}/api/course/register_to_course`, {
-                params: {course_id: courseId}, 
-                headers: addAuthHeaders()
-            })
+            axiosInstance.post(`${API_BASE_URL}/api/course/register_to_course`, 
+                { course_id: courseId }, 
+                { headers: addAuthHeaders() }
+            )
             .then(response => {
                 if (response.data.success) {
                     setIsCourseRegistered(true); // אם ההרשמה הצליחה, השתנה למינוס
@@ -233,13 +233,13 @@ function Course() {
         }
     };
     
+    
     const handleRemoveFromFavorites = () => {
         if (token) {
-            axiosInstance.post(`${API_BASE_URL}/api/course/remove_student_from_course`, {
-                params: {course_id: courseId,
-                access_token: token},
-                headers: addAuthHeaders()
-            })
+            axiosInstance.post(`${API_BASE_URL}/api/course/remove_student_from_course`, 
+                { course_id: courseId}, 
+                { headers: addAuthHeaders() }
+            )
             .then(response => {
                 if (response.data.success) {
                     setIsCourseRegistered(false);
@@ -248,7 +248,6 @@ function Course() {
             .catch(error => {
                 console.error('Error removing from course:', error.response || error);
             });
-            
         }
     };
     
@@ -434,7 +433,7 @@ function Course() {
                 </div>)}
 
                 <div className="action-buttons">
-                    <button className="action-button">
+                    <button className="offline-button">
                         העלאת מבחן חדש
                     </button>
                     <button className="action-button" onClick={navigateToUploadQuestion}>
