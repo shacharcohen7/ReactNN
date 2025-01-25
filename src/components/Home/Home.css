@@ -319,3 +319,21 @@
   text-decoration: underline;
 }
 
+.offline-button {
+  background-color: #ccc; /* צבע אפור */
+  border: none;
+  color: #666; /* טקסט אפור כהה יותר */
+  padding: 15px 25px;
+  cursor: not-allowed; /* מציין שאין אפשרות ללחוץ */
+  pointer-events: none; /* מונע כל אינטרקציה עם הכפתור */
+  opacity: 0.7; /* ניתן להוריד את האטימות לאפקט יותר עדין */
+  border-radius: 10px;
+  font-size: 1.2rem;
+  width: 220px;
+  transition: background-color 0.3s ease;
+}
+
+.offline-button span {
+  pointer-events: none; /* גם הטקסט לא יהיה לחיץ */
+}
+

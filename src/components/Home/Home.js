@@ -456,7 +456,7 @@ function Home() {
                 </div>)}
 
                 <div className="action-buttons">
-                    <button className="action-button">
+                    <button className="offline-button">
                         <span>העלאת מבחן חדש</span>
                     </button>
                     <button className="action-button" onClick={openQuestionModal}>
