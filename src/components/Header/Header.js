@@ -28,6 +28,7 @@ function Header() {
             const token = localStorage.getItem('access_token');
             if (!token) {
                 alert('You are not logged in.');
+                navigate('/');
                 return;
             }
 
@@ -55,6 +56,12 @@ function Header() {
     };
 
     const handleLogoClick = () => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            alert('You are not logged in.');
+            navigate('/');
+            return;
+        }
         navigate('/home');
     };
 
