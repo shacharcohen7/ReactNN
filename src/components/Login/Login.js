@@ -7,17 +7,24 @@ import axiosInstance from '../../utils/axiosInstance';
 
 import axios from 'axios';
 import './Login.css';
+import {FaEye, FaEyeSlash} from "react-icons/fa";
 
 function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
     const { setUser } = useContext(UserContext);
+    const [passwordVisible, setPasswordVisible] = useState(false);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const handleSignUpClick = () => {
         navigate('/signupdetails');
     };
+
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -117,14 +124,24 @@ function Login() {
                                     onChange={handleChange}
                                     required
                                 />
+                            </div>
+                            <div className="input-group" style={{ position: 'relative' }} >
                                 <input
-                                    type="password"
+                                    type={passwordVisible ? 'text' : 'password'}
                                     name="password"
                                     placeholder="סיסמה"
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    className="login-eye-button"
+                                    onClick={togglePasswordVisibility}
+                                    aria-label={passwordVisible ? "Hide password" : "Show password"}
+                                >
+                                    {passwordVisible ? <FaEyeSlash/> : <FaEye/>} {/* שינוי עין פתוחה/סגורה */}
+                                </button>
                             </div>
                             <button type="submit" className="submit-button">
                                 התחברות
@@ -134,7 +151,7 @@ function Login() {
                         <div className="bottom_line">
                             <p className="new-user-text">חדש אצלנו?</p>
                             <button type="button" className="sign-up-link" onClick={handleSignUpClick}>
-                                הרשמה
+                            הרשמה
                             </button>
                         </div>
                     </div>
