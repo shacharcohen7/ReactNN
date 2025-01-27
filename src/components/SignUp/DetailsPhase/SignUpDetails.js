@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'; // עין פתוחה וסג�
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignUpDetails.css';
-import axios from 'axios'; // Import Axios for HTTP requests
+//import axios from 'axios'; // Import Axios for HTTP requests
 import { UserContext } from '../../../context/UserContext'; // Import UserContext
 import axiosInstance from '../../../utils/axiosInstance';
 
@@ -25,11 +25,12 @@ function SignUpDetails() {
 
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
+    const [showPasswordTooltip] = useState(false);
     const [showFirstNameTooltip, setShowFirstNameTooltip] = useState(false);
     const [showLastNameTooltip, setShowLastNameTooltip] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+    const [showPasswordRules, setShowPasswordRules] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -148,12 +149,16 @@ function SignUpDetails() {
                                     placeholder="סיסמה"
                                     value={formData.password}
                                     onChange={handleChange}
+                                    onFocus={() => setShowPasswordRules(true)}
+                                    onBlur={() => setShowPasswordRules(false)}
                                     required
                                 />
                                 <button
+
                                     type="button"
                                     className="eye-button"
                                     onClick={togglePasswordVisibility}
+                                    aria-label={passwordVisible ? "Hide password" : "Show password"}
                                 >
                                 {passwordVisible ? <FaEyeSlash /> : <FaEye />} {/* שינוי עין פתוחה/סגורה */}
                                 </button>
@@ -171,7 +176,7 @@ function SignUpDetails() {
                                     </div>
                                 )}
                             </div>
-                            <div className="password-input-container">
+                            <div className="password-input-container" style={{ position: 'relative' }}>
                             <input
                                 type={confirmPasswordVisible ? 'text' : 'password'}
                                 name="confirmPassword"
@@ -179,16 +184,44 @@ function SignUpDetails() {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 required
+
                             />
                             <button
                                 type="button"
                                 className="eye-button"
                                 onClick={toggleConfirmPasswordVisibility}
+                                aria-label={passwordVisible ? "Hide password" : "Show password"}
                             >
                                 {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
                             </button>
                         </div>
-                        </div>
+                                {showPasswordRules && (
+                                    <div className="password-rules">
+                                        <p>דרישות הסיסמה:</p>
+                                        <ul>
+                                            <li className={formData.password.length >= 8 && formData.password.length <= 20 ? 'valid' : 'invalid'}>
+                                                לפחות 8 תווים ולא יותר מ-20 תווים המכילים:
+                                            </li>
+                                            <li className={/^[A-Za-z\d!@$%^&*()[\]{}+]+$/.test(formData.password) ? 'valid' : 'invalid'}>
+                                                יש לכלול אותיות רק באנגלית
+                                            </li>
+                                            <li className={/[A-Z]/.test(formData.password) ? 'valid' : 'invalid'}>
+                                                -אות גדולה אחת לפחות באנגלית
+                                            </li>
+                                            <li className={/[a-z]/.test(formData.password) ? 'valid' : 'invalid'}>
+                                                -אות קטנה אחת לפחות באנגלית
+                                            </li>
+                                            <li className={/\d/.test(formData.password) ? 'valid' : 'invalid'}>
+                                                -ספרה אחת לפחות
+                                            </li>
+                                            <li className={/[!@$%^&*()[\]{}+]/.test(formData.password) ? 'valid' : 'invalid'}>
+                                                -תו מיוחד אחד לפחות: <code>!@$%^&*()[]{}+</code>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
 
                             <button
                                 type="submit"

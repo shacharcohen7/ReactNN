@@ -1,5 +1,5 @@
 /* Center form elements */
-.login-form {
+.signup-form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -7,7 +7,7 @@
 }
 
 /* Group inputs and ensure uniformity */
-.input-group {
+.signup-input-group {
     width: 100%;
     max-width: 400px; /* Consistent maximum width for all inputs */
 }
@@ -65,7 +65,7 @@
 .password-input-container input {
     width: 100%;
     padding: 10px;
-    padding-right: 40px; /* Space for the eye button inside the input field */
+    padding-right: 10px; /* Space for the eye button inside the input field */
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -152,9 +152,15 @@
     }
 }
 
+@supports (-ms-ime-align: auto) {
+    .eye-button {
+        display: none !important;
+    }
+}
+
 .eye-button {
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 10px; /* Position the eye button on the left side */
     transform: translateY(-50%); /* Vertically centers the button */
     cursor: pointer;
@@ -167,4 +173,52 @@
 
 .eye-button:hover {
     color: #43494e; /* Darker color on hover */
+}
+
+.password-rules {
+    position: absolute;
+    top: 120px; /* מרחק קטן מהאינפוט */
+    left: 10px;
+    z-index: 1000; /* מבטיח שהטקסט יהיה מעל אלמנטים אחרים */
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    max-width: 350px;
+    max-height: 250px;
+    overflow-y: auto;
+    font-size: 14px;
+    direction: rtl;
+    display: block;
+}
+
+.password-rules ul {
+    list-style: none;
+    padding: 0;
+}
+
+.password-rules li {
+    margin: 5px 0;
+}
+
+.valid {
+    color: green;
+}
+
+.invalid {
+    color: red;
+}
+
+@supports (-ms-ime-align: auto) {
+    .eye-button {
+        display: none !important;
+    }
+}
+
+/* פתרון אחר: הסתר את כפתור העין ב-Edge */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    .eye-button {
+        display: none !important;
+    }
 }
