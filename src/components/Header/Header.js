@@ -89,7 +89,6 @@ function Header() {
                                         ? `${user.firstName} ${user.lastName}`
                                         : 'אורח'}
                                 </p>
-                                <p className="dropdown-item">הפרופיל שלי</p>
                                 <p
                                     className="dropdown-item"
                                     onClick={handleLogoutClick}

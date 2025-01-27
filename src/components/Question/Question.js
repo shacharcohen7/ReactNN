@@ -1200,15 +1200,23 @@ function Question() {
                         {answerPdfUrl ? (
                             <iframe src={answerPdfUrl} width="100%" height="1000px" title="PDF Viewer"/>
                         ) : answerImageUrl ? (
+                            <div 
+                                style={{
+                                    width: '100%', 
+                                    height: '600px',  // Fixed height for container
+                                    overflow: 'auto'  // Enables vertical scrolling
+                                }}
+                            >
                                 <img
                                     src={answerImageUrl}
                                     alt="Question"
                                     style={{
-                                        width: '100%',      // Make the image fill its container horizontally
-                                        maxHeight: '600px', // Limit the height to 600px
-                                        objectFit: 'contain' // Ensure the image maintains its aspect ratio
+                                        width: '100%',      // Full width of container
+                                        height: 'auto',     // Automatically adjust height
+                                        objectFit: 'contain' // Maintain aspect ratio
                                     }}
                                 />
+                                </div>
                             ) :
                             (
                             <div>
