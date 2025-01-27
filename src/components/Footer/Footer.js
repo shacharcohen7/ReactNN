@@ -48,8 +48,7 @@ function Footer() {
                     <h3><strong>צור קשר</strong></h3>
                     <p><strong>שלח פידבק על המערכת:</strong></p>
                     <a href={`mailto:negevnerds@gmail.com`}><strong>negevnerds@gmail.com</strong></a>
-                    <p><strong>או בטלפון (רק לבנות) 0545433476</strong></p>
-                    <p><strong>שיהיו חזקים השאר</strong></p>
+                    <p><strong>או בטלפון 0545433476</strong></p>
                 </div>
 
                 <div className="footer-section">
