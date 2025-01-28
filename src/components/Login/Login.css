@@ -78,7 +78,7 @@
   text-align: center; /* יישור לימין */
   display: flex;
   flex-direction: column;
-  direction: ltr; 
+  direction: ltr;
   align-items: center;
 }
 
@@ -90,6 +90,23 @@
     border-radius: 4px;
     width: 100%;
     text-align: right; /* יישור הטקסט של הקלט לימין */
+}
+
+.login-eye-button {
+  position: absolute;
+  top: 45%;
+  left: 10px; /* Position the eye button on the left side */
+  transform: translateY(-50%); /* Vertically centers the button */
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 20px; /* Adjust the size of the eye icon */
+  color: #656f77; /* Color of the eye icon */
+}
+
+.login-eye-button:hover {
+  color: #43494e; /* Darker color on hover */
 }
 
 .bottom_line {

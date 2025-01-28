@@ -521,8 +521,10 @@ function Home() {
                             </div>
                         ))}
                         <div className="course-card" onClick={navigateToAddNewCourse}>
-                            <span className="plus-sign"> + </span>
-                            <span>פתיחת קורס חדש</span>
+                            <p style={{ fontSize: '12px', color: 'gray' }}>
+                                <span className="plus-sign"> + </span>
+                                <span>פתיחת קורס חדש</span>
+                            </p>
                         </div>
                     </div>
                     
