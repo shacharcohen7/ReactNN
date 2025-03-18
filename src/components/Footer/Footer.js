@@ -1,5 +1,9 @@
 // Footer.js
 import React, { useState } from 'react';
+import { AiOutlineMail } from "react-icons/ai";
+import { IoCallOutline } from "react-icons/io5";
+import { IoInformationCircleOutline } from "react-icons/io5";
+
 import './Footer.css';
 
 function Footer() {
@@ -45,17 +49,22 @@ function Footer() {
                 </div>
 
                 <div className="footer-section">
-                    <h3><strong>צור קשר</strong></h3>
-                    <p><strong>שלח פידבק על המערכת:</strong></p>
-                    <a href={`mailto:negevnerds@gmail.com`}><strong>negevnerds@gmail.com</strong></a>
-                    <p><strong>או בטלפון 0545433476</strong></p>
-                </div>
-
-                <div className="footer-section">
-                    <h3><strong>קישורים חשובים</strong></h3>
+                    <h3><strong>מידע נוסף</strong></h3>
+                    <p className="contact_info">
+                        <AiOutlineMail />
+                        <a href="mailto:negevnerds@gmail.com">negevnerds@gmail.com</a> 
+                    </p>
+                    <p className="contact_info">
+                        <IoCallOutline />
+                        0545433476
+                    </p>
+                    {/* <h3><strong>קישורים חשובים</strong></h3> */}
                     {/* טקסט לחיץ */}
-                    <p className="terms-link" onClick={handleTermsOfUseClick}>
-                        <strong>תנאי שימוש</strong>
+                    <p className="contact_info">
+                        <IoInformationCircleOutline />
+                        <a className="terms-link" size={20} style={{ marginLeft: "8px"}} onClick={handleTermsOfUseClick}>
+                            תנאי השימוש
+                        </a>
                     </p>
                     <p><strong>{`© 2024-2025 NegevNerds. כל הזכויות שמורות.`}</strong></p>
                 </div>

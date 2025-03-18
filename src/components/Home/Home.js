@@ -130,6 +130,16 @@ function Home() {
         setSelectedCourse(e.target.value);
     };
 
+    const clearSearchFields = () => {
+        setSelectedCourse('');
+        setSelectedTopic('');
+        setExamYear('');
+        setExamDateSelection('');
+        setExamSemester('');
+        setQuestionNum('');
+        setSearchText('');
+    }
+
     const getCourseName = (course_id) => {
         const course = courses.find(course => course.course_id === course_id);
         return course ? course.name : null; // מחזיר את שם הקורס או null אם לא נמצא
@@ -312,9 +322,9 @@ function Home() {
                             <select
                                 value={selectedCourse}
                                 onChange={handleCourseSelection}
-                                className="search-input-course"
+                                className="search-input-topic"
                             >
-                                <option value="">בחר קורס</option>
+                                <option value="">קורס</option>
                                 {courses.map((course) => (
                                     <option key={course.course_id} value={course.course_id}>
                                         {course.name}
@@ -328,24 +338,32 @@ function Home() {
                                 className="search-input-topic"
                                 disabled={!selectedCourse}
                             >
-                                <option value="">בחר נושא</option>
+                                <option value="">נושא</option>
                                 {selectedCourse && topics.map((topic, index) => (
                                     <option key={index} value={topic}>
                                         {topic}
                                     </option>
                                 ))}
                             </select>
+                            <div className="search-buttons">
+                                <button className="search-button-home" onClick={() => {handleSearch(); setActiveSearch(true);}}>
+                                    חפש
+                                </button>
+                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                    נקה
+                                </button>
+                            </div>
                         </div>
                     )}
 
                     {searchType === 'text' && (
-                        <div className="text-search">
+                        <div className="topic-search">
                             <select
                                 value={selectedCourse}
                                 onChange={handleCourseSelection}
-                                className="search-input-course"
+                                className="search-input-topic"
                             >
-                                <option value="">בחר קורס</option>
+                                <option value="">קורס</option>
                                 {courses.map((course) => (
                                     <option key={course.course_id} value={course.course_id}>
                                         {course.name}
@@ -355,23 +373,31 @@ function Home() {
 
                             <input
                                 type="text"
-                                placeholder="חפש טקסט"
+                                placeholder="טקסט"
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                className="search-input-text"
+                                className="search-input-topic"
                             />
+                            <div className="search-buttons">
+                                <button className="search-button-home" onClick={() => {handleSearch(); setActiveSearch(true);}}>
+                                    חפש
+                                </button>
+                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                    נקה
+                                </button>
+                            </div>
                         </div>
                     )}
 
                     {searchType === 'date' && (
-                        <div className="date-search">
+                        <div className="topic-search">
                             <select
                                 value={selectedCourse}
                                 onChange={handleCourseSelection}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 required
                             >
-                                <option value="">בחר קורס</option>
+                                <option value="">קורס</option>
                                 {courses.map((course) => (
                                     <option key={course.course_id} value={course.course_id}>
                                         {course.name}
@@ -384,17 +410,17 @@ function Home() {
                                 placeholder="שנה"
                                 value={examYear}
                                 onChange={(e) => setExamYear(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={selectedCourse === ''}
                             />
 
                             <select
                                 value={examSemester}
                                 onChange={(e) => setExamSemester(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={examYear === ''}
                             >
-                                <option value="">בחר סמסטר</option>
+                                <option value="">סמסטר</option>
                                 {semesters.map((semesterOption, index) => (
                                     <option key={index} value={semesterOption}>
                                         {semesterOption}
@@ -405,10 +431,10 @@ function Home() {
                             <select
                                 value={examDateSelection}
                                 onChange={(e) => setExamDateSelection(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={examSemester === ''}
                             >
-                                <option value="">בחר מועד</option>
+                                <option value="">מועד</option>
                                 {examDates.map((dateOption, index) => (
                                     <option key={index} value={dateOption}>
                                         {dateOption}
@@ -421,17 +447,19 @@ function Home() {
                                 placeholder="מספר שאלה"
                                 value={questionNum}
                                 onChange={(e) => setQuestionNum(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={examDateSelection === ''}
                             />
+                            <div className="search-buttons">
+                                <button className="search-button-home" onClick={() => {handleSearch(); setActiveSearch(true);}}>
+                                    חפש
+                                </button>
+                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                    נקה
+                                </button>
+                            </div>
                         </div>
                     )}
-                    <button className="search-button-home" onClick={() => {handleSearch(); setActiveSearch(true);}}>
-                        חפש
-                    </button>
-                    <button className="search-button-home" onClick={() => {setActiveSearch(false);}}>
-                        נקה
-                    </button>
                 </div>
                 {activeSearch && (<div className="search-results">
                     {searchResults.length > 0 ? (
@@ -515,16 +543,16 @@ function Home() {
                                 onClick={() => handleCourseSearch(course.course_id)} // קריאה לפונקציה של החיפוש
                                 >
                                 <span>{course.name}</span>
-                                <p style={{ fontSize: '12px', color: 'gray' }}>
+                                {/* <p style={{ fontSize: '12px', color: 'gray' }}>
                                     {course.id}
-                                </p>
+                                </p> */}
                             </div>
                         ))}
                         <div className="course-card" onClick={navigateToAddNewCourse}>
-                            <p style={{ fontSize: '12px', color: 'gray' }}>
+                            <>
                                 <span className="plus-sign"> + </span>
                                 <span>פתיחת קורס חדש</span>
-                            </p>
+                            </>
                         </div>
                     </div>
                     
