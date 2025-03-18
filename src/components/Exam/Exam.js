@@ -305,7 +305,7 @@ function Exam() {
             </div>
             <main className="content">
                 <h1>דף מבחן</h1>
-                <div className="details-container">
+                {/* <div className="details-container">
                     <div className="detail-item">
                         <strong>קורס</strong> {courseDetails.course_id} - {courseDetails.name}
                     </div>
@@ -318,7 +318,7 @@ function Exam() {
                     <div className="detail-item">
                         <strong>מועד</strong> {examDateSelection}
                     </div>
-                </div>
+                </div> */}
                 <div className="action-buttons">
                    {examExist ? 
                     (<button

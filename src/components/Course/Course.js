@@ -130,6 +130,15 @@ function Course() {
         fetchData();
     }, []);
 
+    const clearSearchFields = () => {
+        setSelectedTopic('');
+        setExamYear('');
+        setExamDateSelection('');
+        setExamSemester('');
+        setQuestionNum('');
+        setSearchText('');
+    }
+
     const handleSearchClick = () => {
         if (searchType === 'topic') {
             console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedTopic });
@@ -334,45 +343,61 @@ function Course() {
                                 onChange={(e) => setSelectedTopic(e.target.value)}
                                 className="search-input-topic"
                             >
-                                <option value="">בחר נושא</option>
+                                <option value="">נושא</option>
                                 {courseId && topics.map((topic, index) => (
                                     <option key={index} value={topic}>
                                         {topic}
                                     </option>
                                 ))}
                             </select>
+                            <div className="search-buttons">
+                                <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
+                                    חפש
+                                </button>
+                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                    נקה
+                                </button>
+                            </div>
                         </div>
                     )}
 
                     {searchType === 'text' && (
-                        <div className="text-search">
+                        <div className="topic-search">
                             <input
                                 type="text"
-                                placeholder="חפש טקסט"
+                                placeholder="טקסט"
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                className="search-input-text"
+                                className="search-input-topic"
                             />
+                            <div className="search-buttons">
+                                <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
+                                    חפש
+                                </button>
+                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                    נקה
+                                </button>
+                            </div>
                         </div>
                     )}
 
                     {searchType === 'date' && (
-                        <div className="date-search">
+                        <div className="topic-search">
                             <input
                                 type="text"
                                 placeholder="שנה"
                                 value={examYear}
                                 onChange={(e) => setExamYear(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                             />
                             <select
                                 value={examSemester}
                                 onChange={(e) => setExamSemester(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={examYear === ''}
 
                             >
-                                <option value="">בחר סמסטר</option>
+                                <option value="">סמסטר</option>
                                 <option value="סתיו">סתיו</option>
                                 <option value="אביב">אביב</option>
                                 <option value="קיץ">קיץ</option>
@@ -380,11 +405,11 @@ function Course() {
                             <select
                                 value={examDateSelection}
                                 onChange={(e) => setExamDateSelection(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={examSemester === ''}
 
                             >
-                                <option value="">בחר מועד</option>
+                                <option value="">מועד</option>
                                 <option value="א">א</option>
                                 <option value="ב">ב</option>
                                 <option value="ג">ג</option>
@@ -396,18 +421,19 @@ function Course() {
                                 placeholder="מספר שאלה"
                                 value={questionNum}
                                 onChange={(e) => setQuestionNum(e.target.value)}
-                                className="search-input-course"
+                                className="search-input-topic"
                                 disabled={examDateSelection === ''}
                             />
+                            <div className="search-buttons">
+                                <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
+                                    חפש
+                                </button>
+                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                    נקה
+                                </button>
+                            </div>
                         </div>
                     )}
-
-                    <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
-                        חפש
-                    </button>
-                    <button className="search-button-home" onClick={() => {setActiveSearch(false);}}>
-                        נקה
-                    </button>
                 </div>
 
                 {activeSearch && (<div className="search-results">
