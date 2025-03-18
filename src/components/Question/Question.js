@@ -2,11 +2,13 @@
 
 
 // Question.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { RxCross2 } from "react-icons/rx";
 import { GoCheck } from "react-icons/go";
+import { FaArrowRight } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 
 import { BsEmojiSmile } from "react-icons/bs";
 import { FaRegCommentAlt, FaCommentAlt } from 'react-icons/fa';
@@ -29,6 +31,7 @@ function Question() {
     const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
     const [questionPdfUrl, setQuestionPdfUrl] = useState(null);
+    const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
     const [imageUrl, setImageUrl] = useState(null); // Define state for imageUrl
     const [answerImageUrl, setAnswerImageUrl] = useState(null); // Define state for imageUrl
     const [answerPdfUrl, setAnswerPdfUrl] = useState(null);
@@ -67,6 +70,20 @@ function Question() {
         return headers;
     };
 
+    const sortedQuestions = [...allQuestions].sort((a, b) => {
+        // מיון לפי שנה
+        if (a.question_number !== b.question_number) {
+            return a.question_number - b.question_number;
+        }
+    });
+
+    const { prevQuestion, nextQuestion } = useMemo(() => {
+        const index = sortedQuestions.findIndex(q => q.question_number === Number(questionNum));
+        return {
+          prevQuestion: index > 0 ? sortedQuestions[index - 1] : null,
+          nextQuestion: index < sortedQuestions.length - 1 ? sortedQuestions[index + 1] : null
+        };
+      }, [questionNum, sortedQuestions]);
 
     const toggleReactionsWindow = (comment) => {
         setReactionsForComment(reactionsForComment === comment ? null : comment);
@@ -112,6 +129,46 @@ function Question() {
     
         fetchUsernames();
       }, [allComments]);
+
+      useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // טעינת כל השאלות של המבחן
+                const questionsResponse = await axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, 
+                    {
+                        course_id: courseId,  // העברת הנתונים בגוף הבקשה, לא ב-params
+                    }, 
+                    {
+                        headers: addAuthHeaders()  // הוספת הכותרת המתאימה
+                    }
+                );
+                let parsedResponse;
+                if (typeof questionsResponse.data.data === 'string') {
+                    parsedResponse = JSON.parse(questionsResponse.data.data); // המרת המחרוזת לאובייקט
+
+                } else {
+                    parsedResponse = questionsResponse.data.data; // אם כבר אובייקט, השתמש בו
+                }
+
+                if (parsedResponse.status === 'success' && parsedResponse.data.length > 0) {
+                    const filteredQuestions = parsedResponse.data.filter(
+                        (question) =>
+                            String(question.year) === String(examYear) &&
+                            String(question.semester) === String(examSemester) &&
+                            String(question.moed) === String(examDateSelection)
+                    );
+                    setAllQuestions(filteredQuestions);  // עדכון תוצאות החיפוש אם הם מערך
+                } else {
+                    setAllQuestions([]);  // אם לא, הפוך את allQuestions למערך ריק
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setAllQuestions([]);  // לנקות אם יש שגיאה
+            }
+        };    
+        fetchData();
+    }, []);
 
       useEffect(() => {
         const fetchInitialData = async () => {
@@ -453,33 +510,34 @@ function Question() {
     };
     
     const confirmEditComment = async (comment_id) => {
-        const formData = new FormData();
-            formData.append('course_id', courseId);
-            formData.append('year', examYear);
-            formData.append('semester', examSemester);
-            formData.append('moed', examDateSelection);
-            formData.append('question_number', questionNum);
-            formData.append('comment_id', comment_id);
-            formData.append('new_text', newText);
-            
-        try {
-            const response = await axiosInstance.post(`${API_BASE_URL}/api/course/edit_comment_text`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data', 
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
+        if(newText.length > 0){
+            const formData = new FormData();
+                formData.append('course_id', courseId);
+                formData.append('year', examYear);
+                formData.append('semester', examSemester);
+                formData.append('moed', examDateSelection);
+                formData.append('question_number', questionNum);
+                formData.append('comment_id', comment_id);
+                formData.append('new_text', newText);
+                
+            try {
+                const response = await axiosInstance.post(`${API_BASE_URL}/api/course/edit_comment_text`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data', 
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`, // Send token in header
+                    }
+                });
+        
+                if (response.data.success) {
+                    updateComments(); // Refresh comments after deletion
+                } else {
+                    alert(`שגיאה בעריכת התגובה: ${response.data.message}`);
                 }
-            });
-    
-            if (response.data.success) {
-                updateComments(); // Refresh comments after deletion
-            } else {
-                alert(`שגיאה בעריכת התגובה: ${response.data.message}`);
+            } catch (error) {
+                console.error("שגיאה בעריכת התגובה:", error);
+                alert("אירעה שגיאה במהלך עריכת התגובה.");
             }
-        } catch (error) {
-            console.error("שגיאה בעריכת התגובה:", error);
-            alert("אירעה שגיאה במהלך עריכת התגובה.");
         }
-    
     }
       
     
@@ -517,7 +575,7 @@ function Question() {
     
 
     const handleSendClick = async (chatInput, prevId) => {
-        if(chatInput !== ""){
+        if(chatInput.length > 0){
             const formData = new FormData();
             formData.append('course_id', courseId);
             formData.append('year', examYear);
@@ -583,6 +641,15 @@ function Question() {
             });
         }
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]); 
+
+    useEffect(() => {
+        const initialExpandState = allComments.reduce((acc, comment) => {
+          acc[comment.comment_id] = true;
+          return acc;
+        }, {});
+        
+        setExpandReplies(initialExpandState);
+      }, [allComments]); // ירוץ שוב אם comments משתנה
 
     useEffect(() => {
         const checkCourseManager = async () => {
@@ -705,7 +772,10 @@ function Question() {
                             getUserReactionForComment(comment) === null ? (
                             <button
                                 className="reaction-button"
-                                onMouseEnter={() => setActiveReactedComment(comment.comment_id)}
+                                onMouseEnter={() =>  activeEditedComment === null && activeRepliedComment === null && setActiveReactedComment(comment.comment_id)}
+                                onClick = {() => {
+                                    setActiveRepliedComment(null);
+                                    setActiveEditedComment(null);}}
                             >
                                 <BsEmojiSmile size={"15px"} />
                             </button>
@@ -713,12 +783,13 @@ function Question() {
                             <button
                                 className="small-emoji"
                                 onClick={() => {
+                                    setActiveEditedComment(null);
                                     handleRemoveEmoji(
                                         comment.comment_id,
                                         getUserReactionForComment(comment).reaction_id
                                     );
                                 }}
-                                onMouseEnter={() => setActiveReactedComment(comment.comment_id)}
+                                onMouseEnter={() => activeEditedComment === null && activeRepliedComment === null && setActiveReactedComment(comment.comment_id)}
                             >
                                 {emojies[getUserReactionForComment(comment).emoji]}
                             </button>
@@ -729,6 +800,7 @@ function Question() {
                                 className="reaction-button"
                                 onMouseEnter={() => setActiveReactedComment(null)}
                                 onClick={() => {
+                                    setActiveEditedComment(null);
                                     !expandReplies[comment.comment_id] && handleArrowClick(comment.comment_id);
                                     handleReplyClick(comment.comment_id);
                                 }}
@@ -740,7 +812,10 @@ function Question() {
                             <button
                                 type="button"
                                 className="reaction-button delete-comment-button"
-                                onClick={() => handleDeleteComment(comment.comment_id)}
+                                onClick={() => {
+                                    setActiveRepliedComment(null);
+                                    setActiveEditedComment(null);
+                                    handleDeleteComment(comment.comment_id)}}
                             >
                                 <FaRegTrashAlt />
                             </button>
@@ -751,6 +826,7 @@ function Question() {
                                 type="button"
                                 className="reaction-button delete-comment-button"
                                 onClick={() => {
+                                    setActiveRepliedComment(null);
                                     setActiveEditedComment(comment.comment_id)}}
                             >
                                 <PiPencilLineFill size={"16px"}/>
@@ -1074,6 +1150,7 @@ function Question() {
     if (!courseDetails) {
         return <div>Loading...</div>;
     }
+
     return (
         <div className="upload-question-content-page">
             <Header />
@@ -1096,7 +1173,7 @@ function Question() {
             </div>
             <main className="content">
                 <h1>דף שאלה</h1>
-                <div className="details-container">
+                {/* <div className="details-container">
                     <div className="detail-item">
                         <strong>קורס</strong> {courseDetails.course_id} - {courseDetails.name}
                     </div>
@@ -1112,7 +1189,7 @@ function Question() {
                     <div className="detail-item">
                         <strong>שאלה</strong> {question.question_number}
                     </div>
-                </div>
+                </div> */}
                 {question.question_topics && question.question_topics.length > 0 &&
                 <div className="details-container">
                     <div className="detail-item">
@@ -1120,6 +1197,14 @@ function Question() {
                     </div>
                 </div>}
                 <div className="tabs-container">
+                    <button 
+                        className={`tab-next ${!nextQuestion ? "disabled" : ""}`} 
+                        onClick={() => nextQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${nextQuestion.question_number}`)}
+                        title={"לשאלה הבאה במבחן"}
+                        disabled={!nextQuestion} // הכפתור מושבת אם אין שאלה הבאה
+                    >
+                        <FaArrowRight />
+                    </button>
                     <button
                         className={`tab ${visiblePDF === 'question' ? 'active' : ''}`}
                         onClick={() => handlePDFChange('question')}
@@ -1131,6 +1216,14 @@ function Question() {
                         onClick={() => handlePDFChange('answer')}
                     >
                         פתרון
+                    </button>
+                    <button 
+                        className={`tab-next ${!prevQuestion ? "disabled" : ""}`} 
+                        onClick={() => prevQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${prevQuestion.question_number}`)}
+                        title={"לשאלה הקודמת במבחן"}
+                        disabled={!prevQuestion} // הכפתור מושבת אם אין שאלה הבאה
+                    >
+                        <FaArrowLeft />
                     </button>
                     {/* <button
                         className="tab download-tab"
@@ -1274,13 +1367,15 @@ function Question() {
                             placeholder="כתיבת תגובה..."
                             value={chatInput}
                             onKeyDown={handleKeyDown(chatInput, "0")}
-                            onFocus={() => {
+                            // onClick={()=>setActiveEditedComment(null)}
+                            onClick={() => {
+                                setActiveEditedComment(null);
                                 setReplyInput([]);
                                 setActiveRepliedComment(null);}}
                             onChange={(e) => setchatInput(e.target.value)}
-                            className="chat-input"
+                            className="reply-input"
                         />
-                        <button type="button" className="send-button" onClick={() => handleSendClick(chatInput, "0")}>שלח</button>
+                        <button type="button" className="reply-button" onClick={() => handleSendClick(chatInput, "0")}>שלח</button>
                     </form>
                     {isModalOpen && (
                         <div className="modal-overlay">

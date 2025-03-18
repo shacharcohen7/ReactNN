@@ -13,9 +13,13 @@
     flex-wrap: wrap;
 }
 
+.email{
+    padding: 5px;
+}
+
 .footer-section {
-    width: 30%;
-    margin-bottom: 20px;
+    width: 45%;
+    margin-bottom: 1%;
 }
 
 .footer-section h2, .footer-section h3 {
@@ -99,12 +103,15 @@
     color: #f5a623;
     cursor: pointer;
     text-decoration: none;  /* לא להוסיף קו תחתון כברירת מחדל */
-    font-weight: bold;
 }
 
 .terms-link:hover {
-    color: #e59428;  /* שינוי צבע כשהעכבר על הטקסט */
     text-decoration: underline;  /* הוספת קו תחתון כשיש hover */
 }
 
+.contact_info{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
