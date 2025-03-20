@@ -283,6 +283,53 @@ function Course() {
         navigate(`/upload-question-date/${courseId}`);
     };
 
+    const handleDownloadAllExamsZip = async () => {
+        try {
+            const response = await axiosInstance.get(`${API_BASE_URL}/api/course/handleDownloadAllExamsZip`, {
+                params: { course_id: courseId },
+                headers: addAuthHeaders(),
+                responseType: 'json' // ✅ Change from 'blob' to 'json' to correctly detect "no exams"
+            });
+    
+            // ✅ Check if the response indicates no exams
+            if (response.data && response.data.no_exams) {
+                alert("אין מבחנים מלאים לקורס זה באתר כרגע");
+                return; // Stop execution, do not attempt file download
+            }
+    
+            // If this point is reached, it means exams exist and a ZIP should be downloaded
+            const zipResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/handleDownloadAllExamsZip`, {
+                params: { course_id: courseId },
+                headers: addAuthHeaders(),
+                responseType: 'blob' // ✅ Fetch the actual ZIP file now
+            });
+    
+            // Extract the filename from the "Content-Disposition" header
+            const contentDisposition = zipResponse.headers['content-disposition'];
+            let filename = `NegevNerds_exams_${courseId}.zip`; // Default fallback
+    
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (match && match[1]) {
+                    filename = match[1];
+                }
+            }
+    
+            // Create a link and trigger the download
+            const url = window.URL.createObjectURL(new Blob([zipResponse.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Error downloading exams:", error);
+            alert("שגיאה בהורדת כלל המבחנים");
+        }
+    };
+    
+
     return (
         <div className="course-page">
             <Header />
@@ -464,6 +511,9 @@ function Course() {
                     </button>
                     <button className="action-button" onClick={navigateToUploadQuestion}>
                         העלאת שאלה חדשה
+                    </button>
+                    <button className="action-button" onClick={handleDownloadAllExamsZip}>
+                        הורדת כלל המבחנים
                     </button>
                 </div>
 
