@@ -145,3 +145,17 @@
 .submit-button:hover {
   background-color: #f1f1f1; /* צבע רקע בהיר בהצלחה */
 }
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: underline;
+  margin-top: 8px;
+}
+
+.forgot-password-link:hover {
+  color: #0056b3;
+}
