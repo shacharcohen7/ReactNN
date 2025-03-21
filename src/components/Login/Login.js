@@ -20,6 +20,10 @@ function Login() {
     const handleSignUpClick = () => {
         navigate('/signupdetails');
     };
+    const handleForgotPasswordClick = () => {
+        navigate('/forgot-password');  // Redirect to the forgot password page
+    };
+    
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -154,6 +158,11 @@ function Login() {
                             הרשמה
                             </button>
                         </div>
+                        <div className="bottom_line">
+                        <button type="button" className="forgot-password-link" onClick={handleForgotPasswordClick}>
+                            שכחתי סיסמה
+                        </button>
+                    </div>
                     </div>
                 </div>
             </div>
