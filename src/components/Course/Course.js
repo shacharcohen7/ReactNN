@@ -519,21 +519,7 @@ function Course() {
 
                 <div className="updates-container">
                     <h3>מבחנים בקורס זה</h3>
-                        {/* <ul className="results-list">
-                            {sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
-                                sortedQuestions.map((result) => (
-                                    <li key={result.question_id} className="result-item">
-                                        <a href={`/exam/${courseId}/${result.year}/${result.semester}/${result.moed}`} className="result-link">
-                                            <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed}</span>
-                                        </a>
-                                    </li>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="5">לא נמצאו מבחנים</td>
-                                </tr>
-                            )}
-                        </ul> */}
+
                         <table className='search-results-table'>
                         <thead>
                             <tr>
