@@ -1348,8 +1348,8 @@ function Question() {
         <label>סמסטר<span style={{ color: 'red' }}>*</span></label>
 
         <select value={editSemester} onChange={(e) => setEditSemester(e.target.value)}>
-          <option value="א">א</option>
-          <option value="ב">ב</option>
+          <option value="סתיו">סתיו</option>
+          <option value="אביב">אביב</option>
           <option value="קיץ">קיץ</option>
         </select>
       </div>
@@ -1593,6 +1593,7 @@ function Question() {
                                             <input
                                                 className="question-content-field"
                                                 type="file"
+                                                accept=".pdf, .jpeg, .jpg, .png"
                                                 onChange={(e) => setAnswerFile(e.target.files[0])}
                                                 required
                                             />
