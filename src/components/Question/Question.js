@@ -59,6 +59,21 @@ function Question() {
     const [commentToDelete, setCommentToDelete] = useState(null); // Store the comment ID to delete
     const [commentsMetadata, setCommentsMetadata] = useState([]);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const [allTopics, setAllTopics] = useState([]);
+    const [isTopicsModalOpen, setIsTopicsModalOpen] = useState(false);
+    const [chosenTopics, setChosenTopics] = useState([]);
+    const [notChosenTopics, setNotChosenTopics] = useState([]);
+
+    const [isEditDetailsModalOpen, setIsEditDetailsModalOpen] = useState(false);
+    const [editCourseId, setEditCourseId] = useState(courseId);
+    const [editYear, setEditYear] = useState(examYear);
+    const [editSemester, setEditSemester] = useState(examSemester);
+    const [editMoed, setEditMoed] = useState(examDateSelection);
+    const [editQuestionNumber, setEditQuestionNumber] = useState(question.question_number);
+
+    const currentYear = new Date().getFullYear();
+    const [isOpenCourseModalVisible, setIsOpenCourseModalVisible] = useState(false);
+
 
 
 
@@ -178,6 +193,28 @@ function Question() {
         fetchInitialData();
     }, []); // Empty dependency array ensures it runs only once on page load. 
 
+    useEffect(() => {
+        const fetchCourseTopics = async () => {
+            try {
+                const topicsResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/get_course_topics`, {
+                    params: { course_id: courseId },
+                    headers: addAuthHeaders()
+                });
+                if (topicsResponse.data.status === 'success') {
+                    setAllTopics(topicsResponse.data.data);
+                } else {
+                    console.error("Failed to fetch course topics:", topicsResponse.data.message);
+                }
+            } catch (err) {
+                console.error("Error loading topics:", err);
+            }
+        };
+    
+        if (courseId) {
+            fetchCourseTopics();
+        }
+    }, [courseId]);
+    
     const handleArrowClick = (commentId) => {
         setExpandReplies((prev) => ({
             ...prev,
@@ -1119,8 +1156,6 @@ function Question() {
             alert('An error occurred while checking the exam.');
         }
     };
-    
-    
 
 
     const organizeComments = (comments) => {
@@ -1173,27 +1208,261 @@ function Question() {
             </div>
             <main className="content">
                 <h1>דף שאלה</h1>
-                {/* <div className="details-container">
-                    <div className="detail-item">
-                        <strong>קורס</strong> {courseDetails.course_id} - {courseDetails.name}
-                    </div>
-                    <div className="detail-item">
-                        <strong>שנה</strong> {question.year}
-                    </div>
-                    <div className="detail-item">
-                        <strong>סמסטר</strong> {question.semester}
-                    </div>
-                    <div className="detail-item">
-                        <strong>מועד</strong> {question.moed}
-                    </div>
-                    <div className="detail-item">
-                        <strong>שאלה</strong> {question.question_number}
-                    </div>
-                </div> */}
+               
                 {question.question_topics && question.question_topics.length > 0 &&
                 <div className="details-container">
                     <div className="detail-item">
-                        <strong>נושאי השאלה:</strong> {question.question_topics && question.question_topics.join(', ')}
+                        {/* <strong>נושאי השאלה:</strong> {question.question_topics && question.question_topics.join(', ')} */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+  <strong>נושאי השאלה:</strong>
+  {question.question_topics && question.question_topics.join(', ')}
+  {isCourseManager && (
+    <span
+      title="ערוך נושאים"
+      style={{ cursor: 'pointer', marginRight: '8px' }}
+      onClick={() => {
+        const currentTopics = question.question_topics || [];
+        setChosenTopics(currentTopics);
+        setNotChosenTopics(allTopics.filter(topic => !currentTopics.includes(topic)));
+        setIsTopicsModalOpen(true);
+      }}
+    >
+      ✏️
+    </span>
+  )}
+</div>
+{isTopicsModalOpen && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>עריכת נושאי השאלה</h3>
+
+      <div className="topics-section">
+        <h4>נושאים שנבחרו</h4>
+        <div className="topics-list">
+          {chosenTopics.map((topic) => (
+            <span key={topic} className="topic-chip">
+              {topic}
+              <button onClick={() => {
+                setChosenTopics(prev => prev.filter(t => t !== topic));
+                setNotChosenTopics(prev => [...prev, topic]);
+              }}>❌</button>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="topics-section">
+        <h4>נושאים שאינם נבחרו</h4>
+        <div className="topics-list">
+          {notChosenTopics.map((topic) => (
+            <span key={topic} className="topic-chip">
+              {topic}
+              <button
+  style={{
+    color: 'green',
+    background: 'transparent',
+    border: 'none',
+    fontSize: '1.2rem',
+    cursor: 'pointer',
+    lineHeight: 1,
+  }}
+  onClick={() => {
+    setNotChosenTopics(prev => prev.filter(t => t !== topic));
+    setChosenTopics(prev => [...prev, topic]);
+  }}
+>
+  +
+</button>
+
+
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="modal-actions">
+        <button onClick={() => setIsTopicsModalOpen(false)}>ביטול</button>
+        <button onClick={async () => {
+  try {
+    const formData = new FormData();
+    formData.append("course_id", courseId);
+    formData.append("year", examYear);
+    formData.append("semester", examSemester);
+    formData.append("moed", examDateSelection);
+    formData.append("question_number", question.question_number);
+    chosenTopics.forEach(topic => formData.append("topics", topic));
+
+    const response = await axiosInstance.post(
+      `${API_BASE_URL}/api/question/edit_question_topic`,
+      formData,
+      {
+        headers: {
+          ...addAuthHeaders(),
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.data.success) {
+      question.question_topics = chosenTopics;
+      setIsTopicsModalOpen(false);
+    } else {
+      alert(response.data.message || "שגיאה בעדכון הנושאים");
+    }
+
+  } catch (err) {
+    // ✅ Show specific message from server if available
+    if (err.response && err.response.data && err.response.data.message) {
+      alert(err.response.data.message); // ← this will show "חובה לבחור לפחות נושא אחד"
+    } else {
+      alert("שגיאה בשליחת הבקשה לשרת");
+    }
+    console.error("Failed to update topics:", err);
+  }
+}}>
+  אישור
+</button>
+
+
+      </div>
+    </div>
+  </div>
+)}
+{isEditDetailsModalOpen && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>עריכת פרטי השאלה</h3>
+
+      <div className="field-row">
+        <label>מספר קורס<span style={{ color: 'red' }}>*</span></label>
+        <input type="text" value={editCourseId} onChange={(e) => setEditCourseId(e.target.value)} />
+      </div>
+
+      <div className="field-row">
+        <label>שנה<span style={{ color: 'red' }}>*</span></label>
+
+        <input type="number" value={editYear} onChange={(e) => setEditYear(e.target.value)} min="1900" max={new Date().getFullYear()} />
+      </div>
+
+      <div className="field-row">
+        <label>סמסטר<span style={{ color: 'red' }}>*</span></label>
+
+        <select value={editSemester} onChange={(e) => setEditSemester(e.target.value)}>
+          <option value="סתיו">סתיו</option>
+          <option value="אביב">אביב</option>
+          <option value="קיץ">קיץ</option>
+        </select>
+      </div>
+
+      <div className="field-row">
+        <label>מועד<span style={{ color: 'red' }}>*</span></label>
+
+        <select value={editMoed} onChange={(e) => setEditMoed(e.target.value)}>
+          <option value="א">א</option>
+          <option value="ב">ב</option>
+          <option value="ג">ג</option>
+          <option value="ד">ד</option>
+        </select>
+      </div>
+
+      <div className="field-row">
+        <label>מספר שאלה<span style={{ color: 'red' }}>*</span></label>
+
+        <input type="number" value={editQuestionNumber} onChange={(e) => setEditQuestionNumber(e.target.value)} min="1" />
+      </div>
+
+      <div className="modal-actions">
+        <button onClick={() => setIsEditDetailsModalOpen(false)}>ביטול</button>
+
+        {/* ✅ Place this exact block here */}
+        <button onClick={async () => {
+          const currentYear = new Date().getFullYear();
+          const validMoeds = ["א", "ב", "ג", "ד"];
+          if (
+            !editCourseId ||
+            !editYear ||
+            !editSemester ||
+            !editMoed ||
+            !editQuestionNumber
+          ) {
+            alert("נא למלא את כל השדות");
+            return;
+          }
+          
+          if (editYear > currentYear) {
+            alert("השנה לא יכולה להיות בעתיד");
+            return;
+          }
+          if (editQuestionNumber < 1) {
+            alert("מספר שאלה חייב להיות לפחות 1");
+            return;
+          }
+          if (!validMoeds.includes(editMoed)) {
+            alert("נא לבחור מועד תקני (א, ב, ג, ד)");
+            return;
+          }
+
+          try {
+            const formData = new FormData();
+            
+                    // ✅ OLD details (from original state)
+            formData.append("old_course_id", courseId);
+            formData.append("old_year", examYear);
+            formData.append("old_semester", examSemester);
+            formData.append("old_moed", examDateSelection);
+            formData.append("old_question_number", questionNum);
+
+            // ✅ NEW details (from form input)
+            formData.append("new_course_id", editCourseId);
+            formData.append("new_year", editYear);
+            formData.append("new_semester", editSemester);
+            formData.append("new_moed", editMoed);
+            formData.append("new_question_number", editQuestionNumber);
+
+            const response = await axiosInstance.post(
+              `${API_BASE_URL}/api/question/edit_question_details`,
+              formData,
+              {
+                headers: {
+                  ...addAuthHeaders(),
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
+
+            if (response.data.success) {
+              alert("פרטי השאלה עודכנו בהצלחה!");
+              setIsEditDetailsModalOpen(false);
+              // Optionally reload or update UI
+              navigate(`/question/${editCourseId}/${editYear}/${editSemester}/${editMoed}/${editQuestionNumber}`);
+
+            } else {
+                const msg = response.data.message;
+              
+                if (msg === "הקורס לא קיים במערכת") {
+                  setIsEditDetailsModalOpen(false);
+                  setIsOpenCourseModalVisible(true); // ⬅️ Show the serious modal
+                } else {
+                  alert(msg || "שגיאה בעדכון פרטי השאלה");
+                }
+              }
+              
+
+          } catch (err) {
+            console.error("Failed to update question details:", err);
+            alert("שגיאה בשליחת הבקשה לשרת");
+          }
+        }}>
+          אישור
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
                     </div>
                 </div>}
                 <div className="tabs-container">
@@ -1247,12 +1516,12 @@ function Question() {
                     {isCourseManager && (
                         <>
                             <button
-                                className="tab download-tab edit-question-button"
-                                onClick={handleEditQuestion}
+                            className="tab download-tab edit-question-button"
+                            onClick={() => setIsEditDetailsModalOpen(true)}
                             >
-                                עריכת שאלה
+                            עריכת פרטי השאלה
                             </button>
-                            <button 
+                         <button 
                                 className="tab download-tab button-danger" 
                                 onClick={handleDeleteQuestion}
                             >
@@ -1324,6 +1593,7 @@ function Question() {
                                             <input
                                                 className="question-content-field"
                                                 type="file"
+                                                accept=".pdf, .jpeg, .jpg, .png"
                                                 onChange={(e) => setAnswerFile(e.target.files[0])}
                                                 required
                                             />
@@ -1422,6 +1692,32 @@ function Question() {
                     </div>
                 </div>
             )}
+            {isOpenCourseModalVisible && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3 style={{ marginBottom: "15px" }}>הקורס לא קיים במערכת</h3>
+      <p>האם ברצונך לפתוח קורס חדש?</p>
+      <div className="modal-actions" style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+        <button
+          className="cancel-btn"
+          onClick={() => setIsOpenCourseModalVisible(false)}
+        >
+          ביטול
+        </button>
+        <button
+          className="upload-btn"
+          onClick={() => {
+            setIsOpenCourseModalVisible(false);
+            navigate(`/opencourse`);
+          }}
+        >
+          פתח קורס חדש
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
                     {/* {isSolutionModalOpen && (
                         <div className="modal-overlay">
                             <div className="modal-content">
