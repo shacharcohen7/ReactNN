@@ -491,7 +491,7 @@ function Home() {
                         <span>העלאת שאלה חדשה</span>
                     </button>
                     {isQuestionModalOpen && (
-                        <div className="modal">
+                         <div className="modal-overlay">
                         <div className="modal-content-question">
                             <p>
                                 במידה והקורס לא נמצא ברשימת הקורסים, תוכל לפתוח אותו    
