@@ -74,6 +74,7 @@ function Question() {
     const currentYear = new Date().getFullYear();
     const [isOpenCourseModalVisible, setIsOpenCourseModalVisible] = useState(false);
 
+    const [ShowDeleteSolutionConfirmation, setShowDeleteSolutionConfirmation] = useState(false);
 
 
 
@@ -91,6 +92,39 @@ function Question() {
             return a.question_number - b.question_number;
         }
     });
+    const handleDeleteSolution = async () => {
+       
+        try {
+            const response = await axiosInstance.delete(`${API_BASE_URL}/api/course/deleteQuestionSolution`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                },
+                data: {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                    question_number: questionNum
+                }
+            });
+    
+            if (response.data.success) {
+                alert("הפתרון נמחק בהצלחה.");
+                // You might want to redirect or refresh after deletion
+                    setShowDeleteSolutionConfirmation(false); // ❌ Close the modal
+                // ✅ Trigger reload of solution using useEffect dependencies
+                setAnswerPdfUrl(null);
+                setAnswerImageUrl(null);
+            } else {
+                alert(`מחיקת הפתרון נכשלה: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error("Error deleting question:", error);
+            alert("אירעה שגיאה בעת מחיקת הפתרון.");
+        }
+    };
+    
+    
 
     const { prevQuestion, nextQuestion } = useMemo(() => {
         const index = sortedQuestions.findIndex(q => q.question_number === Number(questionNum));
@@ -1230,6 +1264,8 @@ function Question() {
       ✏️
     </span>
   )}
+  
+
 </div>
 {isTopicsModalOpen && (
   <div className="modal-overlay">
@@ -1480,12 +1516,24 @@ function Question() {
                     >
                         שאלה
                     </button>
-                    <button
-                        className={`tab ${visiblePDF === 'answer' ? 'active' : ''}`}
-                        onClick={() => handlePDFChange('answer')}
-                    >
-                        פתרון
-                    </button>
+                    {/* Group "פתרון" + "מחק פתרון" vertically */}
+    <div className="answer-tab-group">
+        <button
+            className={`tab ${visiblePDF === 'answer' ? 'active' : ''}`}
+            onClick={() => handlePDFChange('answer')}
+        >
+            פתרון
+        </button>
+
+        {isCourseManager && (answerPdfUrl || answerImageUrl) && (
+            <button 
+            className="tab download-tab button-danger" 
+            onClick={() => setShowDeleteSolutionConfirmation(true)}
+        >
+            מחק פתרון
+        </button>
+        )}
+    </div>
                     <button 
                         className={`tab-next ${!prevQuestion ? "disabled" : ""}`} 
                         onClick={() => prevQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${prevQuestion.question_number}`)}
@@ -1717,6 +1765,18 @@ function Question() {
     </div>
   </div>
 )}
+{ShowDeleteSolutionConfirmation && (
+    <div className="modal-overlay">
+        <div className="delete-solution-confirmation-modal">
+        <p>האם את/ה בטוח/ה שברצונך למחוק את השאלה?</p>
+            <div className="modal-buttons">
+                <button onClick={handleDeleteSolution} className="confirm-button">אישור</button>
+                <button onClick={() => setShowDeleteSolutionConfirmation(false)} className="cancel-button">ביטול</button>
+            </div>
+        </div>
+    </div>
+)}
+
 
                     {/* {isSolutionModalOpen && (
                         <div className="modal-overlay">

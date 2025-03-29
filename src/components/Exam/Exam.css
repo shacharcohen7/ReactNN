@@ -10,3 +10,28 @@
     background-color: #f9f9f9;
     transition: all 0.3s ease;
   }
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: none; /* No dimming or background */
+  padding: 0;
+}
+
+
+
+.modal-content-question {
+  background-color: #fff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  width: 320px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

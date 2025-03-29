@@ -343,8 +343,8 @@ function Exam() {
                         העלאת שאלה חדשה
                     </button>
                     {isQuestionModalOpen && (
-                        <div className="modal">
-                        <div className="modal-content-question">
+                        <div className="modal-overlay">
+                            <div className="modal-content-question">
                             <p>
                                  הזן את מספר השאלה שברצונך להעלות
                             </p>
@@ -383,38 +383,7 @@ function Exam() {
                                 <p>לא נמצאו שאלות</p>
                             )}
                         </ul>
-                    {/* <table className="search-results-table">
-                        <thead>
-                            <tr>
-                                <th onClick={() => handleSort('year')}>שנה</th>
-                                <th onClick={() => handleSort('semester')}>סמסטר</th>
-                                <th onClick={() => handleSort('moed')}>מועד</th>
-                                <th onClick={() => handleSort('question_number')}>מספר שאלה</th>
-                                <th>צפייה</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {allQuestions && Array.isArray(allQuestions) && allQuestions.length > 0 ? (
-                                allQuestions.map(result => (
-                                    <tr key={result.question_id}>
-                                        <td>{result.year}</td>
-                                        <td>{result.semester}</td>
-                                        <td>{result.moed}</td>
-                                        <td>{result.question_number}</td>
-                                        <td>
-                                            <button onClick={() => navigateToQuestionPage(result.question_number)}>
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="5">לא נמצאו שאלות</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table> */}
+                    
                 </div>
                 {isModalOpen && (
                         <div className="modal-overlay">
