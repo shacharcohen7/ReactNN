@@ -75,6 +75,7 @@ function Question() {
     const [isOpenCourseModalVisible, setIsOpenCourseModalVisible] = useState(false);
 
     const [ShowDeleteSolutionConfirmation, setShowDeleteSolutionConfirmation] = useState(false);
+    const [IsSystemManager, setIsSystemManager] = useState(false);
 
 
 
@@ -741,6 +742,25 @@ function Question() {
     
         checkCourseManager();
     }, [courseId]);
+
+    useEffect(() => {
+        const checkSystemManager = async () => {
+            try {
+                const response = await axiosInstance.post(`${API_BASE_URL}/api/course/is_system_manager`, {
+                },{headers: addAuthHeaders()})  
+                if (response.data.success) {
+                    console.log("user is course manager:", response.data.is_system_manager);
+                    setIsSystemManager(response.data.is_system_manager);
+                } else {
+                    console.error("Not system manager:", response.data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching course manager status:", error);
+            }
+        };
+    
+        checkSystemManager();
+    }, [courseId]);
     
 
     const countReactionsForComment = (reactions) => {
@@ -878,7 +898,7 @@ function Question() {
                             >
                             {activeRepliedComment === comment.comment_id ? <FaCommentAlt /> : <FaRegCommentAlt />}
                         </button>)}
-                        {(isCourseManager || (commentMetadata && loggedInUserId === commentMetadata.writer_id)) && (
+                        {(isCourseManager || IsSystemManager || (commentMetadata && loggedInUserId === commentMetadata.writer_id)) && (
                             !comment.deleted && (
                             <button
                                 type="button"
@@ -1250,7 +1270,7 @@ function Question() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
   <strong>נושאי השאלה:</strong>
   {question.question_topics && question.question_topics.join(', ')}
-  {isCourseManager && (
+  {(isCourseManager || IsSystemManager) && (
     <span
       title="ערוך נושאים"
       style={{ cursor: 'pointer', marginRight: '8px' }}
@@ -1525,7 +1545,7 @@ function Question() {
             פתרון
         </button>
 
-        {isCourseManager && (answerPdfUrl || answerImageUrl) && (
+        {(isCourseManager || IsSystemManager) && (answerPdfUrl || answerImageUrl) && (
             <button 
             className="tab download-tab button-danger" 
             onClick={() => setShowDeleteSolutionConfirmation(true)}
@@ -1561,7 +1581,7 @@ function Question() {
                         הוספת פתרון מרצה
                     </button> */}
                     {/* Render manager-only buttons */}
-                    {isCourseManager && (
+                    {(isCourseManager || IsSystemManager) && (
                         <>
                             <button
                             className="tab download-tab edit-question-button"
