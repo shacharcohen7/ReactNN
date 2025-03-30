@@ -7,9 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 
 function Home() {
-    const [courses, setCourses] = useState([]); 
-    const [userCourses, setUserCourses] = useState([]);
-    const [token, setToken] = useState('');  
+    const [courses, setCourses] = useState([]);  // קורסים כלליים
+    const [userCourses, setUserCourses] = useState([]);  // קורסים של היוזר הספציפי    
+    const [userId, setUserId] = useState(''); // כאן נשמור את ה-user ID
+    const [token, setToken] = useState('');  // מזהה היוזר
+    const [searchById, setSearchById] = useState(false);
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
     const [courseResults, setCourseResults] = useState('');
@@ -18,13 +20,14 @@ function Home() {
     const [courseId, setCourseId] = useState('');
     const [activeSearch, setActiveSearch] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
-    const [searchText, setSearchText] = useState(''); 
-
-    const [examYear, setExamYear] = useState(''); 
-    const [examSemester, setExamSemester] = useState('');
-    const [examDateSelection, setExamDateSelection] = useState(''); 
-    const [questionNum, setQuestionNum] = useState(''); 
-
+    const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
+    const [courseSearchInput, setCourseSearchInput] = useState(''); // שינוי שם ל-searchText
+    const [coursesMatchNamePart, setCoursesMatchNamePart] = useState([])
+    const [examYear, setExamYear] = useState(''); // שינוי שם ל-examYear
+    const [examSemester, setExamSemester] = useState(''); // שינוי שם ל-examSemester
+    const [examDateSelection, setExamDateSelection] = useState(''); // שינוי שם ל-examDateSelection
+    const [questionNum, setQuestionNum] = useState(''); // שינוי שם ל-questionNum
+    const [searchCourseByNameResults, setSearchCourseByNameResults] = useState(false);
     const semesters = ['סתיו', 'אביב', 'קיץ'];
     const examDates = ['א', 'ב', 'ג', 'ד'];
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -35,7 +38,7 @@ function Home() {
     const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
 
     const [isCourseNotFoundModalOpen, setIsCourseNotFoundModalOpen] = useState(false); // State לשליטה במודל פתיחת קורס חדש
-
+    const [searchCourseModal, setIsSearchCourseModalOpen] = useState(false);
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
 
     const addAuthHeaders = (headers = {}) => {
@@ -50,6 +53,24 @@ function Home() {
     courses.forEach((course) => {
         courseIdToNameMap[course.course_id] = course.name;
     });
+    
+    const handleCourseSearchByNameResults = (courses) => {
+        if(courses.length > 0){
+            setSearchCourseByNameResults(true);
+            setCoursesMatchNamePart(courses)
+        } else {
+            setIsCourseNotFoundModalOpen(true)
+        }
+    }
+
+    const handleRadioChange = (isSearchById) => {
+        setSearchById(!isSearchById);
+        setCourseSearchInput('')
+    }
+
+    const handleCourseSearchInput = (e) => {
+        setCourseSearchInput(e.target.value);
+    };
     
     useEffect(() => {
         const storedToken = localStorage.getItem('access_token');
@@ -121,11 +142,9 @@ function Home() {
 
 
     const navigate = useNavigate();
-
     const handleSearchTypeChange = (criteria) => {
         setSearchType(criteria);
     };
-
     const handleCourseSelection = (e) => {
         setSelectedCourse(e.target.value);
     };
@@ -249,7 +268,7 @@ function Home() {
         navigate('/addexam');
     };
 
-    const handleCourseSearch = (courseId) => {
+    const handleCourseSearchById = (courseId) => {
         console.log("Searching for course with courseId:", courseId);
         
         if (courseId) {
@@ -274,6 +293,24 @@ function Home() {
         }
     };
     
+    const handleCourseSearchByName = (name_part) => {
+        console.log("Searching for courses with name_part:", name_part);
+        
+        if (name_part) {
+            axiosInstance.get(`${API_BASE_URL}/api/course/get_courses_by_name/${name_part}`, {
+                headers: addAuthHeaders()
+            })
+            .then(response => {
+                console.log('Courses data:', response.data.data);
+                handleCourseSearchByNameResults(response.data.data);
+            })
+            .catch(error => {
+                console.error('Error fetching course details:', error);
+            });
+        } else {
+            console.error('Course name is missing');
+        }
+    };
 
     const openCourseNotFoundModal = () => {
         setIsCourseNotFoundModalOpen(true);
@@ -281,6 +318,16 @@ function Home() {
 
     const closeCourseNotFoundModal = () => {
         setIsCourseNotFoundModalOpen(false);
+    };
+
+    const openSearchCourseModal = () => {
+        setIsSearchCourseModalOpen(true);
+    };
+
+    const closeSearchCourseModal = () => {
+        setIsSearchCourseModalOpen(false);
+        setCourseSearchInput('')
+        setSearchById(true)
     };
 
     const navigateToAddNewCourse = () => {
@@ -517,18 +564,7 @@ function Home() {
                         </div>
                     )}
                 </div>
-                <div className="course-search-container">
-                    <label className="search-label" htmlFor="courseId">חפש קורס:</label>
-                    <input
-                        type="text"
-                        id="courseId"
-                        placeholder="הכנס מזהה קורס (XXX.X.XXXX)"
-                        value={courseId}
-                        onChange={(e) => setCourseId(e.target.value)}
-                        className="search-input-course"
-                    />
-                    <button className="search-button-home" onClick={() => handleCourseSearch(courseId)}>חפש קורס</button>
-                </div>
+                
 
                 <div className="courses-section">
                     <h3>הקורסים שלי</h3>
@@ -537,7 +573,7 @@ function Home() {
                             <div
                                 key={course.id}
                                 className="course-card"
-                                onClick={() => handleCourseSearch(course.course_id)} // קריאה לפונקציה של החיפוש
+                                onClick={() => navigate(`/course/${course.course_id}`)} // קריאה לפונקציה של החיפוש
                                 >
                                 <span>{course.name}</span>
                                 {/* <p style={{ fontSize: '12px', color: 'gray' }}>
@@ -545,28 +581,98 @@ function Home() {
                                 </p> */}
                             </div>
                         ))}
-                        <div className="course-card" onClick={navigateToAddNewCourse}>
-                            <>
-                                <span className="plus-sign"> + </span>
-                                <span>פתיחת קורס חדש</span>
-                            </>
-                        </div>
+                        <div className="course-card" style={{fontSize:'40px'}} onClick={openSearchCourseModal}>+</div>
                     </div>
                     
                 </div>
 
                 {isCourseNotFoundModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>הקורס לא נמצא</h2>
-                        <p>האם תרצה לפתוח קורס חדש?</p>
-                        <div className="modal-buttons">
-                            <button onClick={navigateToAddNewCourse}>כן, פתח קורס חדש</button>
-                            <button onClick={closeCourseNotFoundModal}>לא, ביטול</button>
-                        </div>
+                <div className="modal-black-overlay">
+                    <div className="search-course-modal">
+                        <h2>לא התקבלו תוצאות</h2>
+                        <div style={{display:"flex", flexDirection:"row", justifyContent:"center"}}>
+                        <button className="search-button-home" onClick={navigateToAddNewCourse}>פתח קורס חדש</button></div>
+                        <button className="close-button" onClick={()=> setIsCourseNotFoundModalOpen(false)}>x</button>
                     </div>
                 </div>
-            )}
+                )}
+                {searchCourseModal && (
+                    <div className="modal-black-overlay">
+                        <div className="search-course-modal">
+                            <h2>חפש את הקורס הרצוי</h2>
+                            <div className="course-search-container">
+                                <div style={{display:"flex", flexDirection:"column"}}>
+                                    <label>
+                                    <input
+                                        type="radio"
+                                        checked={searchById}
+                                        onChange={() => handleRadioChange(false)}
+                                    />
+                                    חיפוש לפי מספר קורס
+                                    </label>
+                                    <label>
+                                    <input
+                                        type="radio"
+                                        checked={!searchById}
+                                        onChange={() => handleRadioChange(true)}
+                                    />
+                                    חיפוש לפי שם קורס
+                                    </label>
+                                </div>
+                                <div>
+                                    {searchById ? (
+                                        <input
+                                            style={{width:"215px"}}
+                                            type="text"
+                                            value={courseSearchInput}
+                                            onChange={handleCourseSearchInput}
+                                            placeholder="הזן מספר קורס (XXX.XX.XXXX)"
+                                            className="search-input-topic"
+                                        />
+                                    ) : (<input
+                                        style={{width:"215px"}}
+                                        type="text"
+                                        value={courseSearchInput}
+                                        onChange={handleCourseSearchInput}
+                                        placeholder="הזן שם קורס"
+                                        className="search-input-topic"
+                                    />)}
+                                    
+                                </div>
+                                <button className="search-button-home" onClick={() => {
+                                    closeSearchCourseModal();
+                                    {searchById ?   handleCourseSearchById(courseSearchInput) : 
+                                                    handleCourseSearchByName(courseSearchInput)}
+                                    }}
+                                >
+                                    חפש קורס
+                                </button>
+                            </div>
+                            <button className="close-button" onClick={closeSearchCourseModal}>x</button>
+                        </div>
+                    </div>
+                )}
+                {searchCourseByNameResults && (
+                    <div className="modal-black-overlay">
+                        <div className="search-course-modal">
+                            <h2>תוצאות חיפוש</h2>
+                            <div  style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+                                {coursesMatchNamePart.map(course => 
+                                    (<div
+                                        className='course-search-by-name-result'
+                                        onClick={()=>navigate(`/course/${course.course_id}`)}
+                                    >
+                                        {course.course_id} {course.name}
+                                    </div>)
+                                )}
+                            </div><br></br>
+                            <div style={{display:"flex", flexDirection:"row", justifyContent:"center"}}>
+                                <button className="search-button-home" onClick={navigateToAddNewCourse}>לא מה שחיפשת? פתח קורס חדש</button>
+                            </div>
+                            <button className="close-button" onClick={()=>setSearchCourseByNameResults(false)}>x</button>
+                        </div>
+                    </div>
+                )}
             </main>
             <Footer />
         </div>
