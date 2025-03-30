@@ -649,3 +649,21 @@ button:disabled {
     max-width: 90%;
 }
 
+.question-tab-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.question-file-swap-icon {
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+}
+
+.question-file-swap-icon:hover {
+    color: #000;
+}
+
+
