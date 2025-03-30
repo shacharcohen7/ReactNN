@@ -77,7 +77,51 @@ function Question() {
     const [ShowDeleteSolutionConfirmation, setShowDeleteSolutionConfirmation] = useState(false);
     const [IsSystemManager, setIsSystemManager] = useState(false);
 
+    const [showSwapModal, setShowSwapModal] = useState(false);
+    const [swapFile, setSwapFile] = useState(null);
 
+    const handleFileSwap = async () => {
+        if (!swapFile) {
+            alert("אנא בחר קובץ PDF או תמונה");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('question_number', questionNum);
+        formData.append('new_file', swapFile);
+    
+        try {
+            const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/course/swap_question_file`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                }
+            );
+    
+            if (response.data.success) {
+                alert("הקובץ הוחלף בהצלחה");
+                setShowSwapModal(false);
+                // Refresh if needed
+                // navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
+                window.location.reload(); // 🔄 Force full refresh to reflect updated file
+
+
+            } else {
+                alert(`ההחלפה נכשלה: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error("Error swapping file:", error);
+            alert("אירעה שגיאה בעת החלפת הקובץ");
+        }
+    };
 
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
@@ -1530,12 +1574,39 @@ function Question() {
                     >
                         <FaArrowRight />
                     </button>
-                    <button
-                        className={`tab ${visiblePDF === 'question' ? 'active' : ''}`}
-                        onClick={() => handlePDFChange('question')}
-                    >
-                        שאלה
-                    </button>
+                    <div className="question-tab-group">
+    <button
+        className={`tab ${visiblePDF === 'question' ? 'active' : ''}`}
+        onClick={() => handlePDFChange('question')}
+    >
+        שאלה
+    </button>
+    <span
+        className="question-file-swap-icon"
+        title="החלפת קובץ שאלה"
+        onClick={() => setShowSwapModal(true)}
+    >
+        ⇄
+    </span>
+</div>
+
+{showSwapModal && (
+    <div className="modal-overlay">
+        <div className="modal-content-question">
+            <p>בחר קובץ שאלה חדש להעלאה (PDF או תמונה):</p>
+            <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => setSwapFile(e.target.files[0])}
+            />
+            <div className="modal-buttons">
+                <button onClick={handleFileSwap} className="confirm-button">אישור</button>
+                <button onClick={() => setShowSwapModal(false)} className="cancel-button">ביטול</button>
+            </div>
+        </div>
+    </div>
+)}
+
                     {/* Group "פתרון" + "מחק פתרון" vertically */}
     <div className="answer-tab-group">
         <button
