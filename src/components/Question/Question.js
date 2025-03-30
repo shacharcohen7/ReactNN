@@ -1,10 +1,6 @@
-// 
-
-
 // Question.js
-import React, { useState, useEffect , useMemo } from 'react';
+import React, { useState, useEffect , useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { RxCross2 } from "react-icons/rx";
 import { GoCheck } from "react-icons/go";
 import { FaArrowRight } from "react-icons/fa";
@@ -25,10 +21,8 @@ import axiosInstance from '../../utils/axiosInstance';
 import { useNavigate } from "react-router-dom";
 
 
-
-
 function Question() {
-    const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams();  // מקבלים את שם הקורס מה-URL
+    const { courseId, examYear, examSemester, examDateSelection, questionNum } = useParams(); 
     const [courseDetails, setCourseDetails] = useState(null);
     const [questionPdfUrl, setQuestionPdfUrl] = useState(null);
     const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
@@ -43,6 +37,7 @@ function Question() {
     const [allComments, setAllComments] = useState([]); // שמירה של רשימת ההודעות
     const [chatInput, setchatInput] = useState(""); // הודעה חדשה
     const [replyInput, setReplyInput] = useState(""); // הודעה חדשה
+    const [textareaHeight, setTextareaHeight] = useState(40); // גובה התיבה (בהתחלה 40)
     const [newText, setNewText] = useState(""); // הודעה חדשה
     const [isUploading, setIsUploading] = useState(false);
     const [expandReplies, setExpandReplies] = useState({});
@@ -76,6 +71,7 @@ function Question() {
 
     const [ShowDeleteSolutionConfirmation, setShowDeleteSolutionConfirmation] = useState(false);
     const [IsSystemManager, setIsSystemManager] = useState(false);
+    const textareaRef = useRef(null); // נשתמש ב־ref לגישה ל־textarea
 
     const [showSwapModal, setShowSwapModal] = useState(false);
     const [swapFile, setSwapFile] = useState(null);
@@ -112,7 +108,6 @@ function Question() {
                 // Refresh if needed
                 // navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${questionNum}`);
                 window.location.reload(); // 🔄 Force full refresh to reflect updated file
-
 
             } else {
                 alert(`ההחלפה נכשלה: ${response.data.message}`);
@@ -406,15 +401,28 @@ function Question() {
               onTextChange(text);
             }
           };
-      
+        
+        useEffect(() => {
+            if (textareaRef.current) {
+                textareaRef.current.style.height = 'auto';  // מאפסים את הגובה
+                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;  // עדכון הגובה לפי התוכן
+            }
+        }, [text]);  // כל פעם שהטקסט משתנה
+        
         return (
           <textarea
-            type="text"
+            //type="text"
+            ref={textareaRef}  // קישור ל־ref
             value={text} // מציג את הטקסט בתיבת הקלט
             onChange={handleChange} // עדכון הטקסט במצב
             onBlur={handleBlur} // שולח את הטקסט אחרי שמפסיקים לערוך
             className="edit-input"
-            autoFocus
+            // style={{
+            //     resize: 'none', // מניעת שינוי גודל ידני
+            //     overflowY: 'auto', // גלילה אם התיבה יותר גדולה מהגובה המקסימלי
+            //     minHeight: '40px',  // גובה מינימלי (שתי שורות)
+            //     width: '800px'
+            //             }}
           />
         );
       };
@@ -505,7 +513,18 @@ function Question() {
     const handleKeyDown = (chatInput, prevId) => (e) => {
         if (e.key === 'Enter') {
           e.preventDefault(); // מונע את ריענון הדף
-          handleSendClick(chatInput, prevId);
+          //handleSendClick(chatInput, prevId);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const newValue = e.target.value;
+        setchatInput(newValue);
+    
+        if (textareaRef.current) {
+          textareaRef.current.style.height = 'auto'; // מאפסים את הגובה
+          const newHeight = Math.min(e.target.scrollHeight, 120); // הגובה המרבי של 4 שורות (במקרה זה 120px)
+          textareaRef.current.style.height = `${newHeight}px`; // עדכון הגובה
         }
       };
     
@@ -688,7 +707,7 @@ function Question() {
             alert("An error occurred while uploading the solution.");
         }
     };
-    
+
 
     const handleSendClick = async (chatInput, prevId) => {
         if(chatInput.length > 0){
@@ -723,6 +742,11 @@ function Question() {
                 // Handle error
                 console.error("Error adding comment:", error);
                 alert("An error occurred while adding the comment.");
+            }
+
+            setchatInput(""); // מאפס את התגובה
+            if (textareaRef.current) {
+              textareaRef.current.style.height = '40px'; // מאפס את הגובה לגובה הראשוני
             }
         }
     };
@@ -826,6 +850,16 @@ function Question() {
         ))
     }
 
+    const formatMessage = (message) => {
+        return message.split('\n').map((item, index) => (
+          <span key={index}>
+            {item}
+            <br />
+          </span>
+        ));
+      };
+       
+
     const renderComments = (comments) => {
         const loggedInUserId = TokenManager.getUserIdFromToken(); // Current logged-in user
         const handleTextChange = (newText) => {
@@ -870,8 +904,8 @@ function Question() {
                                 )}
                                 {activeEditedComment === comment.comment_id ? (
                                         <CommentEditor initialText={comment.comment_text} onTextChange={handleTextChange}/>
-                                ) : (comment.comment_text)}
-                            </>
+                                ) : (<p>{formatMessage(comment.comment_text)}</p>)}
+                            </>  
                         )}
                     </div>
                     <div className="comment-options">
@@ -1771,18 +1805,26 @@ function Question() {
                         </div>
                     )}
                     <form className="chat-form">
-                        <input
-                            type="text"
+                        <textarea
+                            //type="text"
+                            ref={textareaRef} // קישור ל־textarea
                             placeholder="כתיבת תגובה..."
                             value={chatInput}
-                            onKeyDown={handleKeyDown(chatInput, "0")}
+                            // onKeyDown={handleKeyDown(chatInput)}
                             // onClick={()=>setActiveEditedComment(null)}
+                            onChange={handleInputChange}
                             onClick={() => {
                                 setActiveEditedComment(null);
                                 setReplyInput([]);
                                 setActiveRepliedComment(null);}}
-                            onChange={(e) => setchatInput(e.target.value)}
                             className="reply-input"
+                            style={{
+                                resize: 'none', // מונע מהמשתמש לשנות את גודל ה־textarea ידנית
+                                overflowY: 'auto', // מאפשר גלילה אם התוכן חורג
+                                height: '40px', // גובה התיבה מתחיל עם 2 שורות
+                                minHeight: '40px', // גובה מינימלי
+                                maxHeight: '120px', // גובה מקסימלי של 4 שורות
+                              }}
                         />
                         <button type="button" className="reply-button" onClick={() => handleSendClick(chatInput, "0")}>שלח</button>
                     </form>

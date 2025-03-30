@@ -7,9 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 
 function Home() {
-    const [courses, setCourses] = useState([]);  // קורסים כלליים
-    const [userCourses, setUserCourses] = useState([]);  // קורסים של היוזר הספציפי    const [userId, setUserId] = useState(''); // כאן נשמור את ה-user ID
-    const [token, setToken] = useState('');  // מזהה היוזר
+    const [courses, setCourses] = useState([]); 
+    const [userCourses, setUserCourses] = useState([]);
+    const [token, setToken] = useState('');  
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
     const [courseResults, setCourseResults] = useState('');
@@ -18,12 +18,12 @@ function Home() {
     const [courseId, setCourseId] = useState('');
     const [activeSearch, setActiveSearch] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
-    const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
+    const [searchText, setSearchText] = useState(''); 
 
-    const [examYear, setExamYear] = useState(''); // שינוי שם ל-examYear
-    const [examSemester, setExamSemester] = useState(''); // שינוי שם ל-examSemester
-    const [examDateSelection, setExamDateSelection] = useState(''); // שינוי שם ל-examDateSelection
-    const [questionNum, setQuestionNum] = useState(''); // שינוי שם ל-questionNum
+    const [examYear, setExamYear] = useState(''); 
+    const [examSemester, setExamSemester] = useState('');
+    const [examDateSelection, setExamDateSelection] = useState(''); 
+    const [questionNum, setQuestionNum] = useState(''); 
 
     const semesters = ['סתיו', 'אביב', 'קיץ'];
     const examDates = ['א', 'ב', 'ג', 'ד'];
@@ -166,27 +166,25 @@ function Home() {
                 headers: addAuthHeaders()
             })
             .then(response => {
-                const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט
+                const parsedResponse = JSON.parse(response.data.data);  
                 console.log("תוצאות חיפוש לפי נושא: ", parsedResponse);
     
-                // אם התוצאה היא לא מערך, נהפוך אותה למערך
                 if (parsedResponse.status === "success" && parsedResponse.data.length > 0) {
                     console.log("תוצאות החיפוש: ", parsedResponse.data);
-                    setSearchResults(parsedResponse.data);  // עדכון תוצאות החיפוש
+                    setSearchResults(parsedResponse.data);  
                 } else {
-                    setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
+                    setSearchResults([]); 
                 }
             })
             .catch(error => {
                 console.error('שגיאה בחיפוש לפי נושא:', error);
-                setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
+                setSearchResults([]); 
                 alert("אירעה שגיאה בחיפוש לפי נושא");
             });
     
         } else if (searchType === 'date') {
             console.log("חיפוש לפי מועד עם פרמטרים: ", { selectedCourse, examYear, examSemester, examDateSelection, questionNum });
     
-            // קריאה ל-API לחיפוש לפי מועד
             axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, {
                 course_id: selectedCourse,
                 year: examYear || undefined,
@@ -198,22 +196,21 @@ function Home() {
                 headers: addAuthHeaders()
             })
             .then(response => {
-                const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
+                const parsedResponse = JSON.parse(response.data.data);     
                 if (parsedResponse.status === "success" && parsedResponse.data.length > 0) {
-                    setSearchResults(parsedResponse.data);  // עדכון תוצאות החיפוש
+                    setSearchResults(parsedResponse.data); 
                 } else {
-                    setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
+                    setSearchResults([]);
                 }
             })
             .catch(error => {
                 console.error('שגיאה בחיפוש לפי מועד:', error);
-                setSearchResults([]); // אם קרתה שגיאה, לנקות את ה-state
+                setSearchResults([]); 
                 alert("אירעה שגיאה בחיפוש לפי מועד");
             });
         } else if (searchType === 'text') {
             console.log("חיפוש לפי טקסט עם פרמטרים: ", { selectedCourse, searchText });
     
-            // קריאה ל-API לחיפוש לפי טקסט
             axiosInstance.post(`${API_BASE_URL}/api/course/search_questions_by_text`, {
                 text: searchText,
                 course_id: selectedCourse || undefined},
@@ -406,7 +403,7 @@ function Home() {
                             </select>
 
                             <input
-                                type="text"
+                                type="number"
                                 placeholder="שנה"
                                 value={examYear}
                                 onChange={(e) => setExamYear(e.target.value)}
