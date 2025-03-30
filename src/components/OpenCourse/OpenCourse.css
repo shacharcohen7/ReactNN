@@ -1,11 +1,9 @@
-/* סגנון כללי לדף הוספת קורס */
 .open-course-page {
     font-family: 'Arial', sans-serif;
     background-color: #f9f9f9;
     min-height: 100vh;
 }
 
-/* סגנון עבור הטופס להוספת קורס */
 .form-content {
     background-color: #ffffff;
     padding: 40px;
@@ -19,7 +17,6 @@
     margin: 0 auto;
 }
 
-/* כותרת הטופס */
 .form-content h2 {
     font-size: 1.8rem;
     font-weight: bold;
@@ -27,7 +24,41 @@
     text-align: center;
 }
 
-/* סגנון לשדות קלט (input, textarea, file) */
+.form-container {
+    direction: rtl;
+    background: #fff;
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+.form-container h2 {
+text-align: center;
+margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .form-row label {
+    width: 120px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .form-row input[type="text"],
+  .form-row input[type="file"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
 .search-input-open {
     width: 100%;
     max-width: 500px;
@@ -44,14 +75,12 @@
     text-align: right; /* Align the text to the right */
 }
 
-/* כאשר שדה קלט ממוקד */
 .search-input-open:focus {
     outline: none;
     border-color: #f5a623;
     background-color: #fff;
 }
 
-/* סגנון לכפתור הוספת קורס */
 .search-button {
     background-color: #f5a623;
     color: white;
@@ -70,7 +99,6 @@
     background-color: #e59428;
 }
 
-/* סגנון למכולה של השדה (במקרה של tooltip או גמישות בעיצוב) */
 .input-container {
     display: flex;
     flex-direction: column;

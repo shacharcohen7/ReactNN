@@ -52,6 +52,8 @@
     width: 90%;
     align-items: flex-start;
     position: relative;
+    transition: all 0.3s ease; /* שינוי חלק של רוחב וגובה */
+
 }
 
 .comment-box::before {
@@ -88,6 +90,14 @@
     color: #333;
     /* min-width: 320px; */
     max-width: 100%;
+    width: 100%;
+    transition: max-height 0.3s ease; /* שינוי חלק של גובה */
+    max-height: 200px; /* גובה רגיל */
+    overflow: hidden; /* החבאת תוכן חורג */
+}
+
+.comment-content.editing {
+    max-height: 600px; /* גובה מרבי בזמן עריכה */
 }
 
 .comment-options {
@@ -198,6 +208,10 @@
     width: 100%;
     text-align: right; /* יישור הטקסט של הקלט לימין */
     flex: 1;
+    resize: none; 
+    overflow-y: auto;
+    min-height: 40px; /* גובה מינימלי */
+    max-height: 120px; /* גובה מקסימלי */
 }
 
 .reply-button {
@@ -439,6 +453,7 @@ button:disabled {
     gap: 10px; /* רווח בין הקישורים */
 }
 
+
 .nav-result-link {
     color: rgb(7, 7, 7);
     text-decoration: none;
@@ -458,13 +473,21 @@ button:disabled {
     background-color: #fff;
     font-size: 14px;
     display: inline-block;
-    min-width: 100%;
-    max-width: 100%;
-    height: 800px;
+    min-height: 60px; /* הגובה המינימלי */
+    max-height: 200px; /* גובה מקסימלי */
+    box-sizing: border-box;
     text-align: right; /* יישור הטקסט של הקלט לימין */
     white-space: pre-wrap; /* שמירה על שבירת שורות */
     flex: 1;
     box-sizing: border-box;
+    resize: none; /* מניעת שינוי גודל ידני */
+    overflow-y: auto; 
+    width: 100%; /* רוחב מלא של ה-comment-box */
+    transition: height 0.3s ease; /* שינוי חלק של גובה */
+}
+
+.edit-input.editing {
+    height: auto; /* גובה משתנה על פי התוכן */
 }
 
 .modal-overlay {
@@ -625,4 +648,22 @@ button:disabled {
     width: 320px;
     max-width: 90%;
 }
+
+.question-tab-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.question-file-swap-icon {
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+}
+
+.question-file-swap-icon:hover {
+    color: #000;
+}
+
 
