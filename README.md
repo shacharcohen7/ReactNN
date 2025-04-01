@@ -1,70 +1,69 @@
-# Getting Started with Create React App
+# NegevNerds
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+NegevNerds is a web platform designed to improve Ben-Gurion-University exam preparation by facilitating collaborative learning. The platform allows students to share and discuss exam-related questions, fostering a community-driven approach to studying.
 
-## Available Scripts
+# backend repository - https://github.com/davidvolo/NegevNerds
+# frontend Repository - https://github.com/shacharcohen7/ReactNN
 
-In the project directory, you can run:
+## Features
+- **User Authentication:** Secure register and login system for users.
+- **Exam Question Forum:** Users can post, search, and discuss exam questions.
+- **Exam Questions Search by:Date, keywords, subject:** Find relevant questions using multiple ways.
+- **Interactive Discussions:** Engage in discussions to clarify concepts.
+- **Archive of Past Exam Information:**:  Exam details from previous years are retained in the system for future reference.
 
-### `npm start`
+## Tech Stack
+### Backend:
+- **Language:** Python
+- **Framework:** Flask
+- **Database:** SQLite 
+- **API Hosting:** Running with `app.run()`, plans to migrate to Gunicorn or WSGIServer.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend:
+- **Language:** JavaScript
+- **Framework:** React
+- **State Management:** React Context API (or Redux, if applicable)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
 
-### `npm test`
+### Backend Setup
+```sh
+# Clone the repository
+git clone https://github.com/yourusername/negevnerds.git
+cd negevnerds/backend
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Install dependencies
+pip install -r requirements.txt
 
-### `npm run build`
+# Run the application
+python app.py
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Frontend Setup
+```sh
+cd ../frontend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Install dependencies
+npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Start the React app
+npm start
+```
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## system UI
+# home page 
+![image](https://github.com/user-attachments/assets/cc27806c-16dd-453b-bd0b-3d42a05c3177)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# course page
+![image](https://github.com/user-attachments/assets/79b79def-4c22-49fa-a949-a9dd1094c4e4)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# exam page 
+![image](https://github.com/user-attachments/assets/a2d722c0-92e9-4791-84d5-3965951f967c)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# question page 
+![image](https://github.com/user-attachments/assets/554a7c67-fdb1-401c-874b-67d028fac071)
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
