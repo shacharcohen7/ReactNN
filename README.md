@@ -22,7 +22,6 @@ NegevNerds is a web platform designed to improve Ben-Gurion-University exam prep
 ### Frontend:
 - **Language:** JavaScript
 - **Framework:** React
-- **State Management:** React Context API (or Redux, if applicable)
 
 ## Installation
 ### Prerequisites
