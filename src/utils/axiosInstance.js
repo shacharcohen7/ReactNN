@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // יצירת axios instance
 const axiosInstance = axios.create({
-    baseURL: 'https://negevnerds.cs.bgu.ac.il:5001/api/',  // כתובת ה-API של השרת
+    baseURL: 'https://localhost:5001/api/',  // כתובת ה-API של השרת
     headers: {
         'Content-Type': 'application/json',
     }

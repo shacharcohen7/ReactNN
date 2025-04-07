@@ -32,6 +32,7 @@
 }
 
 .search-results-table th, .search-results-table td {
+    width: 120px;
     padding: 12px 15px; /* ריווח סביב התאים */
     border: 1px solid #ddd; /* גבול דק סביב כל תא */
     text-align: center; /* אליינמנט של טקסט במרכז */
@@ -52,16 +53,15 @@
 }
 
 .search-results-table td button {
-    background-color: #4CAF50; /* צבע רקע לכפתור */
-    color: white; /* צבע טקסט לכפתור */
-    padding: 8px 12px;
+    size: 30px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    background-color: rgba(0,0,0,0);
 }
 
 .search-results-table td button:hover {
-    background-color: #45a049; /* שינוי צבע כפתור בהובר */
+    color: rgba(0,0,0,0.6);
 }
 
 .favorite-button {

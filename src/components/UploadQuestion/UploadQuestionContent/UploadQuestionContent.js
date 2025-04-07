@@ -163,7 +163,7 @@ function UploadQuestionContent() {
                     <div className="form-group">
                     <label className="label-question-content" htmlFor="name">
                         <span className="required-asterisk" title="שדה חובה">*</span>שאלה:</label>
-                        <IoInformationCircleOutline size={"10%"} title="העלה קובץ PDF או תמונה של השאלה כפי שמופיעה במבחן"/>
+                        <IoInformationCircleOutline size={"8%"} title="העלה קובץ PDF או תמונה של השאלה כפי שמופיעה במבחן"/>
                         <input
                             className="question-content-field"
                             type="file"
@@ -174,7 +174,7 @@ function UploadQuestionContent() {
                     </div>
                     <div className="form-group">
                         <label className="label-question-content" htmlFor="name">פתרון רשמי:</label>
-                        <IoInformationCircleOutline size={"10%"} title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF או תמונה של פתרון זה"/>
+                        <IoInformationCircleOutline size={"8%"} title="במידה וקיים ברשותך פתרון רשמי לשאלה, העלה קובץ PDF או תמונה של פתרון זה"/>
                         <input
                             className="question-content-field"
                             type="file"
@@ -188,7 +188,7 @@ function UploadQuestionContent() {
                         <span className="required-asterisk" title="שדה חובה">*</span>
                             סוג השאלה:
                     </label>
-                        <IoInformationCircleOutline size={"10%"} title="בחר את סוג השאלה - אמריקאית או פתוחה"/>
+                        <IoInformationCircleOutline size={"8%"} title="בחר את סוג השאלה - אמריקאית או פתוחה"/>
                         <select
                             value={isAmerican === null ? '' : isAmerican ? 'אמריקאית' : 'פתוחה'}
                             onChange={(e) => {
@@ -212,7 +212,7 @@ function UploadQuestionContent() {
                         <span className="required-asterisk" title="שדה חובה">*</span>
                             נושאי השאלה:
                         </label>
-                        <IoInformationCircleOutline size={"10%"} title="בחר את נושאי הקורס בהם עוסקת שאלה זו"/>
+                        <IoInformationCircleOutline size={"8%"} title="בחר את נושאי הקורס בהם עוסקת שאלה זו"/>
                         <Select
                             id="multi-select"
                             options={topics.map((topic) => ({ value: topic, label: topic }))} // המרה לפורמט מתאים
