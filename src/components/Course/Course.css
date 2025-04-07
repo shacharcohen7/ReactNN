@@ -97,3 +97,16 @@
 .favorite-button .fa-star {
     color: gold; /* צובעים את הכוכב בצהוב כשיש מועדף */
 }  
+
+.checkbox-solution{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    color:rgba(0,0,0,0.3);
+    font-size:15px;
+}
+
+.checkbox-solution input{
+    cursor: pointer;
+    
+}

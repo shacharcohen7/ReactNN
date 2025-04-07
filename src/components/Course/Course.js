@@ -31,10 +31,11 @@ function Course() {
     const [examsDownloadExist, setExamsDownloadExist] = useState([]);
 
     const navigate = useNavigate();
-
+    
+    const [onlyWithSolution, setOnlyWithSolution] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
     const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
-
+    const [hasSolution, setHasSolution] = useState([]);
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
     const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -136,6 +137,39 @@ function Course() {
     
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const checkAnswers = async () => {
+            const resultsWithSolutions = await Promise.all(
+                searchResults.map(async (result) => {
+                    try {
+                        const response = await axios.get(`${API_BASE_URL}/api/course/get_answer_pdf`, {
+                            params: {
+                                course_id: courseId,
+                                year: result.year,
+                                semester: result.semester,
+                                moed: result.moed,
+                                question_number: result.question_number,
+                            },
+                            headers: addAuthHeaders(),
+                            responseType: 'blob',
+                        });
+
+                        const fileType = response.headers['content-type'];
+                        return fileType === 'application/pdf' || fileType.includes('image');
+                    } catch (error) {
+                        console.error('Error fetching PDF for question', result.question_number, error);
+                        return false;  // אם יש שגיאה, נניח שאין פתרון
+                    }
+                })
+            );
+
+            // עדכון המערך עם המידע אם יש פתרון
+            setHasSolution(resultsWithSolutions);
+        };
+
+        checkAnswers();
+    }, [searchResults, courseId]);
 
     useEffect(() => {
         const fetchExamLinks = async () => {
@@ -414,7 +448,10 @@ function Course() {
             alert("שגיאה בהורדת כלל המבחנים");
         }
     };
-    
+
+    const handleCheckboxChange = (e) => {
+      setOnlyWithSolution(e.target.checked);
+    };
 
     return (
         <div className="course-page">
@@ -561,7 +598,7 @@ function Course() {
                                 <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
                                     חפש
                                 </button>
-                                <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
+                                <button className="search-button-home" onClick={() => {setOnlyWithSolution(false); setActiveSearch(false); clearSearchFields();}}>
                                     נקה
                                 </button>
                             </div>
@@ -573,13 +610,23 @@ function Course() {
                     {searchResults.length > 0 ? (
                         <div>
                             <h3>התוצאות שהתקבלו</h3>
+                            <label className='checkbox-solution'>
+                                <input
+                                    type="checkbox"
+                                    checked={onlyWithSolution}
+                                    onChange={handleCheckboxChange}
+                                />
+                                הצג שאלות עם פתרון בלבד
+                            </label>
                             <ul className="results-list">
-                               {searchResults.map((result) => (
-                                    <li key={`${result.year}-${result.semester}-${result.moed}`} className="result-item">
-                                        <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
-                                            <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed} / שאלה {result.question_number}</span>
-                                        </a>
-                                    </li>
+                               {searchResults.map((result, index) => (
+                                    (!onlyWithSolution || (onlyWithSolution && hasSolution[index])) && (
+                                        <li key={`${result.year}-${result.semester}-${result.moed}-${result.question_number}`} className="result-item">
+                                            <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
+                                                <span>{courseDetails.name} / {result.year} / {result.semester} / מועד {result.moed} / שאלה {result.question_number}</span>
+                                            </a>
+                                        </li>
+                                    )
                                 ))}
                             </ul>
                         </div>
