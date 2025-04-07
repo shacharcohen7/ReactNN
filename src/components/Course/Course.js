@@ -10,7 +10,8 @@ import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import './Course.css';
 import axiosInstance from '../../utils/axiosInstance';
-
+import { FiDownload } from "react-icons/fi";
+import { IoOpenOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 
@@ -27,7 +28,8 @@ function Course() {
     const [examDateSelection, setExamDateSelection] = useState('');
     const [questionNum, setQuestionNum] = useState('');
     const [activeSearch, setActiveSearch] = useState(false);
-    
+    const [examsDownloadExist, setExamsDownloadExist] = useState([]);
+
     const navigate = useNavigate();
 
     const [selectedTopic, setSelectedTopic] = useState('');
@@ -45,6 +47,12 @@ function Course() {
         )
     );
   
+    const sortedExams = [...uniqueExams].sort((a, b) => {
+        // מיון לפי שנה
+        if (a.year !== b.year) {
+            return a.year - b.year;
+        }
+    });
     // פונקציה שתוסיף את ההדר המתאים לכל בקשה
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
@@ -72,7 +80,6 @@ function Course() {
                     }
     
                     // טעינת נושאי הקורס
-
                     const topicsResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/get_course_topics`, {
                         params: { course_id: courseId },
                         headers: addAuthHeaders()  
@@ -129,6 +136,37 @@ function Course() {
     
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const fetchExamLinks = async () => {
+          const results = {};
+      
+          for (const exam of sortedExams) {
+            try {
+              const response = await axiosInstance.post(`${API_BASE_URL}/api/checkExamFullPdf`, 
+                {
+                  course_id: courseId,
+                  year: exam.year,
+                  semester: exam.semester,
+                  moed: exam.moed,
+                },
+                {
+                  headers: addAuthHeaders()
+                }
+              );
+      
+              const key = `${exam.year}-${exam.semester}-${exam.moed}`;
+              results[key] = response.data?.has_link || false;
+            } catch (err) {
+              console.error("Error checking exam PDF:", err);
+            }
+          }
+      
+          setExamsDownloadExist(results);
+        };
+      
+        fetchExamLinks();
+      }, [sortedExams, courseId]);
 
     const clearSearchFields = () => {
         setSelectedTopic('');
@@ -218,12 +256,7 @@ function Course() {
         }
     };
 
-    const sortedQuestions = [...uniqueExams].sort((a, b) => {
-        // מיון לפי שנה
-        if (a.year !== b.year) {
-            return a.year - b.year;
-        }
-    });
+    
     
     const handleAddToFavorites = () => {
         if (token) {
@@ -282,6 +315,58 @@ function Course() {
     const navigateToUploadQuestion = () => {
         navigate(`/upload-question-date/${courseId}`);
     };
+
+    const downloadExamPdf = async (exam) => {
+            try {
+                const response = await axiosInstance.post(
+                    `${API_BASE_URL}/api/course/downloadExamPdf`,
+                    {
+                        course_id: courseId,
+                        year: exam.year,
+                        semester: exam.semester,
+                        moed: exam.moed,
+                    },
+                    {
+                        headers: addAuthHeaders()  
+                    ,
+                    
+                        responseType: 'blob', // Expect binary data
+                    }
+                );
+        
+                if (response.headers['content-type'] === 'application/json') {
+                    // Handle the case where the response is JSON (no file link exists)
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const result = JSON.parse(reader.result);
+                        if (!result.has_link) {
+                            alert(result.message);
+                        }
+                    };
+                    reader.readAsText(response.data);
+                } else {
+                    // Handle the case where the response is a file
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+        
+                    // Use the expected file name
+                    const fileName = `${courseId}_${exam.year}_${exam.semester}_${exam.moed}.pdf`;
+                    link.setAttribute('download', fileName);
+        
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                }
+            } catch (error) {
+                if (error.response && error.response.data.message) {
+                    alert(error.response.data.message);
+                } else {
+                    console.error('Error downloading exam PDF:', error);
+                    alert('An error occurred while trying to download the exam.');
+                }
+            }
+        };
 
     const handleDownloadAllExamsZip = async () => {
         try {
@@ -526,23 +611,35 @@ function Course() {
                                 <th onClick={() => handleSort('year')}>שנה</th>
                                 <th onClick={() => handleSort('semester')}>סמסטר</th>
                                 <th onClick={() => handleSort('moed')}>מועד</th>
-                                <th></th>
+                                <th>מעבר לדף מבחן</th>
+                                <th>הורדת המבחן</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
-                                sortedQuestions.map(result => (
-                                    <tr key={result.question_id}>
-                                        <td>{result.year}</td>
-                                        <td>{result.semester}</td>
-                                        <td>{result.moed}</td>
+                            {sortedExams && Array.isArray(sortedExams) && sortedExams.length > 0 ? (
+                                sortedExams.map(exam => {
+                                    const key = `${exam.year}-${exam.semester}-${exam.moed}`;
+                                    const hasPdf = examsDownloadExist[key];
+                                    return (
+                                        <tr key={key}>
+                                        <td>{exam.year}</td>
+                                        <td>{exam.semester}</td>
+                                        <td>{exam.moed}</td>
                                         <td>
-                                            <button onClick={() => navigateToExamPage(result.year, result.semester, result.moed)}>
-                                            <i className="fas fa-arrow-left"></i> 
+                                            <button onClick={() => navigateToExamPage(exam.year, exam.semester, exam.moed)}>
+                                                <IoOpenOutline size={"20px"}/>
                                             </button>
                                         </td>
+                                        <td>
+                                            {hasPdf ? (
+                                                <button onClick={() => downloadExamPdf(exam)}>
+                                                    <FiDownload size={"20px"}/>
+                                                </button>
+                                            ) : (<span>לא זמין</span>)}
+                                        </td>
                                     </tr>
-                                ))
+                                    )
+                            })
                             ) : (
                                 <tr>
                                     <td colSpan="5">לא נמצאו מבחנים</td>
