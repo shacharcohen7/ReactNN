@@ -178,6 +178,7 @@ function Course() {
     }
 
     const handleSearchClick = () => {
+        setSearchResults([]);
         if (searchType === 'topic') {
             console.log("חיפוש לפי נושא עם פרמטרים: ", { selectedTopic });
     
