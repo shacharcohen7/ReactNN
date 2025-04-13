@@ -74,6 +74,8 @@ function Course() {
     };
 
     useEffect(() => {
+        console.log('✅ useEffect1 triggered: courseId =', courseId);
+
         const checkCourseManager = async () => {
             try {
                 const response = await axiosInstance.post(`${API_BASE_URL}/api/course/is_course_manager`, {
@@ -94,6 +96,8 @@ function Course() {
     }, [courseId]);
 
     useEffect(() => {
+        console.log('✅ useEffect2 triggered: courseId =', courseId);
+
         const checkSystemManager = async () => {
             try {
                 const response = await axiosInstance.post(`${API_BASE_URL}/api/course/is_system_manager`, {
@@ -113,9 +117,13 @@ function Course() {
     }, [courseId]);
 
     useEffect(() => {
+        console.log('✅ useEffect3 triggered: courseId =', courseId);
+
         const storedToken = localStorage.getItem('access_token');
-        setToken(storedToken);
-        console.log("course id:", courseId);
+        if (storedToken) {
+            setToken(storedToken);
+          }      
+            console.log("course id:", courseId);
     
         const fetchData = async () => {
             if (courseId) {
@@ -187,6 +195,8 @@ function Course() {
     }, []);
 
     useEffect(() => {
+        console.log('✅ useEffect4 triggered: courseId =', courseId);
+
         const checkAnswers = async () => {
             const resultsWithSolutions = await Promise.all(
                 searchResults.map(async (result) => {
@@ -219,13 +229,20 @@ function Course() {
         checkAnswers();
     }, [searchResults, courseId]);
 
-    useEffect(() => {
+    // const sortedExams = useMemo(() => {
+    //     return [...exams].sort((a, b) => /* your logic */);
+    //   }, [exams]);
+      
+      useEffect(() => {
+        console.log('✅ useEffect5 triggered: courseId =', courseId);
+      
         const fetchExamLinks = async () => {
           const results = {};
       
           for (const exam of sortedExams) {
             try {
-              const response = await axiosInstance.post(`${API_BASE_URL}/api/checkExamFullPdf`, 
+              const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/checkExamFullPdf`,
                 {
                   course_id: courseId,
                   year: exam.year,
@@ -233,7 +250,7 @@ function Course() {
                   moed: exam.moed,
                 },
                 {
-                  headers: addAuthHeaders()
+                  headers: addAuthHeaders(),
                 }
               );
       
@@ -244,11 +261,48 @@ function Course() {
             }
           }
       
-          setExamsDownloadExist(results);
+          setExamsDownloadExist(prev => {
+            const prevStr = JSON.stringify(prev);
+            const nextStr = JSON.stringify(results);
+            return prevStr === nextStr ? prev : results;
+          });
         };
       
         fetchExamLinks();
       }, [sortedExams, courseId]);
+      
+    // useEffect(() => {
+    //     console.log('✅ useEffect5 triggered: courseId =', courseId);
+
+    //     const fetchExamLinks = async () => {
+    //       const results = {};
+      
+    //       for (const exam of sortedExams) {
+    //         try {
+    //           const response = await axiosInstance.post(`${API_BASE_URL}/api/checkExamFullPdf`, 
+    //             {
+    //               course_id: courseId,
+    //               year: exam.year,
+    //               semester: exam.semester,
+    //               moed: exam.moed,
+    //             },
+    //             {
+    //               headers: addAuthHeaders()
+    //             }
+    //           );
+      
+    //           const key = `${exam.year}-${exam.semester}-${exam.moed}`;
+    //           results[key] = response.data?.has_link || false;
+    //         } catch (err) {
+    //           console.error("Error checking exam PDF:", err);
+    //         }
+    //       }
+      
+    //       setExamsDownloadExist(results);
+    //     };
+      
+    //     fetchExamLinks();
+    //   }, [sortedExams, courseId]);
 
     const clearSearchFields = () => {
         setSelectedTopic('');
