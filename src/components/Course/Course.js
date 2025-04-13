@@ -40,8 +40,18 @@ function Course() {
     const [allQuestions, setAllQuestions] = useState([]);  // התחלה של מערך ריק
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+    const [isCourseManager, setIsCourseManager] = useState(false);
+    const [IsSystemManager, setIsSystemManager] = useState(false);
+    const [isTopicsModalOpen, setIsTopicsModalOpen] = useState(false);
+    const [editableTopics, setEditableTopics] = useState([]);
+    const [newTopic, setNewTopic] = useState('');
+    const [originalTopics, setOriginalTopics] = useState([]);
+    const [showConfirmSave, setShowConfirmSave] = useState(false);
+    const [markedForRemoval, setMarkedForRemoval] = useState(new Set());
+    const [newlyAdded, setNewlyAdded] = useState(new Set());
 
-    
+    const [topicError, setTopicError] = useState('');
+
     const uniqueExams = allQuestions.filter((result, index, self) => 
         index === self.findIndex((r) => 
             r.year === result.year && r.semester === result.semester && r.moed === result.moed
@@ -63,6 +73,44 @@ function Course() {
         return headers;
     };
 
+    useEffect(() => {
+        const checkCourseManager = async () => {
+            try {
+                const response = await axiosInstance.post(`${API_BASE_URL}/api/course/is_course_manager`, {
+                    course_id: courseId,
+                },{headers: addAuthHeaders()})  
+                if (response.data.success) {
+                    console.log("user is course manager:", response.data.is_manager);
+                    setIsCourseManager(response.data.is_manager);
+                } else {
+                    console.error("Error checking course manager:", response.data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching course manager status:", error);
+            }
+        };
+    
+        checkCourseManager();
+    }, [courseId]);
+
+    useEffect(() => {
+        const checkSystemManager = async () => {
+            try {
+                const response = await axiosInstance.post(`${API_BASE_URL}/api/course/is_system_manager`, {
+                },{headers: addAuthHeaders()})  
+                if (response.data.success) {
+                    console.log("user is course manager:", response.data.is_system_manager);
+                    setIsSystemManager(response.data.is_system_manager);
+                } else {
+                    console.error("Not system manager:", response.data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching course manager status:", error);
+            }
+        };
+    
+        checkSystemManager();
+    }, [courseId]);
 
     useEffect(() => {
         const storedToken = localStorage.getItem('access_token');
@@ -453,6 +501,8 @@ function Course() {
       setOnlyWithSolution(e.target.checked);
     };
 
+    
+      
     return (
         <div className="course-page">
             <Header />
@@ -520,6 +570,89 @@ function Course() {
                                     </option>
                                 ))}
                             </select>
+                            {(isCourseManager || IsSystemManager) && (
+                            <span
+                            title="ערוך נושאים"
+                            style={{ cursor: 'pointer', marginRight: '8px', fontSize: '20px' }}
+                            onClick={() => {
+                                setIsTopicsModalOpen(true);
+                                setEditableTopics([...topics]);
+                                setOriginalTopics([...topics]); // Save original state
+                                setNewTopic('');
+                            }}
+                            >
+                            ✏️
+                            </span>
+                            )}
+                            {showConfirmSave && (
+        <div className="confirm-modal-overlay">
+    <div className="confirm-modal-content">
+    <h4>שמירת שינויים</h4>
+<p>האם את/ה בטוח/ה שברצונך לשמור את השינויים?</p>
+<div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between' }}>
+<button
+  onClick={async () => {
+    const removedTopics = [...markedForRemoval];
+    const addedTopics = [...newlyAdded];
+    const finalTopics = editableTopics.filter(topic => !markedForRemoval.has(topic));
+
+    try {
+      const formData = new FormData();
+      formData.append('course_id', courseId);
+      addedTopics.forEach(topic => formData.append('added_topics[]', topic));
+      removedTopics.forEach(topic => formData.append('removed_topics[]', topic));
+
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/api/course/update_topics`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setIsTopicsModalOpen(false);
+        setShowConfirmSave(false);
+      
+        const topicsResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/get_course_topics`, {
+            params: { course_id: courseId },
+            headers: addAuthHeaders()  
+        });
+        if (topicsResponse.data.status === 'success') {
+            setTopics(topicsResponse.data.data);
+            window.location.reload(); // ✅ Refresh page after success
+
+        }
+         else {
+          console.error('Failed to fetch updated topics.');
+        
+      
+      }
+    } else {
+        console.error('Backend error:', response.data.message);
+        alert('שגיאה בעדכון הנושאים: ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('Request failed:', error);
+      alert('שגיאה בחיבור לשרת. נסה שוב.');
+    }
+
+    setShowConfirmSave(false);
+  }}
+>
+  כן, שמור
+</button>
+
+<button onClick={() => setShowConfirmSave(false)}>ביטול</button>
+
+            </div>
+          </div>
+        </div>
+      )}
+
                             <div className="search-buttons">
                                 <button className="search-button-home" onClick={() => {handleSearchClick(); setActiveSearch(true);}}>
                                     חפש
@@ -605,6 +738,133 @@ function Course() {
                         </div>
                     )}
                 </div>
+
+                {isTopicsModalOpen && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>עריכת נושאי הקורס</h3>
+
+      <ul style={{ padding: 0, listStyle: 'none', marginTop: '16px' }}>
+        {editableTopics.map((topic, index) => {
+          const isNew = newlyAdded.has(topic);
+          const isMarked = markedForRemoval.has(topic);
+
+          return (
+            <li
+              key={index}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px',
+                backgroundColor: isNew
+                  ? '#e6ffe6'
+                  : isMarked
+                  ? '#ffe5e5'
+                  : 'transparent',
+                padding: '4px 8px',
+                borderRadius: '6px',
+              }}
+            >
+              <span style={{ color: isNew ? 'green' : isMarked ? 'red' : 'inherit' }}>
+                {topic}
+              </span>
+              <button
+                onClick={() => {
+                  if (isNew) {
+                    // Undo added topic
+                    setEditableTopics(prev => prev.filter(t => t !== topic));
+                    setNewlyAdded(prev => {
+                      const updated = new Set(prev);
+                      updated.delete(topic);
+                      return updated;
+                    });
+                  } else {
+                    // Toggle mark for removal
+                    setMarkedForRemoval(prev => {
+                      const updated = new Set(prev);
+                      if (updated.has(topic)) {
+                        updated.delete(topic);
+                      } else {
+                        updated.add(topic);
+                      }
+                      return updated;
+                    });
+                  }
+                }}
+              >
+                {isNew
+                  ? '↩️ בטל'
+                  : isMarked
+                  ? '↩️ בטל מחיקה'
+                  : '🗑️'}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <input
+  type="text"
+  placeholder="נושא חדש"
+  value={newTopic}
+  onChange={(e) => {
+    setNewTopic(e.target.value);
+    setTopicError(''); // clear error while typing
+  }}
+  style={{ marginTop: '12px', width: '100%', padding: '6px' }}
+/>
+
+{topicError && (
+  <p style={{ color: 'red', fontSize: '0.9rem', marginTop: '4px' }}>{topicError}</p>
+)}
+
+
+    <button
+    style={{ marginTop: '8px' }}
+    onClick={() => {
+        const trimmed = newTopic.trim();
+        if (trimmed === '') {
+        setTopicError('הנושא לא יכול להיות ריק');
+        return;
+        }
+
+        if (editableTopics.includes(trimmed)) {
+        setTopicError('נושא זה כבר קיים');
+        return;
+        }
+
+        // Valid new topic
+        setEditableTopics(prev => [...prev, trimmed]);
+        setNewlyAdded(prev => new Set(prev).add(trimmed));
+        setNewTopic('');
+        setTopicError('');
+    }}
+    >
+    ➕ הוסף נושא
+    </button>
+
+
+        <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
+            <button onClick={() => setShowConfirmSave(true)}>שמור</button>
+            <button
+    onClick={() => {
+        setEditableTopics([...topics]);            // Reset to original
+        setOriginalTopics([...topics]);            // Reset original snapshot
+        setMarkedForRemoval(new Set());            // Clear removed topics
+        setNewlyAdded(new Set());                  // Clear new topics
+        setNewTopic('');                           // Clear input field
+        setIsTopicsModalOpen(false);               // Close modal
+    }}
+    >
+    ביטול
+    </button>  
+        </div>
+        </div>
+    </div>
+    )}
+
+
 
                 {activeSearch && (<div className="search-results">
                     {searchResults.length > 0 ? (
