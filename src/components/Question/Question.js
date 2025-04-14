@@ -44,7 +44,9 @@ function Question() {
     const [usernames, setUsernames] = useState({});
     const [question, setQuestion] = useState([]);
     const [reactionsForComment, setReactionsForComment] = useState(null);
-    const emojies = {"Love":"❤️", "Like":"👍", "Thanks":"🙏🏼", "Plus":"➕", "King":"👑"};
+    const emojies = {"Love":"❤️", "Like":"👍", "Thanks":"🙏🏼", "Plus":"➕", "King":"👑", "Fire":"🔥", "Clap":"👏"
+        , "laugh":"😂", "sad":"☹️", "shocked":"😮"
+    };
     const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
     const [isSolutionModalOpen, setIsSolutionModalOpen] = useState(false);
     const [isCourseManager, setIsCourseManager] = useState(false);
@@ -1601,13 +1603,14 @@ function Question() {
                 </div>}
                 <div className="tabs-container">
                     <button 
-                        className={`tab-next ${!nextQuestion ? "disabled" : ""}`} 
-                        onClick={() => nextQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${nextQuestion.question_number}`)}
-                        title={"לשאלה הבאה במבחן"}
-                        disabled={!nextQuestion} // הכפתור מושבת אם אין שאלה הבאה
+                        className={`tab-next ${!prevQuestion ? "disabled" : ""}`} 
+                        onClick={() => prevQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${prevQuestion.question_number}`)}
+                        title={"לשאלה הקודמת במבחן"}
+                        disabled={!prevQuestion} // הכפתור מושבת אם אין שאלה הבאה
                     >
                         <FaArrowRight />
                     </button>
+                    
                     <div className="question-tab-group">
     <button
         className={`tab ${visiblePDF === 'question' ? 'active' : ''}`}
@@ -1660,10 +1663,10 @@ function Question() {
         )}
     </div>
                     <button 
-                        className={`tab-next ${!prevQuestion ? "disabled" : ""}`} 
-                        onClick={() => prevQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${prevQuestion.question_number}`)}
-                        title={"לשאלה הקודמת במבחן"}
-                        disabled={!prevQuestion} // הכפתור מושבת אם אין שאלה הבאה
+                        className={`tab-next ${!nextQuestion ? "disabled" : ""}`} 
+                        onClick={() => nextQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${nextQuestion.question_number}`)}
+                        title={"לשאלה הבאה במבחן"}
+                        disabled={!nextQuestion} // הכפתור מושבת אם אין שאלה הבאה
                     >
                         <FaArrowLeft />
                     </button>
