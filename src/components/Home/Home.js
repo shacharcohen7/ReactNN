@@ -612,14 +612,13 @@ function Home() {
                         </div>
                     )}
                 </div>
-                
 
                 <div className="courses-section">
                     <h3>הקורסים שלי</h3>
                     <div className="course-cards-container">
                         {userCourses.map((course) => (
                             <div
-                                key={course.id}
+                                key={course.course_id}
                                 className="course-card"
                                 onClick={() => navigate(`/course/${course.course_id}`)} // קריאה לפונקציה של החיפוש
                                 >
@@ -707,6 +706,7 @@ function Home() {
                             <div  style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                                 {coursesMatchNamePart.map(course => 
                                     (<div
+                                        key={course.course_id}
                                         className='course-search-by-name-result'
                                         onClick={()=>navigate(`/course/${course.course_id}`)}
                                     >
