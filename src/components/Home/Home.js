@@ -42,6 +42,11 @@ function Home() {
     const [searchCourseModal, setIsSearchCourseModalOpen] = useState(false);
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
 
+    const [IsSystemManager, setIsSystemManager] = useState(false);
+    const [isToolbarOpen, setIsToolbarOpen] = useState(false);
+    const [isRemoveCourseModalOpen, setIsRemoveCourseModalOpen] = useState(false);
+    const [selectedCourseToRemove, setSelectedCourseToRemove] = useState('');
+    
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
         if (token) {
@@ -79,6 +84,27 @@ function Home() {
             setToken(storedToken);
         }
     }, []);
+
+    useEffect(() => {
+        console.log('✅ useEffect2 triggered: courseId =', courseId);
+
+        const checkSystemManager = async () => {
+            try {
+                const response = await axiosInstance.post(`${API_BASE_URL}/api/course/is_system_manager`, {
+                },{headers: addAuthHeaders()})  
+                if (response.data.success) {
+                    console.log("user is course manager:", response.data.is_system_manager);
+                    setIsSystemManager(response.data.is_system_manager);
+                } else {
+                    console.error("Not system manager:", response.data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching course manager status:", error);
+            }
+        };
+    
+        checkSystemManager();
+    }, [courseId]);
     
     useEffect(() => {
         // API call to fetch all courses
@@ -292,6 +318,17 @@ function Home() {
         }
         setCourseResults(selectedCourse)
     };
+    const handleRemoveCourseAction = () => {
+        setIsRemoveCourseModalOpen(true);
+      };
+      
+      
+      const handleAnotherAction = () => {
+        console.log("מערכת: פעולה נוספת");
+      };
+      
+  
+      
     
     const navigateToUploadQuestion = () => {
         if (courseForQuestion) {
@@ -398,6 +435,79 @@ function Home() {
                     חיפוש לפי טקסט
                 </button>
             </div>
+            {IsSystemManager && (
+  <div className={`system-toolbar-container ${isToolbarOpen ? 'open' : ''}`}>
+    <div className="toolbar-toggle" onClick={() => setIsToolbarOpen(prev => !prev)}>
+      🔧
+    </div>
+    <div className="toolbar-content">
+      <h4>פעולות מנהל מערכת</h4>
+      <button onClick={handleRemoveCourseAction}>הסרת קורס</button>
+      <button onClick={handleAnotherAction}>עוד פעולה</button>
+    </div>
+  </div>
+)}
+{isRemoveCourseModalOpen && (
+  <div className="modal-overlay">
+    <div className="modal-content-remove">
+      <h3>בחר קורס להסרה</h3>
+      <select
+        value={selectedCourseToRemove}
+        onChange={(e) => setSelectedCourseToRemove(e.target.value)}
+        className="search-input-topic"
+      >
+        <option value="">בחר קורס</option>
+        {courses.map((course) => (
+          <option key={course.course_id} value={course.course_id}>
+            {course.name}
+          </option>
+        ))}
+      </select>
+
+      <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+        <button
+          className="confirm-button"
+          disabled={!selectedCourseToRemove}
+          onClick={async () => {
+            try {
+              const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/course/remove_course`,
+                { course_id: selectedCourseToRemove },
+                { headers: addAuthHeaders() }
+              );
+          
+              if (response.data.success) {
+                alert('הקורס נמחק בהצלחה');
+                // Optional: refresh the course list
+                setCourses(prev => prev.filter(c => c.course_id !== selectedCourseToRemove));
+              } else {
+                alert(`שגיאה במחיקת הקורס: ${response.data.message}`);
+              }
+            } catch (error) {
+              console.error('Error removing course:', error);
+              alert('שגיאה בחיבור לשרת');
+            } finally {
+              setIsRemoveCourseModalOpen(false);
+              setSelectedCourseToRemove('');
+            }
+          }}
+          
+        >
+          אישור
+        </button>
+        <button
+          className="cancel-button"
+          onClick={() => {
+            setIsRemoveCourseModalOpen(false);
+            setSelectedCourseToRemove('');
+          }}
+        >
+          ביטול
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
                 <div className="search-container">
                     {searchType === 'topic' && (
