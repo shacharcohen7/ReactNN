@@ -9,6 +9,7 @@ import './Exam.css';
 import axiosInstance from '../../utils/axiosInstance';
 
 import { useNavigate } from "react-router-dom";
+import PdfLineMark from "../PDFLineMark/PDFLineMark";
 
 function Exam() {
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
@@ -25,9 +26,24 @@ function Exam() {
     const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const [lines, setLines] = useState([]);
+    const [isFileUploaded, setIsFileUploaded] = useState(false);
 
 
-    const handleFileChange = (e) => setExamFile(e.target.files[0]);
+    const removeLastLine = () => {
+        // Remove the last line from the array if there are any lines
+        setLines((prevLines) => prevLines.slice(0, -1));
+    };
+
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setExamFile(file); // Store the selected file
+            setIsFileUploaded(true); // Flag to indicate the file is ready for marking
+        }
+    };
+
 
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
@@ -36,29 +52,38 @@ function Exam() {
         }
         return headers;
     };
-    
-    const handleFileUpload = async () => {
+
+    const handleSubmitLines = async (lines) => {
         if (!examFile) {
-            alert("Please select a file to upload.");
+            alert("Please upload a file before submitting.");
             return;
         }
-    
+
+        if (!lines || lines.length === 0) {
+            alert("Please draw at least one line to split the questions.");
+            return;
+        }
+
         const formData = new FormData();
         formData.append('course_id', courseId);
         formData.append('year', examYear);
         formData.append('semester', examSemester);
         formData.append('moed', examDateSelection);
-        formData.append('pdf_exam', examFile); // Adjust the key if needed for your backend API
-    
+        formData.append('pdf_exam', examFile); // Attach the PDF file
+        formData.append('line_data', JSON.stringify(lines)); // Attach the drawn lines data
+
         try {
             const response = await axiosInstance.post(`${API_BASE_URL}/api/course/uploadFullExamPdf`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data', ...addAuthHeaders() } // Include the Authorization header,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    ...addAuthHeaders()
+                },
             });
-    
+
             if (response.data.success) {
-                alert("File uploaded successfully!");
+                alert("File uploaded and lines saved successfully!");
                 closeModal();
-                window.location.reload();
+                window.location.reload(); // Reload the page
             } else {
                 alert(`Failed to upload file: ${response.data.message}`);
             }
@@ -67,6 +92,40 @@ function Exam() {
             alert("An error occurred while uploading the file.");
         }
     };
+
+    const handleFileUpload = async (lines) => {
+        if (!examFile) {
+            alert("Please select a file to upload.");
+            return;
+        }
+        setIsFileUploaded(true); // Set the file upload state to true
+    }
+        // Prepare data to send to backend
+    //     const formData = new FormData();
+    //     formData.append('course_id', courseId);
+    //     formData.append('year', examYear);
+    //     formData.append('semester', examSemester);
+    //     formData.append('moed', examDateSelection);
+    //     formData.append('pdf_exam', examFile); // The selected PDF file
+    //     formData.append('line_data', JSON.stringify(lines)); // The lines data from PdfLineMark
+    //
+    //     try {
+    //         const response = await axiosInstance.post(`${API_BASE_URL}/api/course/uploadFullExamPdf`, formData, {
+    //             headers: { 'Content-Type': 'multipart/form-data', ...addAuthHeaders() } // Add Authorization header
+    //         });
+    //
+    //         if (response.data.success) {
+    //             alert("File uploaded successfully!");
+    //             setIsFileUploaded(false);  // Reset state after upload
+    //             window.location.reload();   // Reload page or do necessary action
+    //         } else {
+    //             alert(`Failed to upload file: ${response.data.message}`);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error uploading file:", error);
+    //         alert("An error occurred while uploading the file.");
+    //     }
+    // };
 
     const navigateToQuestionPage = (question_number) => {
         navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${question_number}`);
@@ -255,7 +314,7 @@ function Exam() {
         setExamFile(null);
     };
       
-    const adddExamPdf = async () => {
+    const addExamPdf = async () => {
         try {
             const response = await axiosInstance.post(`${API_BASE_URL}/api/checkExamFullPdf`,
                 {
@@ -274,6 +333,7 @@ function Exam() {
                     alert("המבחן כבר קיים במערכת. את/ה מוזמנ/ת להוריד אותו");
                 } else {
                     openModal();
+                    setIsFileUploaded(false); // Reset the file upload state
                 }
             } else {
                 alert(`Failed to check the exam: ${response.data.message || 'Unknown error'}`);
@@ -329,7 +389,7 @@ function Exam() {
                     </button>):
                     (<button
                         className="action-button"
-                        onClick={adddExamPdf}
+                        onClick={addExamPdf}
                     >
                         העלאת המבחן המלא
                     </button>)}
@@ -385,26 +445,50 @@ function Exam() {
                         </ul>
                     
                 </div>
-                {isModalOpen && (
+                <div>
+                    {isModalOpen && !isFileUploaded && (
                         <div className="modal-overlay">
                             <div className="modal-content">
                                 <button className="modal-close" onClick={closeModal}>X</button>
                                 <h2>Upload Exam File</h2>
-                                <input type="file"
-                                 onChange={handleFileChange}
-                                 accept=".pdf"
-                                  />
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    accept="application/pdf"
+                                />
                                 <div className="modal-actions">
-                                    <button className="upload-btn" onClick={handleFileUpload}>Upload</button>
+                                    <button
+                                        className="upload-btn"
+                                        onClick={() => handleFileUpload()}  // Pass lines to the upload function
+                                    >
+                                        Upload
+                                    </button>
                                     <button className="cancel-btn" onClick={closeModal}>Cancel</button>
                                 </div>
                             </div>
                         </div>
                     )}
+
+                    {/* Modal for Line Selection after file is uploaded */}
+                    {isFileUploaded && examFile && (
+                        <div className="modal-overlay">
+                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות</p>
+                            <div className="modal-content-line-selection">
+                                {/*<button className="modal-close" onClick={closeModal}>X</button>*/}
+                                <PdfLineMark
+                                    file={examFile}
+                                    closeModal={closeModal}
+                                    onLinesChange={setLines}// Capture lines drawn by the user
+                                    onSubmitLines={handleSubmitLines} // Pass the function to handle line submission
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
             </main>
-            <Footer />
+            <Footer/>
         </div>
     );
-}    
+}
 export default Exam;
 

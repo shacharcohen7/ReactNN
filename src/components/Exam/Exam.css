@@ -1,3 +1,88 @@
+.modal-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* Ensure modal is on top */
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Modal Content */
+.modal-content-line-selection {
+    background-color: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    max-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    pointer-events: auto; /* Enable interaction with the modal */
+
+
+}
+
+/* Sticky title at the top */
+.modal-title {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 100;
+    margin-bottom: 20px;
+
+}
+
+/* Close Button */
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Modal Actions (Buttons) */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.upload-btn, .submit-btn, .remove-line-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.upload-btn:hover, .submit-btn:hover, .remove-line-btn:hover {
+    background-color: #45a049;
+}
+
+/* Optional Styling for PdfLineMark */
+.pdf-line-mark-container {
+    height: 600px; /* Adjust height for the PDF viewer */
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Input field for question number */
 .search-input-question {
     flex: 1;
     width: 180px;
@@ -9,29 +94,15 @@
     font-size: 1rem;
     background-color: #f9f9f9;
     transition: all 0.3s ease;
-  }
-
-
-
-
-.modal-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  background: none; /* No dimming or background */
-  padding: 0;
 }
 
 
+.page-wrapper canvas {
+    pointer-events: auto; /* Allow interaction with canvas */
+    width: 100%;
+}
 
-.modal-content-question {
-  background-color: #fff;
-  padding: 20px 24px;
-  border-radius: 12px;
-  width: 320px;
-  max-width: 90%;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* Disables interaction with the text layer */
+.page-wrapper .react-pdf__Page__textContent {
+    pointer-events: none;
 }

@@ -1,0 +1,82 @@
+.pdf-container {
+    /* Removed overflow and max-height because we don't need scrolling inside PDF */
+    user-select: none; /* מונע את הבחירה של הטקסט */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.pdf-line-mark-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1001;
+    pointer-events: auto;
+}
+
+.line-marker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: red;
+    z-index: 1000000000;
+}
+
+.page-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;  /* Ensure full page height */
+}
+
+.page-wrapper canvas {
+    pointer-events: auto;
+    width: 100%; /* Make canvas responsive */
+    cursor: crosshair; /* Makes cursor look like a crosshair */
+    z-index: 1
+
+}
+
+/* Disables interaction with the text layer */
+.page-wrapper .react-pdf__Page__textContent {
+    pointer-events: none; /* Disable interaction with the PDF text */
+}
+
+/* Modal-specific styles for scrolling */
+.modal-content-question {
+    max-height: 80vh; /* Limit the height of the modal */
+    overflow-y: auto; /* Allow scrolling within the modal */
+    padding: 20px 24px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100000;
+}
+
+/* Container for buttons to make them sticky */
+.modal-actions {
+    position: sticky;
+    bottom: 0; /* Keep the buttons at the bottom of the modal */
+    background-color: white; /* Make the background of the buttons white */
+    padding: 20px;
+    z-index: 1000000; /* Ensure the buttons are above content */
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for better separation */
+}
+
+/* Button styling */
+.upload-btn, .submit-btn, .remove-line-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.upload-btn:hover, .submit-btn:hover, .remove-line-btn:hover {
+    background-color: #45a049;
+}
