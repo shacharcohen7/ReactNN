@@ -195,39 +195,38 @@ function Course() {
     }, []);
 
     useEffect(() => {
-        console.log('✅ useEffect4 triggered: courseId =', courseId);
-
         const checkAnswers = async () => {
             const resultsWithSolutions = await Promise.all(
                 searchResults.map(async (result) => {
                     try {
-                        const response = await axios.get(`${API_BASE_URL}/api/course/get_answer_pdf`, {
+                        const response = await axios.get(`${API_BASE_URL}/api/course/check_answer_for_question`, {
                             params: {
-                                course_id: courseId,
+                                course_id: result.course_id,
                                 year: result.year,
                                 semester: result.semester,
                                 moed: result.moed,
                                 question_number: result.question_number,
                             },
                             headers: addAuthHeaders(),
-                            responseType: 'blob',
                         });
-
-                        const fileType = response.headers['content-type'];
-                        return fileType === 'application/pdf' || fileType.includes('image');
+                        // בדיקה אם יש פתרון
+                        if (response.data.status === "success" ) {
+                            return response.data.data === true; // נחזיר את ה-result המלא
+                        }
+    
                     } catch (error) {
-                        console.error('Error fetching PDF for question', result.question_number, error);
-                        return false;  // אם יש שגיאה, נניח שאין פתרון
+                        console.error('Error checking answer for question', result.question_number, error);
+                        return null;
                     }
                 })
             );
-
-            // עדכון המערך עם המידע אם יש פתרון
+                // סינון רק אלה שלא null (כלומר, שיש להן פתרון)
             setHasSolution(resultsWithSolutions);
         };
-
+    
         checkAnswers();
-    }, [searchResults, courseId]);
+    
+    }, [searchResults]);
 
     // const sortedExams = useMemo(() => {
     //     return [...exams].sort((a, b) => /* your logic */);

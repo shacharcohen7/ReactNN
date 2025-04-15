@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom'
 import { IoIosArrowBack } from "react-icons/io";
+import axios from 'axios';
 
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';  // ייבוא הפוטר
@@ -28,7 +29,9 @@ function Exam() {
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const [lines, setLines] = useState([]);
     const [isFileUploaded, setIsFileUploaded] = useState(false);
+    const [onlyWithSolution, setOnlyWithSolution] = useState(false);
 
+    const [hasSolution, setHasSolution] = useState([]);
 
     const removeLastLine = () => {
         // Remove the last line from the array if there are any lines
@@ -131,6 +134,10 @@ function Exam() {
         navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${question_number}`);
     };
 
+    const handleCheckboxChange = (e) => {
+        setOnlyWithSolution(e.target.checked);
+      };
+
     useEffect(() => {
         const storedToken = localStorage.getItem('access_token');
         setToken(storedToken);
@@ -207,6 +214,40 @@ function Exam() {
             return a.question_number - b.question_number;
         }
     });
+
+    useEffect(() => {
+            const checkAnswers = async () => {
+                const resultsWithSolutions = await Promise.all(
+                    sortedQuestions.map(async (result) => {
+                        try {
+                            const response = await axios.get(`${API_BASE_URL}/api/course/check_answer_for_question`, {
+                                params: {
+                                    course_id: result.course_id,
+                                    year: result.year,
+                                    semester: result.semester,
+                                    moed: result.moed,
+                                    question_number: result.question_number,
+                                },
+                                headers: addAuthHeaders(),
+                            });
+                            // בדיקה אם יש פתרון
+                            if (response.data.status === "success" ) {
+                                return response.data.data === true; // נחזיר את ה-result המלא
+                            }
+        
+                        } catch (error) {
+                            console.error('Error checking answer for question', result.question_number, error);
+                            return null;
+                        }
+                    })
+                );
+                    // סינון רק אלה שלא null (כלומר, שיש להן פתרון)
+                setHasSolution(resultsWithSolutions);
+            };
+        
+            checkAnswers();
+        
+        }, [sortedQuestions]);
 
     const handleSort = (column) => {
         // מיון תוצאות החיפוש לפי העמודה
@@ -430,14 +471,24 @@ function Exam() {
                 </div>
                 <div className="updates-container">
                     <h3>שאלות במבחן זה</h3>
+                    <label className='checkbox-solution'>
+                            <input
+                                type="checkbox"
+                                checked={onlyWithSolution}
+                                onChange={handleCheckboxChange}
+                            />
+                            הצג שאלות עם פתרון בלבד
+                        </label>
                     <ul className="results-list">
                             {sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
-                                sortedQuestions.map((result) => (
-                                    <li key={result.question_id} className="result-item">
-                                        <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
-                                            <span>שאלה מספר {result.question_number}</span>
-                                        </a>
-                                    </li>
+                                sortedQuestions.map((result, index) => (
+                                    (!onlyWithSolution || (onlyWithSolution && hasSolution[index])) && (
+                                        <li key={result.question_id} className="result-item">
+                                            <a href={`/question/${courseId}/${result.year}/${result.semester}/${result.moed}/${result.question_number}`} className="result-link">
+                                                <span>שאלה מספר {result.question_number}</span>
+                                            </a>
+                                        </li>
+                                    )
                                 ))
                             ) : (
                                 <p>לא נמצאו שאלות</p>
