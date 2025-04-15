@@ -1143,6 +1143,7 @@ function Question() {
                 //setAnswerPdfUrl(pdfUrl); // שמירת ה-URL למצב
             } catch (error) {
                 console.error('Error fetching PDF:', error);
+                setAnswerPdfUrl(null)
             }
         };
         fetchAnswerPdf();
