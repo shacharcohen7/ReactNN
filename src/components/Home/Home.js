@@ -16,6 +16,7 @@ function Home() {
     const [selectedCourse, setSelectedCourse] = useState('');
     const [courseResults, setCourseResults] = useState('');
     const [courseForQuestion, setcourseForQuestion] = useState('');
+    const [courseForExam, setCourseForExam] = useState('');
     const [topics, setTopics] = useState([]);
     const [courseId, setCourseId] = useState('');
     const [activeSearch, setActiveSearch] = useState(false);
@@ -37,6 +38,11 @@ function Home() {
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
     const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
     const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
+
+    const [isExamModalOpen, setIsExamModalOpen] = useState(false); // State לשליטה בפופ-אפ
+    const openExamModal = () => setIsExamModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
+    const closeExamModal = () => setIsExamModalOpen(false); // פונקציה לסגירת הפופ-אפ
+
 
     const [isCourseNotFoundModalOpen, setIsCourseNotFoundModalOpen] = useState(false); // State לשליטה במודל פתיחת קורס חדש
     const [searchCourseModal, setIsSearchCourseModalOpen] = useState(false);
@@ -229,6 +235,11 @@ function Home() {
         setcourseForQuestion(e.target.value);
     };
 
+
+    const handleCourseSelectionForExam = (e) => {
+        setCourseForExam(e.target.value);
+    };
+
     // const handleQuestionClick = (year, semester, moed, question_number) => {
     //     navigate(`/question/${selectedCourse}/${year}/${semester}/${moed}/${question_number}`);  // עובר לדף השאלה עם מזהה השאלה
     // };
@@ -339,6 +350,16 @@ function Home() {
             // Optionally, you can alert the user or show a message if no course is selected
             alert("אנא בחר קורס לפני שתמשיך.");
           }
+    };
+
+    const navigateToUploadExam = () => {
+        if (courseForExam) {
+            // Navigate only if courseForQuestion has a valid value
+            navigate(`/upload-exam/${courseForExam}`);
+        } else {
+            // Optionally, you can alert the user or show a message if no course is selected
+            alert("אנא בחר קורס לפני שתמשיך.");
+        }
     };
 
     const navigateToAddExam = () => {
@@ -687,17 +708,46 @@ function Home() {
                 </div>)}
 
                 <div className="action-buttons">
-                    <button className="offline-button">
-                        <span>העלאת מבחן חדש</span>
+                    <button className="action-button" onClick={openExamModal}>
+                        <span>העלאת מבחן חדש </span>
                     </button>
                     <button className="action-button" onClick={openQuestionModal}>
                         <span>העלאת שאלה חדשה</span>
                     </button>
+                    {isExamModalOpen && (
+                        <div className="modal-overlay">
+                            <div className="modal-content-question">
+                                <p>
+                                    במידה והקורס לא נמצא ברשימת הקורסים, תוכל לפתוח אותו
+                                    <a href="/opencourse"> כאן </a>.
+                                </p>
+                                <select
+                                    value={courseForExam}
+                                    onChange={handleCourseSelectionForExam}
+                                    className="search-input-course">
+                                    <option value="">בחר קורס</option>
+                                    {courses.map((course) => (
+                                        <option key={course.course_id} value={course.course_id}>
+                                            {course.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="modal-buttons">
+                                    <button className="confirm-button-question" onClick={navigateToUploadExam}>
+                                        אישור
+                                    </button>
+                                    <button className="confirm-button-question" onClick={closeExamModal}>
+                                        ביטול
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {isQuestionModalOpen && (
-                         <div className="modal-overlay">
+                        <div className="modal-overlay">
                         <div className="modal-content-question">
                             <p>
-                                במידה והקורס לא נמצא ברשימת הקורסים, תוכל לפתוח אותו    
+                                במידה והקורס לא נמצא ברשימת הקורסים, תוכל לפתוח אותו
                                 <a href="/opencourse"> כאן </a>.
                             </p>
                             <select
@@ -712,10 +762,10 @@ function Home() {
                                 ))}
                             </select>
                             <div className="modal-buttons">
-                                <button class="confirm-button-question" onClick={navigateToUploadQuestion}>
+                                <button className="confirm-button-question" onClick={navigateToUploadQuestion}>
                                     אישור
                                 </button>
-                                <button class="confirm-button-question" onClick={closeQuestionModal}>
+                                <button className="confirm-button-question" onClick={closeQuestionModal}>
                                     ביטול
                                 </button>
                             </div>
@@ -723,7 +773,6 @@ function Home() {
                         </div>
                     )}
                 </div>
-
                 <div className="courses-section">
                     <h3>הקורסים שלי</h3>
                     <div className="course-cards-container">
@@ -741,7 +790,7 @@ function Home() {
                         ))}
                         <div className="course-card" style={{fontSize:'40px'}} onClick={openSearchCourseModal}>+</div>
                     </div>
-                    
+
                 </div>
 
                 {isCourseNotFoundModalOpen && (

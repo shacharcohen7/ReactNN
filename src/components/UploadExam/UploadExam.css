@@ -1,0 +1,20 @@
+.add-exam-button {
+    background-color: #f5a623;
+    width: auto; /* מתאים את הרוחב לתוכן */
+    color: white;
+    padding: 10px 20px;
+    border: 2px solid #d38a67; /* גבול בגודל 2px עם צבע של גבול דמוי-חום */
+    border-radius: 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 50px; /* גובה אחיד עם השדה */
+}
+/* מיישר את התווית והשדה לימין */
+.form-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+    direction: rtl;
+}

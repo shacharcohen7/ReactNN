@@ -1435,7 +1435,6 @@ function Question() {
       {
         headers: {
           ...addAuthHeaders(),
-          "Content-Type": "multipart/form-data",
         },
       }
     );
@@ -1562,7 +1561,6 @@ function Question() {
               {
                 headers: {
                   ...addAuthHeaders(),
-                  "Content-Type": "multipart/form-data",
                 },
               }
             );
