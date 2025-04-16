@@ -4,7 +4,6 @@ import axios from 'axios';
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:5001/api/',  // כתובת ה-API של השרת
     headers: {
-        'Content-Type': 'application/json',
     }
 });
 

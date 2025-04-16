@@ -24,7 +24,6 @@ function UploadQuestionDate() {
         const token = localStorage.getItem('access_token'); // או מקורות אחרים לשמירת ה-token
         return {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json', // אם יש צורך
         };
     };
     

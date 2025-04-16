@@ -75,7 +75,6 @@ function Exam() {
         try {
             const response = await axiosInstance.post(`${API_BASE_URL}/api/course/uploadFullExamPdf`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
                     ...addAuthHeaders()
                 },
             });

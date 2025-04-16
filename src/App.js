@@ -47,6 +47,7 @@ import Course from './components/Course/Course';
 import Exam from './components/Exam/Exam';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ResetPassword/ResetPassword';
+import UploadExam from "./components/UploadExam/UploadExam";
 
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/opencourse" element={<OpenCourse />} />
           <Route path="/upload-question-date/:courseId" element={<UploadQuestionDate />} />
+          <Route path="/upload-exam/:courseId" element={<UploadExam />} />
           <Route
             path="/upload-question-content/:courseId/:examYear/:examSemester/:examDateSelection/:questionNum"
             element={<UploadQuestionContent />}

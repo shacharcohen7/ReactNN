@@ -639,7 +639,7 @@ function Course() {
                 </div>)}
 
                 <div className="action-buttons">
-                    <button className="offline-button">
+                    <button className="action-button" onClick={() =>navigate(`/upload-exam/${courseId}`)}>
                         העלאת מבחן חדש
                     </button>
                     <button className="action-button" onClick={navigateToUploadQuestion}>
