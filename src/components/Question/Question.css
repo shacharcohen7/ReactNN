@@ -675,4 +675,31 @@ button:disabled {
     color: #000;
 }
 
+.discussion-follow-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  
+  .discussion-follow-btn {
+    font-size: 14px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background-color: white;
+    color: #0a66c2;
+    border: 1px solid #0a66c2;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .discussion-follow-btn:hover {
+    background-color: #e6f0fa;
+  }
+  
+  .discussion-follow-btn.following {
+    background-color: #e6f0fa;
+    color: #0a66c2;
+  }
+  
 

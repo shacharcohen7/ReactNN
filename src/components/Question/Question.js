@@ -77,6 +77,8 @@ function Question() {
 
     const [showSwapModal, setShowSwapModal] = useState(false);
     const [swapFile, setSwapFile] = useState(null);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const followButtonRef = useRef(null);
 
     const handleFileSwap = async () => {
         if (!swapFile) {
@@ -260,6 +262,9 @@ function Question() {
         };    
         fetchData();
     }, []);
+
+    
+      
 
       useEffect(() => {
         const fetchInitialData = async () => {
@@ -722,6 +727,7 @@ function Question() {
             formData.append('question_number', questionNum);
             formData.append('writer_name', localStorage.getItem('first_name') + ' ' + localStorage.getItem('last_name'));
             formData.append('prev_id', prevId);
+            formData.append('question_id', question.question_id);
             formData.append('comment_text', chatInput);
         
             try {
@@ -784,6 +790,31 @@ function Question() {
         }
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]); 
 
+    useEffect(() => {
+        const checkFollowStatus = async () => {
+          try {
+            const response = await axiosInstance.get(`${API_BASE_URL}/api/course/is_following`, {
+              params: {
+                question_id: question.question_id
+              },
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`
+              }
+            });
+      
+            if (response.data.success) {
+              setIsFollowing(response.data.is_following); // true or false
+            }
+          } catch (error) {
+            console.error("Failed to check follow status:", error);
+          }
+        };
+      
+        if (question?.question_id) {
+          checkFollowStatus();
+        }
+      }, [question]);
+      
     useEffect(() => {
         const initialExpandState = allComments.reduce((acc, comment) => {
           acc[comment.comment_id] = true;
@@ -1149,7 +1180,20 @@ function Question() {
         fetchAnswerPdf();
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
 
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const shouldScroll = params.get("scrollToFollow");
+      
+        if (shouldScroll === "true") {
+          const followBtn = document.querySelector(".discussion-follow-btn");
+          if (followBtn) {
+            followBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }, [question]);
+      
     
+      
     const handlePDFChange = (criteria) => {
         setVisiblePDF(criteria);
     };
@@ -1792,6 +1836,32 @@ function Question() {
                     </div>
                 )}
                 <div className="chat-container">
+  <div className="discussion-follow-container" ref={followButtonRef}>
+    <button
+      className={`discussion-follow-btn ${isFollowing ? 'following' : ''}`}
+      onClick={async () => {
+        try {
+          const endpoint = isFollowing ? 'unfollow' : 'follow';
+
+          await axiosInstance.post(`${API_BASE_URL}/api/course/${endpoint}`, {
+            question_id: question.question_id
+          }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            }
+          });
+
+          setIsFollowing(!isFollowing);
+        } catch (error) {
+          console.error(`Failed to ${isFollowing ? 'unfollow' : 'follow'}:`, error);
+        }
+      }}
+    >
+      {isFollowing ? '✓ במעקב' : '+ מעקב אחר הדיון'}
+    </button>
+  </div>
+
+
                     {allComments && allComments.length > 0 ? (
                         <div className="comments-container">
                             {renderComments(organizeComments(allComments))}
