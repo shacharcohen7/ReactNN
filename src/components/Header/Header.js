@@ -1,5 +1,5 @@
 
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from './logoNNcircle.png';
@@ -13,6 +13,10 @@ function Header() {
     const { user, setUser } = useContext(UserContext);
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const notificationRef = useRef(null);
 
 
     useEffect(() => {
@@ -22,7 +26,131 @@ function Header() {
             setUser({ firstName, lastName });
         }
     }, [setUser]);
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+          if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+            setShowNotifications(false);
+          }
+        };
+      
+        const handleEscKey = (event) => {
+          if (event.key === 'Escape') {
+            setShowNotifications(false);
+          }
+        };
+      
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleEscKey);
+      
+        return () => {
+          document.removeEventListener('mousedown', handleClickOutside);
+          document.removeEventListener('keydown', handleEscKey);
+        };
+      }, []);
+      
 
+    // useEffect(() => {
+    //     console.log('✅ useEffect255 triggered: courseId')
+
+    //     const fetchNotifications = async () => {
+    //         try {
+    //             const token = localStorage.getItem('access_token');
+    //             if (!token) return;
+    
+    //             const response = await axiosInstance.get(`${API_BASE_URL}/api/course/get_unapproved_notification_list`, {
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`,
+    //                 }
+    //             });
+    
+    //             const parsed = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+    //             console.log("📦 Parsed response:", parsed);
+
+    //             if (parsed.success && Array.isArray(parsed.notifications)) {
+    //                 console.log("🔔 Notification count from server:", parsed.notifications.length);
+
+    //                 setNotificationCount(parsed.notifications.length);
+    //             }
+    //             else{
+    //                 console.log("🔔 Notification ero:");
+
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching notifications:", error);
+    //         }
+    //     };
+    
+    //     fetchNotifications();
+    // }, []);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+          try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+      
+            const response = await axiosInstance.get(`${API_BASE_URL}/api/course/get_unapproved_notification_list`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+      
+            const parsed = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+      
+            if (parsed.success && Array.isArray(parsed.notifications)) {
+              setNotificationCount(parsed.notifications.length);
+              setNotifications(parsed.notifications); // 👈 save them
+            }
+          } catch (error) {
+            console.error("Error fetching notifications:", error);
+          }
+        };
+      
+        fetchNotifications();
+      }, []);
+      
+    
+      const navigateToDiscussion = async (notif) => {
+        try {
+          await markAsSeen(notif);  // First mark it as seen
+          window.location.href = `${notif.link}?scrollToFollow=true`;
+        } catch (error) {
+          console.error("Failed to navigate to discussion:", error);
+        }
+      };
+      
+      
+      const markAsSeen = async (notif) => {
+        try {
+            console.log("Sending mark_as_seen for:", notif);
+
+          const response = await axiosInstance.post(
+            `${API_BASE_URL}/api/course/mark_as_seen`,
+            {
+              notification_id: notif.notification_id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              },
+            }
+          );
+      
+          if (response.data.success) {
+            // ✅ Only update the UI if backend confirms success
+            setNotifications((prev) =>
+              prev.filter((n) => n.notification_id !== notif.notification_id)
+            );
+            setNotificationCount((prev) => prev - 1);
+          } else {
+            console.error("Backend failed to mark notification as seen:", response.data.message);
+          }
+        } catch (error) {
+          console.error("Failed to mark as seen:", error);
+        }
+      };
+      
+      
     const handleLogoutClick = async () => {
         try {
             const token = localStorage.getItem('access_token');
@@ -76,9 +204,59 @@ function Header() {
                     <img src={logo} alt="Logo" className="logo" />
                 </div>
                 <div className="icons-container">
-                    <button className="icon-button" aria-label="Notifications">
-                        <i className="fas fa-bell"></i>
-                    </button>
+                <div className="notification-wrapper">
+  <button
+    className="icon-button"
+    aria-label="Notifications"
+    onClick={() => setShowNotifications((prev) => !prev)}
+  >
+    <i className="fas fa-bell"></i>
+    {notificationCount > 0 && (
+      <span className="notification-indicator">
+        {notificationCount > 99 ? '99+' : notificationCount}
+      </span>
+    )}
+  </button>
+
+  {showNotifications && notifications.length > 0 && (
+  <div className="notification-dropdown" ref={notificationRef}>
+    {notifications.map((notif, index) => {
+  const isDiscussionType =
+    notif.type === "CommentToFollowing" ||
+    notif.type === "CommentToComment" ||
+    notif.type === "ReactToComment";
+
+  return isDiscussionType ? (
+    <div className="notification-item" key={index}>
+      <p className="notif-message">{notif.message}</p>
+      <p className="notif-timestamp">{notif.timestamp}</p>
+
+      <div className="notif-buttons">
+        <button className="notif-btn" onClick={() => navigateToDiscussion(notif)}>
+          מעבר לדיון
+        </button>
+        <button className="notif-btn secondary" onClick={() => markAsSeen(notif)}>
+          ראיתי
+        </button>
+      </div>
+    </div>
+  ) : (
+    <div className="notification-item" key={index}>
+      <span className="notif-type">{notif.type}</span>
+      <p className="notif-message">{notif.message}</p>
+      <p className="notif-timestamp">{notif.timestamp}</p>
+    </div>
+  );
+})}
+
+  </div>
+)}
+
+
+</div>
+
+                   
+
                     <div className="dropdown">
                         <button
                             className="icon-button"
