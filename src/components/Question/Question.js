@@ -5,6 +5,9 @@ import { RxCross2 } from "react-icons/rx";
 import { GoCheck } from "react-icons/go";
 import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
+import { IoAttach } from "react-icons/io5";
+import { LuSendHorizontal } from "react-icons/lu";
+import { CiFileOn } from "react-icons/ci";
 
 import { BsEmojiSmile } from "react-icons/bs";
 import { FaRegCommentAlt, FaCommentAlt } from 'react-icons/fa';
@@ -35,6 +38,9 @@ function Question() {
     const [activeReactedComment, setActiveReactedComment] = useState(null);
     const [activeEditedComment, setActiveEditedComment] = useState(null);
     const [allComments, setAllComments] = useState([]); // שמירה של רשימת ההודעות
+    const [commentMediaMap, setCommentMediaMap] = useState({}); // מילון תגובה -> מדיה
+    const [showPictureForComment, setShowPictureForComment] = useState(null);
+    const [showPictureWhileCommenting, setShowPictureWhileCommenting] = useState(false);
     const [chatInput, setchatInput] = useState(""); // הודעה חדשה
     const [replyInput, setReplyInput] = useState(""); // הודעה חדשה
     const [textareaHeight, setTextareaHeight] = useState(40); // גובה התיבה (בהתחלה 40)
@@ -60,13 +66,15 @@ function Question() {
     const [isTopicsModalOpen, setIsTopicsModalOpen] = useState(false);
     const [chosenTopics, setChosenTopics] = useState([]);
     const [notChosenTopics, setNotChosenTopics] = useState([]);
-
+    const mainCommentFileRef = useRef(null);
+    const replyCommentFileRef  = useRef(null);
     const [isEditDetailsModalOpen, setIsEditDetailsModalOpen] = useState(false);
     const [editCourseId, setEditCourseId] = useState(courseId);
     const [editYear, setEditYear] = useState(examYear);
     const [editSemester, setEditSemester] = useState(examSemester);
     const [editMoed, setEditMoed] = useState(examDateSelection);
     const [editQuestionNumber, setEditQuestionNumber] = useState(question.question_number);
+    const [photoFile, setPhotoFile] = useState(null);
 
     const currentYear = new Date().getFullYear();
     const [isOpenCourseModalVisible, setIsOpenCourseModalVisible] = useState(false);
@@ -575,11 +583,11 @@ function Question() {
                     headers: addAuthHeaders()  // שלח את ההדרים המתאימים
                 }
             );            
-    
             const parsedResponse = JSON.parse(response.data.data);
             if (parsedResponse.status === "success" && parsedResponse.data.length === 1) {
                 const questionData = parsedResponse.data[0];
                 setAllComments(questionData.comments_list);
+                
                 setchatInput([]);
                 setReplyInput([]);
                 setActiveRepliedComment(null);
@@ -729,6 +737,7 @@ function Question() {
             formData.append('prev_id', prevId);
             formData.append('question_id', question.question_id);
             formData.append('comment_text', chatInput);
+            formData.append('photo_file', photoFile);
         
             try {
                 // Make the API call
@@ -742,6 +751,7 @@ function Question() {
                 // Handle success
                 if (response.data.success) {
                     updateComments();
+                    setPhotoFile(null);
                 } else {
                     // Handle failure
                     alert(`Failed to add comment: ${response.data.message}`);
@@ -773,7 +783,7 @@ function Question() {
             }, {
                 headers: addAuthHeaders()  // שלח את ההדרים המתאימים
             })
-            .then(response => {
+            .then(async response => {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
                 if (parsedResponse.status==="success" && parsedResponse.data.length === 1) {
                     setQuestion(parsedResponse.data[0]);  // עדכון תוצאות החיפוש
@@ -900,7 +910,7 @@ function Question() {
           };
         return comments.map((comment) => {
             const commentMetadata = commentsMetadata.find(metadata => metadata.comment_id === comment.comment_id);
-    
+            
             return (
                 <div key={comment.comment_id} className="comment-box" onMouseLeave={() => setActiveReactedComment(null)}>
                     <div className="comment-content">
@@ -936,8 +946,20 @@ function Question() {
                                     </div>
                                 )}
                                 {activeEditedComment === comment.comment_id ? (
-                                        <CommentEditor initialText={comment.comment_text} onTextChange={handleTextChange}/>
-                                ) : (<p>{formatMessage(comment.comment_text)}</p>)}
+                                    <CommentEditor initialText={comment.comment_text} onTextChange={handleTextChange}/>
+                                ) : (
+                                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                                        <p>{formatMessage(comment.comment_text)}</p>
+                                        {commentMediaMap[comment.comment_id] && (
+                                            <img
+                                                src={commentMediaMap[comment.comment_id]}
+                                                alt="media"
+                                                className="photo-of-comment"
+                                                onClick={()=>setShowPictureForComment(comment.comment_id)}
+                                            />
+                                        )}
+                                    </div>
+                                )}
                             </>  
                         )}
                     </div>
@@ -1002,6 +1024,8 @@ function Question() {
                                 className="reaction-button"
                                 onMouseEnter={() => setActiveReactedComment(null)}
                                 onClick={() => {
+                                    setchatInput([]);
+                                    setPhotoFile(null);
                                     setActiveEditedComment(null);
                                     !expandReplies[comment.comment_id] && handleArrowClick(comment.comment_id);
                                     handleReplyClick(comment.comment_id);
@@ -1069,12 +1093,34 @@ function Question() {
                                         className="reply-input"
                                         autoFocus
                                     />
+                                    <div>
+                                        {photoFile && activeRepliedComment ? (
+                                        <button title="צפה בקובץ שצירפת" type="button" className="reply-button" onClick={()=>setShowPictureWhileCommenting(true)}>
+                                            <CiFileOn size={"30px"}/>
+                                        </button>
+                                        ) : (
+                                            <button title="צרף קובץ" type="button" className="reply-button" onClick={()=>{
+                                                                                                                        setchatInput([]);
+                                                                                                                        setPhotoFile(null);
+                                                                                                                        replyCommentFileRef.current.click()}}>
+                                                <IoAttach size={"30px"}/>
+                                            </button>)
+                                        }
+                                        <input
+                                            type="file"
+                                            accept=".jpeg, .jpg, .png"
+                                            ref={replyCommentFileRef}
+                                            onChange={(e)=>setPhotoFile(e.target.files[0])}
+                                            style={{ display: "none" }}
+                                        />
+                                    </div>
                                     <button
+                                    title="שלח"
                                         type="button"
                                         className="reply-button"
                                         onClick={() => handleSendClick(replyInput, comment.comment_id)}
                                     >
-                                        שלח
+                                        <LuSendHorizontal size={"20px"} style={{ transform: "rotate(180deg)" }}/>
                                     </button>
                                 </form>
                             )}
@@ -1103,6 +1149,63 @@ function Question() {
             });
         }
     }, [courseId]);
+
+    const fetchCommentMedia = async (comment_id) => {
+        try {
+          const response = await axiosInstance.get(`${API_BASE_URL}/api/course/get_comment_media`,
+            {
+              params: {
+                course_id: courseId,
+                year: examYear,
+                semester: examSemester,
+                moed: examDateSelection,
+                question_number: questionNum,
+                comment_id: comment_id,
+              },
+              headers: addAuthHeaders(),
+              responseType: 'blob', // חשוב! כי הקובץ הוא תמונה או JSON
+            }
+          );
+      
+          const contentType = response.headers['content-type'];
+          if (contentType && contentType.includes('application/json')) {
+            // ננסה לקרוא את התוכן של ה־blob כטקסט ואז לפרסר אותו
+            const text = await response.data.text();
+            const json = JSON.parse(text);
+            if (json.media === null) {
+              return null;
+            } else {
+              console.warn('Unexpected JSON response:', json);
+              return null;
+            }
+          } else {
+            // זו תמונה או קובץ אחר - ניצור ממנו קישור
+            const fileUrl = URL.createObjectURL(response.data);
+            return fileUrl;
+          }
+        } catch (error) {
+          console.error('Error fetching media:', error);
+          return null;
+        }
+      };
+
+      useEffect(() => {
+        const loadAllMedia = async () => {
+            const mediaMap = {};
+            const promises = allComments.map(async (comment) => {
+                const fileUrl = await fetchCommentMedia(comment.comment_id);
+                mediaMap[comment.comment_id] = fileUrl;
+            });
+    
+            // נחכה שכל ההבטחות יסתיימו
+            await Promise.all(promises);
+            setCommentMediaMap(mediaMap);  // רק עכשיו נעדכן את המילון
+        };
+    
+        if (allComments.length > 0) {
+            loadAllMedia();
+        }
+    }, [allComments]);
 
     useEffect(() => {
         const fetchQuestionFile = async () => {
@@ -1180,6 +1283,7 @@ function Question() {
         fetchAnswerPdf();
     }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
 
+    
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const shouldScroll = params.get("scrollToFollow");
@@ -1870,6 +1974,32 @@ function Question() {
                                     </div>
                                 </div>
                             )}
+                            {showPictureForComment && (
+                                <div className="modal-overlay" onClick={()=>setShowPictureForComment(null)}>
+                                    <div className="max-photo">
+                                        {commentMediaMap[showPictureForComment] && <img
+                                            src={commentMediaMap[showPictureForComment]}
+                                            alt="media"
+                                        />}
+                                        <p>{allComments.find(c => c.comment_id === showPictureForComment).comment_text}</p>
+                                    </div>
+                                </div>
+                            )}
+                            {showPictureWhileCommenting && (
+                                <div className="modal-overlay" onClick={()=>setShowPictureWhileCommenting(false)}>
+                                    <div className="max-photo">
+                                        {photoFile && 
+                                            <img
+                                                src={URL.createObjectURL(photoFile)}
+                                                alt="media"
+                                                className='photo-while-commenting'
+                                        />}
+                                        <button title="מחק קובץ זה" onClick={()=>setPhotoFile(null)}>
+                                            <FaRegTrashAlt />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="comments-container">
@@ -1898,7 +2028,33 @@ function Question() {
                                 maxHeight: '120px', // גובה מקסימלי של 4 שורות
                               }}
                         />
-                        <button type="button" className="reply-button" onClick={() => handleSendClick(chatInput, "0")}>שלח</button>
+                        <div>
+                            {photoFile && activeRepliedComment===null ? (<button title="צפה בקובץ שצירפת" type="button" className="reply-button" onClick={()=>setShowPictureWhileCommenting(true)}>
+                                            <CiFileOn size={"30px"}/>
+                                        </button>
+                                ) : (
+                                <button title="צרף קובץ" type="button" className="reply-button" onClick={()=>{ 
+                                                                                                                setPhotoFile(null);
+                                                                                                                setActiveEditedComment(null);
+                                                                                                                setReplyInput([]);
+                                                                                                                setActiveRepliedComment(null);
+                                                                                                                mainCommentFileRef.current.click()
+                                                                                                                }}
+                                >
+                                    <IoAttach size={"30px"}/>
+                                </button>)
+                            }
+                            <input
+                                type="file"
+                                accept=".jpeg, .jpg, .png"
+                                ref={mainCommentFileRef}
+                                onChange={(e)=>setPhotoFile(e.target.files[0])}
+                                style={{ display: "none" }}
+                            />
+                        </div>
+                        <button title="שלח" type="button" className="reply-button" onClick={() => handleSendClick(chatInput, "0")}>
+                            <LuSendHorizontal size={"20px"} style={{ transform: "rotate(180deg)" }}/>
+                        </button>
                     </form>
                     {isModalOpen && (
                         <div className="modal-overlay">
