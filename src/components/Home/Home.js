@@ -52,6 +52,9 @@ function Home() {
     const [isToolbarOpen, setIsToolbarOpen] = useState(false);
     const [isRemoveCourseModalOpen, setIsRemoveCourseModalOpen] = useState(false);
     const [selectedCourseToRemove, setSelectedCourseToRemove] = useState('');
+    const [isAppointSystemManagerModalOpen, setIsAppointSystemManagerModalOpen] = useState(false);
+    const [emailToAppoint, setEmailToAppoint] = useState('');
+
     
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
@@ -334,10 +337,25 @@ function Home() {
         setIsRemoveCourseModalOpen(true);
       };
       
+      useEffect(() => {
+        const handleKeyDown = (event) => {
+          if (event.key === "Escape" && isAppointSystemManagerModalOpen) {
+            setIsAppointSystemManagerModalOpen(false);
+            setEmailToAppoint("");
+          }
+        };
       
-      const handleAnotherAction = () => {
-        console.log("מערכת: פעולה נוספת");
+        document.addEventListener("keydown", handleKeyDown);
+        
+        return () => {
+          document.removeEventListener("keydown", handleKeyDown);
+        };
+      }, [isAppointSystemManagerModalOpen]);
+      
+      const handleAppointSystemManager = () => {
+        setIsAppointSystemManagerModalOpen(true);
       };
+      
       
   
       
@@ -465,7 +483,7 @@ function Home() {
     <div className="toolbar-content">
       <h4>פעולות מנהל מערכת</h4>
       <button onClick={handleRemoveCourseAction}>הסרת קורס</button>
-      <button onClick={handleAnotherAction}>עוד פעולה</button>
+      <button onClick={handleAppointSystemManager}>מינוי מנהל מערכת </button>
     </div>
   </div>
 )}
@@ -530,6 +548,75 @@ function Home() {
     </div>
   </div>
 )}
+{isAppointSystemManagerModalOpen && (
+  <div
+    className="modal-overlay"
+    onClick={(e) => {
+      // If the click happened directly on the overlay, then close the modal.
+      if (e.target.classList.contains("modal-overlay")) {
+        setIsAppointSystemManagerModalOpen(false);
+        setEmailToAppoint("");
+      }
+    }}
+  >
+    <div className="modal-content-remove" onClick={(e) => e.stopPropagation()}>
+      <h3>מינוי מנהל מערכת</h3>
+      <p>אנא הקליד/י את האימייל של המשתמש אותו את/ה רוצה למנות:</p>
+      <input
+        type="email"
+        placeholder="כתובת אימייל"
+        value={emailToAppoint}
+        onChange={(e) => setEmailToAppoint(e.target.value)}
+        className="search-input-topic"
+      />
+      <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+        <button
+          className="confirm-button"
+          disabled={!emailToAppoint}
+          onClick={async () => {
+            try {          
+              const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/course/appoint_system_manager`,
+                { email: emailToAppoint },
+                { headers: addAuthHeaders() }
+              );
+          
+              if (response.data.success) {
+                alert("נשלחה בקשת מינוי אל המשתמש");
+              } else {
+                alert(`שגיאה במינוי: ${response.data.message}`);
+              }
+            } catch (error) {
+              console.error("Error appointing system manager:", error);
+          
+              if (error.response && error.response.data && error.response.data.message) {
+                alert(error.response.data.message);  // 🔥 Real message from backend
+              } else {
+                alert("שגיאה בחיבור לשרת");  // Generic fallback
+              }
+            } finally {
+              setIsAppointSystemManagerModalOpen(false);
+              setEmailToAppoint("");
+            }
+          }}
+          
+        >
+          אישור
+        </button>
+        <button
+          className="cancel-button"
+          onClick={() => {
+            setIsAppointSystemManagerModalOpen(false);
+            setEmailToAppoint("");
+          }}
+        >
+          ביטול
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
                 <div className="search-container">
                     {searchType === 'topic' && (

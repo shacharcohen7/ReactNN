@@ -51,6 +51,10 @@ function Course() {
     const [newlyAdded, setNewlyAdded] = useState(new Set());
 
     const [topicError, setTopicError] = useState('');
+    const [isAppointCourseManagerModalOpen, setIsAppointCourseManagerModalOpen] = useState(false);
+    const [emailToAppoint, setEmailToAppoint] = useState('');
+    const [IsRemoveCourseManagerModalOpen, setIsRemoveCourseManagerModalOpen] = useState(false);
+
 
     const uniqueExams = allQuestions.filter((result, index, self) => 
         index === self.findIndex((r) => 
@@ -72,7 +76,21 @@ function Course() {
         }
         return headers;
     };
+    const handleAppointCourseManager = () => {
+       
+        setIsAppointCourseManagerModalOpen(true);
+        setIsRemoveCourseManagerModalOpen(false)
 
+    };
+    
+    const handleRemoveCourseManager = () => {
+        // TODO: implement course manager removal
+        console.log("Remove Course Manager clicked");
+        setIsRemoveCourseManagerModalOpen(true);
+        setIsAppointCourseManagerModalOpen(false)
+
+    };
+    
     useEffect(() => {
         console.log('✅ useEffect1 triggered: courseId =', courseId);
 
@@ -269,6 +287,36 @@ function Course() {
       
         fetchExamLinks();
       }, [sortedExams, courseId]);
+
+      useEffect(() => {
+        const handleKeyDown = (event) => {
+          if (event.key === "Escape" && isAppointCourseManagerModalOpen) {
+            setIsAppointCourseManagerModalOpen(false);
+            setEmailToAppoint("");
+          }
+        };
+      
+        document.addEventListener("keydown", handleKeyDown);
+        
+        return () => {
+          document.removeEventListener("keydown", handleKeyDown);
+        };
+      }, [isAppointCourseManagerModalOpen]);
+
+      useEffect(() => {
+        const handleKeyDown = (event) => {
+          if (event.key === "Escape" && IsRemoveCourseManagerModalOpen) {
+            setIsRemoveCourseManagerModalOpen(false);
+            setEmailToAppoint("");
+          }
+        };
+      
+        document.addEventListener("keydown", handleKeyDown);
+        
+        return () => {
+          document.removeEventListener("keydown", handleKeyDown);
+        };
+      }, [IsRemoveCourseManagerModalOpen]);
       
     // useEffect(() => {
     //     console.log('✅ useEffect5 triggered: courseId =', courseId);
@@ -429,7 +477,7 @@ function Course() {
         }
     };
     
-
+    
     const handleSort = (column) => {
         // מיון תוצאות החיפוש לפי העמודה
         const sortedResults = [...searchResults].sort((a, b) => {
@@ -916,7 +964,153 @@ function Course() {
         </div>
     </div>
     )}
+    {isAppointCourseManagerModalOpen && (
+  <div
+    className="modal-overlay"
+    onClick={(e) => {
+      // If the click happened directly on the overlay, then close the modal.
+      if (e.target.classList.contains("modal-overlay")) {
+        setIsAppointCourseManagerModalOpen(false);
+        setEmailToAppoint("");
+      }
+    }}
+  >
+    <div className="modal-content-remove" onClick={(e) => e.stopPropagation()}>
+      <h3>מינוי מנהל קורס</h3>
+      <p>אנא הקליד/י את האימייל של המשתמש אותו את/ה רוצה למנות:</p>
+      <input
+        type="email"
+        placeholder="כתובת אימייל"
+        value={emailToAppoint}
+        onChange={(e) => setEmailToAppoint(e.target.value)}
+        className="search-input-topic"
+      />
+      <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+        <button
+          className="confirm-button"
+          disabled={!emailToAppoint}
+          onClick={async () => {
+            try {          
+                const response = await axiosInstance.post(
+                    `${API_BASE_URL}/api/course/appoint_course_manager`,
+                    {
+                      email: emailToAppoint,
+                      course_id: courseId
+                    },
+                    {
+                      headers: addAuthHeaders()
+                    }
+                  );
+                  
+              if (response.data.success) {
+                alert("נשלחה בקשת מינוי אל המשתמש");
+              } else {
+                alert(`שגיאה במינוי: ${response.data.message}`);
+              }
+            } catch (error) {
+              console.error("Error appointing system manager:", error);
+          
+              if (error.response && error.response.data && error.response.data.message) {
+                alert(error.response.data.message);  // 🔥 Real message from backend
+              } else {
+                alert("שגיאה בחיבור לשרת");  // Generic fallback
+              }
+            } finally {
+              setIsAppointCourseManagerModalOpen(false);
+              setEmailToAppoint("");
+            }
+          }}
+          
+        >
+          אישור
+        </button>
+        <button
+          className="cancel-button"
+          onClick={() => {
+            setIsAppointCourseManagerModalOpen(false);
+            setEmailToAppoint("");
+          }}
+        >
+          ביטול
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
+{IsRemoveCourseManagerModalOpen && (
+  <div
+    className="modal-overlay"
+    onClick={(e) => {
+      // If the click happened directly on the overlay, then close the modal.
+      if (e.target.classList.contains("modal-overlay")) {
+        setIsRemoveCourseManagerModalOpen(false);
+        setEmailToAppoint("");
+      }
+    }}
+  >
+    <div className="modal-content-remove" onClick={(e) => e.stopPropagation()}>
+      <h3>הסרת מנהל קורס</h3>
+      <p>אנא הקליד/י את האימייל של המשתמש אותו את/ה רוצה להסיר:</p>
+      <input
+        type="email"
+        placeholder="כתובת אימייל"
+        value={emailToAppoint}
+        onChange={(e) => setEmailToAppoint(e.target.value)}
+        className="search-input-topic"
+      />
+      <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+        <button
+          className="confirm-button"
+          disabled={!emailToAppoint}
+          onClick={async () => {
+            try {          
+                const response = await axiosInstance.post(
+                    `${API_BASE_URL}/api/course/remove_course_manager`,
+                    {
+                      email: emailToAppoint,
+                      course_id: courseId
+                    },
+                    {
+                      headers: addAuthHeaders()
+                    }
+                  );
+                  
+              if (response.data.success) {
+                alert("המשתמש הוסר מתפקידו בתור מנהל קורס");
+              } else {
+                alert(`שגיאה בהסרה: ${response.data.message}`);
+              }
+            } catch (error) {
+              console.error("Error removing course manager:", error);
+          
+              if (error.response && error.response.data && error.response.data.message) {
+                alert(error.response.data.message);  // 🔥 Real message from backend
+              } else {
+                alert("שגיאה בחיבור לשרת");  // Generic fallback
+              }
+            } finally {
+                setIsRemoveCourseManagerModalOpen(false);
+              setEmailToAppoint("");
+            }
+          }}
+          
+        >
+          אישור
+        </button>
+        <button
+          className="cancel-button"
+          onClick={() => {
+            setIsRemoveCourseManagerModalOpen(false);
+            setEmailToAppoint("");
+          }}
+        >
+          ביטול
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
 
                 {activeSearch && (<div className="search-results">
@@ -962,6 +1156,21 @@ function Course() {
                         הורדת כלל המבחנים
                     </button>
                 </div>
+
+                <div className="action-buttons">
+                {(isCourseManager || IsSystemManager) && (
+                <button className="action-button" onClick={handleAppointCourseManager}>
+                    מינוי מנהל קורס
+                </button>
+            )}
+
+            {IsSystemManager && (
+                <button className="action-button" onClick={handleRemoveCourseManager}>
+                    הסרת מנהל קורס
+                </button>
+            )}
+
+                    </div>
 
                 <div className="updates-container">
                     <h3>מבחנים בקורס זה</h3>

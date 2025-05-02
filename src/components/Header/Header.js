@@ -118,6 +118,15 @@ function Header() {
           console.error("Failed to navigate to discussion:", error);
         }
       };
+
+      const navigateToCourse = async (notif) => {
+        try {
+          window.location.href = notif.link; // No query string
+        } catch (error) {
+          console.error("Failed to navigate to course:", error);
+        }
+      };
+      
       
       
       const markAsSeen = async (notif) => {
@@ -196,6 +205,118 @@ function Header() {
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
+    const addAuthHeaders = (headers = {}) => {
+      const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
+      if (token) {
+          headers['Authorization'] = `Bearer ${token}`;  // הוספת ה-token להדר Authorization
+      }
+      return headers;
+  };
+  const approve_system_manager_appoint = async (notif) => {
+    try {
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/api/user/approve_system_manager_appoint`,
+        { notification_id: notif.notification_id },  // ✅ fix to match actual field
+        { headers: addAuthHeaders() }
+      );
+  
+      if (response.data.success) {
+        alert("האישור נקלט בהצלחה");
+  
+        // ✅ Remove notification from list and update count
+        setNotifications((prev) =>
+          prev.filter((n) => n.notification_id !== notif.notification_id)
+        );
+        setNotificationCount((prev) => prev - 1);
+      } else {
+        alert(`שגיאה: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Error approving system manager:", error);
+      alert("שגיאה באישור המינוי");
+    }
+  };
+  
+    
+    const disapprove_system_manager_appoint = async (notif) => {
+      try {
+        console.log("Sending notification_id:", notif.notification_id);
+    
+        const response = await axiosInstance.post(
+          `${API_BASE_URL}/api/user/disapprove_system_manager_appoint`,
+          { notification_id: notif.notification_id },
+          { headers: addAuthHeaders() }
+        );
+    
+        if (response.data.success) {
+          alert("הסירוב נקלט בהצלחה");
+    
+          // ✅ Remove notification from the list
+          setNotifications((prev) =>
+            prev.filter((n) => n.notification_id !== notif.notification_id)
+          );
+          setNotificationCount((prev) => prev - 1);
+        } else {
+          alert(`שגיאה: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error("Error disapproving system manager:", error);
+        alert("שגיאה בסירוב המינוי");
+      }
+    };
+    const approve_course_manager_appoint = async (notif) => {
+      try {
+        const response = await axiosInstance.post(
+          `${API_BASE_URL}/api/user/approve_course_manager_appoint`,
+          { notification_id: notif.notification_id },  // ✅ fix to match actual field
+          { headers: addAuthHeaders() }
+        );
+    
+        if (response.data.success) {
+          alert("האישור נקלט בהצלחה");
+    
+          // ✅ Remove notification from list and update count
+          setNotifications((prev) =>
+            prev.filter((n) => n.notification_id !== notif.notification_id)
+          );
+          setNotificationCount((prev) => prev - 1);
+        } else {
+          alert(`שגיאה: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error("Error approving system manager:", error);
+        alert("שגיאה באישור המינוי");
+      }
+    };
+    
+      
+      const disapprove_course_manager_appoint = async (notif) => {
+        try {
+          console.log("Sending notification_id:", notif.notification_id);
+      
+          const response = await axiosInstance.post(
+            `${API_BASE_URL}/api/user/disapprove_course_manager_appoint`,
+            { notification_id: notif.notification_id },
+            { headers: addAuthHeaders() }
+          );
+      
+          if (response.data.success) {
+            alert("הסירוב נקלט בהצלחה");
+      
+            // ✅ Remove notification from the list
+            setNotifications((prev) =>
+              prev.filter((n) => n.notification_id !== notif.notification_id)
+            );
+            setNotificationCount((prev) => prev - 1);
+          } else {
+            alert(`שגיאה: ${response.data.message}`);
+          }
+        } catch (error) {
+          console.error("Error disapproving system manager:", error);
+          alert("שגיאה בסירוב המינוי");
+        }
+      };
+    
 
     return (
         <div className="header-page">
@@ -221,36 +342,97 @@ function Header() {
   {showNotifications && notifications.length > 0 && (
   <div className="notification-dropdown" ref={notificationRef}>
     {notifications.map((notif, index) => {
-  const isDiscussionType =
-    notif.type === "CommentToFollowing" ||
-    notif.type === "CommentToComment" ||
-    notif.type === "ReactToComment";
+      const isDiscussionType =
+        notif.type === "CommentToFollowing" ||
+        notif.type === "CommentToComment" ||
+        notif.type === "ReactToComment";
 
-  return isDiscussionType ? (
-    <div className="notification-item" key={index}>
-      <p className="notif-message">{notif.message}</p>
-      <p className="notif-timestamp">{notif.timestamp}</p>
+      if (notif.type === "AppointSystemManager")  {
+        return (
+          <div className="notification-item" key={index}>
+            <p className="notif-message">{notif.message}</p>
+            <p className="notif-timestamp">{notif.timestamp}</p>
 
-      <div className="notif-buttons">
-        <button className="notif-btn" onClick={() => navigateToDiscussion(notif)}>
-          מעבר לדיון
-        </button>
-        <button className="notif-btn secondary" onClick={() => markAsSeen(notif)}>
-          ראיתי
-        </button>
-      </div>
-    </div>
-  ) : (
-    <div className="notification-item" key={index}>
-      <span className="notif-type">{notif.type}</span>
-      <p className="notif-message">{notif.message}</p>
-      <p className="notif-timestamp">{notif.timestamp}</p>
-    </div>
-  );
-})}
+            <div className="notif-buttons">
+            <button
+                className="notif-btn secondary"
+                onClick={() => disapprove_system_manager_appoint(notif)}
+              >
+                סירוב
+              </button>
+              <button
+                className="notif-btn"
+                onClick={() => approve_system_manager_appoint(notif)}
+              >
+                אישור
+              </button>
+              
+            </div>
+          </div>
+        );
+      }
+      if (notif.type === "AppointCourseManager")  {
+        return (
+          <div className="notification-item" key={index}>
+            <p className="notif-message">{notif.message}</p>
+            <p className="notif-timestamp">{notif.timestamp}</p>
 
+            <div className="notif-buttons">
+            <button
+                className="notif-btn secondary"
+                onClick={() => disapprove_course_manager_appoint(notif)}
+              >
+                סירוב
+              </button>
+              <button
+                className="notif-btn"
+                onClick={() => approve_course_manager_appoint(notif)}
+              >
+                אישור
+              </button>
+              <button className="notif-btn" onClick={() => navigateToCourse(notif)}>
+                מעבר לקורס
+              </button>
+              
+            </div>
+          </div>
+        );
+      }
+
+      if (isDiscussionType) {
+        return (
+          <div className="notification-item" key={index}>
+            <p className="notif-message">{notif.message}</p>
+            <p className="notif-timestamp">{notif.timestamp}</p>
+
+            <div className="notif-buttons">
+              <button className="notif-btn" onClick={() => navigateToDiscussion(notif)}>
+                מעבר לדיון
+              </button>
+              <button className="notif-btn secondary" onClick={() => markAsSeen(notif)}>
+                ראיתי
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="notification-item" key={index}>
+          <p className="notif-message">{notif.message}</p>
+          <p className="notif-timestamp">{notif.timestamp}</p>
+  
+          <div className="notif-buttons">
+            <button className="notif-btn" onClick={() => markAsSeen(notif)}>
+              ראיתי
+            </button>
+          </div>
+        </div>
+      );
+    })}
   </div>
 )}
+
 
 
 </div>
