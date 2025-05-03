@@ -6,6 +6,8 @@ import logo from './logoNNcircle.png';
 import './Header.css';
 import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../utils/axiosInstance';
+import useNotificationsSocket from '../hooks/useNotificationsSocket';
+import TokenManager from '../../utils/auth';
 
 
 function Header() {
@@ -17,6 +19,24 @@ function Header() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const notificationRef = useRef(null);
+    const userId = TokenManager.getUserIdFromToken();
+    const [latestPopupNotif, setLatestPopupNotif] = useState(null);
+
+    useNotificationsSocket({
+      userId: userId,
+      onNotification: (newNotif) => {
+        setNotifications((prev) => [newNotif, ...prev]);
+        setNotificationCount((prev) => prev + 1);
+        
+        setLatestPopupNotif(newNotif);  // 👈 trigger popup
+    
+        // Hide it after 5 seconds
+        setTimeout(() => {
+          setLatestPopupNotif(null);
+        }, 5000);
+      }
+    });
+    
 
 
     useEffect(() => {
@@ -338,6 +358,11 @@ function Header() {
       </span>
     )}
   </button>
+  {latestPopupNotif && (
+  <div className="floating-notification">
+    <p>{latestPopupNotif.message}</p>
+  </div>
+)}
 
   {showNotifications && notifications.length > 0 && (
   <div className="notification-dropdown" ref={notificationRef}>
