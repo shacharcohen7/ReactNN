@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header/Header';
 import './UploadExam.css';
@@ -38,7 +38,7 @@ function UploadExam() {
     };
 
 
-    const handleSubmitLines = async (lines) => {
+    const handleSubmitLines = useCallback(async (lines) => {
         if (!ExamFile) {
             alert("Please upload a file before submitting.");
             return;
@@ -87,12 +87,14 @@ function UploadExam() {
             console.error("Error uploading file:", error);
             alert("An error occurred while uploading the file.");
         }
-    };
 
-    const closeModal = () => {
+    }, [ExamFile, courseId, examYear, examSemester, examDateSelection]);
+
+
+    const closeModal = useCallback(() => {
         setIsModalOpen(false);
         setExamFile(null);
-    };
+    }, []);
 
     const openModal = () => setIsModalOpen(true);
 
@@ -278,7 +280,7 @@ function UploadExam() {
                     )}
                     {ExamFile && submitFile && (
                         <div className="modal-overlay">
-                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות</p>
+                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות(הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
                             <div className="modal-content-line-selection">
                                 <PdfLineMark
                                     file={ExamFile}

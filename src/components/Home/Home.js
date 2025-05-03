@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useTransition} from 'react';
 import axios from 'axios';
 import './Home.css';
 import Header from '../Header/Header';
@@ -14,6 +14,7 @@ function Home() {
     const [searchById, setSearchById] = useState(false);
     const [searchType, setSearchType] = useState('topic'); 
     const [selectedCourse, setSelectedCourse] = useState('');
+    const [searchTrigerred, setSearchTriggered] = useState(false);
     const [courseResults, setCourseResults] = useState('');
     const [courseForQuestion, setcourseForQuestion] = useState('');
     const [courseForExam, setCourseForExam] = useState('');
@@ -34,6 +35,8 @@ function Home() {
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
     const [hasSolution, setHasSolution] = useState([]);
+
+    const [suggestion, setSuggestion] = useState(''); // State for suggestion
 
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
     const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
@@ -252,6 +255,10 @@ function Home() {
         setOnlyWithSolution(e.target.checked);
       };
 
+    useEffect(() => {
+        handleSearch();
+    }, [searchTrigerred]);
+
     const handleSearch = () => {
         setSearchResults([])
         if (searchType === 'topic') {
@@ -318,9 +325,14 @@ function Home() {
                 const parsedResponse = JSON.parse(response.data.data);  // המרת המחרוזת לאובייקט    
                     // אם התוצאה היא לא מערך, נהפוך אותה למערך
                     console.log('API Response:', parsedResponse);
-                    if (parsedResponse.status === "success" && parsedResponse.message.length > 0) {
+                    if (parsedResponse.status === "success" ) {
                         console.log('API22 Response:', parsedResponse.message);
-                        setSearchResults(parsedResponse.message);  // עדכון תוצאות החיפוש
+                        if (parsedResponse.first_suggestion!== null) {
+                            setSuggestion(parsedResponse.first_suggestion);
+                        }
+                        if (parsedResponse.message.length > 0) {
+                            setSearchResults(parsedResponse.message);
+                        }// עדכון תוצאות החיפוש
                 } else {
                     setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
                 }
@@ -648,7 +660,7 @@ function Home() {
                                 ))}
                             </select>
                             <div className="search-buttons">
-                                <button className="search-button-home" onClick={() => {handleSearch(); setActiveSearch(true);}}>
+                                <button className="search-button-home" onClick={() => {setSuggestion('') ; handleSearch(); setActiveSearch(true);}}>
                                     חפש
                                 </button>
                                 <button className="search-button-home" onClick={() => {setActiveSearch(false); clearSearchFields();}}>
@@ -764,8 +776,24 @@ function Home() {
                     )}
                 </div>
                 {activeSearch && (<div className="search-results">
+                    {suggestion !== '' && searchType === 'text' && (
+                        <div className="suggestion">
+                            <p>האם התכוונת ל:</p>
+                            <p
+                                style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}
+                                onClick={() => {
+                                    setSearchText(suggestion) ;
+                                    setSuggestion('') ;
+                                    setSearchTriggered(!searchTrigerred);
+                                }}
+                            >
+                                {suggestion}
+                            </p>
+                        </div>
+                    )}
                     {searchResults.length > 0 ? (
-                        <div>
+                            <div>
+
                             <h3>התוצאות שהתקבלו</h3> {/* כותרת התוצאות */}
                             <label className='checkbox-solution'>
                                 <input

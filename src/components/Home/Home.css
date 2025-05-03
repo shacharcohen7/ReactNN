@@ -6,6 +6,21 @@
   /* padding: 20px; */
 }
 
+.suggestion {
+  display: flex;
+  align-items: center; /* ממקד אופקית */
+  justify-content: center; /* ממקד אנכית */
+  text-align: center; /* ממקד את הטקסט בתוך הפסקאות */
+  margin: 10px 0;
+}
+.suggestion p { /* קו תחתון */
+  margin: 0;  /* מסיר רווחים מיותרים */
+}
+
+.suggestion button {
+  margin: 0;  /* גם ככה לא צריך רווח */
+}
+
 /* סרגלי החיפוש (Tabs) */
 .tabs-container {
   display: flex;
