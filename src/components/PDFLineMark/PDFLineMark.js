@@ -3,7 +3,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import './PDFLineMark.css';
 
 
-// Set up PDF.js worker
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 
@@ -15,7 +15,7 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
 
 
     const removeLastLine = () => {
-        // Remove the last line from the array if there are any lines
+
         setLines((prevLines) => prevLines.slice(0, -1));
     };
 
@@ -25,10 +25,9 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
 
     const handlePageClick = (event, pageNumber) => {
         const pageRect = event.target.getBoundingClientRect();
-        const x = event.clientX - pageRect.left; // קואורדינטת X יחסית ל-Canvas
-        const y = event.clientY - pageRect.top;  // קואורדינטת Y יחסית ל-Canvas
+        const x = event.clientX - pageRect.left;
+        const y = event.clientY - pageRect.top;
 
-        // אם נקודת הלחיצה בתוך גבולות ה-Canvas
         if (x >= 0 && y >= 0 && x <= pageRect.width && y <= pageRect.height) {
             const newLine = { page: pageNumber, y:y };
             const updatedLines = [...lines, newLine];
@@ -59,18 +58,15 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
                 ))}
             </Document>
 
-            {/* Buttons container with sticky positioning */}
             <div className="modal-actions">
                 <button className="submit-btn" onClick={() => onSubmitLines(lines)}>
                     אישור הבחירה
                 </button>
 
-                {/* Remove Last Line Button */}
                 <button className="remove-btn" onClick={removeLastLine}>
                     הסר את הקו האחרון
                 </button>
 
-                {/* Cancel Button to close the modal */}
                 <button className="cancel-btn" onClick={closeModal}>
                     ביטול
                 </button>

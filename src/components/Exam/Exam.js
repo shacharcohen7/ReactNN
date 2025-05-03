@@ -1,5 +1,5 @@
 // Exam.js
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { useParams } from 'react-router-dom'
 import { IoIosArrowBack } from "react-icons/io";
 import axios from 'axios';
@@ -102,32 +102,7 @@ function Exam() {
         }
         setIsFileUploaded(true); // Set the file upload state to true
     }
-        // Prepare data to send to backend
-    //     const formData = new FormData();
-    //     formData.append('course_id', courseId);
-    //     formData.append('year', examYear);
-    //     formData.append('semester', examSemester);
-    //     formData.append('moed', examDateSelection);
-    //     formData.append('pdf_exam', examFile); // The selected PDF file
-    //     formData.append('line_data', JSON.stringify(lines)); // The lines data from PdfLineMark
-    //
-    //     try {
-    //         const response = await axiosInstance.post(`${API_BASE_URL}/api/course/uploadFullExamPdf`, formData, {
-    //             headers: { 'Content-Type': 'multipart/form-data', ...addAuthHeaders() } // Add Authorization header
-    //         });
-    //
-    //         if (response.data.success) {
-    //             alert("File uploaded successfully!");
-    //             setIsFileUploaded(false);  // Reset state after upload
-    //             window.location.reload();   // Reload page or do necessary action
-    //         } else {
-    //             alert(`Failed to upload file: ${response.data.message}`);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error uploading file:", error);
-    //         alert("An error occurred while uploading the file.");
-    //     }
-    // };
+
 
     const navigateToQuestionPage = (question_number) => {
         navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${question_number}`);
@@ -205,7 +180,7 @@ function Exam() {
         };
     
         fetchData();
-    }, []);
+    }, [onlyWithSolution]);
 
     const sortedQuestions = [...allQuestions].sort((a, b) => {
         // מיון לפי שנה
@@ -246,7 +221,7 @@ function Exam() {
         
             checkAnswers();
         
-        }, [sortedQuestions]);
+        }, []);
 
     const handleSort = (column) => {
         // מיון תוצאות החיפוש לפי העמודה
@@ -349,10 +324,11 @@ function Exam() {
     };
     
     const openModal = () => setIsModalOpen(true); // Open modal
-    const closeModal = () => {
+
+    const closeModal =useCallback( () => {
         setIsModalOpen(false);
         setExamFile(null);
-    };
+    }, []); // Close modal and reset file
       
     const addExamPdf = async () => {
         try {
@@ -522,7 +498,7 @@ function Exam() {
                     {/* Modal for Line Selection after file is uploaded */}
                     {isFileUploaded && examFile && (
                         <div className="modal-overlay">
-                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות</p>
+                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות(הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
                             <div className="modal-content-line-selection">
                                 {/*<button className="modal-close" onClick={closeModal}>X</button>*/}
                                 <PdfLineMark

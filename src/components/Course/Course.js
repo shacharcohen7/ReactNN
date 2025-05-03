@@ -16,6 +16,9 @@ import { useNavigate } from "react-router-dom";
 
 
 function Course() {
+
+    const [suggestions, setSuggestions] = useState(''); // State for suggestion
+
     const {courseId} = useParams();
     const [courseDetails, setCourseDetails] = useState(null);
     const [token, setToken] = useState('');  // מזהה היוזר
@@ -31,7 +34,8 @@ function Course() {
     const [examsDownloadExist, setExamsDownloadExist] = useState([]);
 
     const navigate = useNavigate();
-    
+
+    const [searchTrigerred, setSearchTriggered] = useState(false);
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
     const [searchText, setSearchText] = useState(''); // שינוי שם ל-searchText
@@ -64,6 +68,11 @@ function Course() {
             return a.year - b.year;
         }
     });
+
+    useEffect(() => {
+        handleSearchClick();
+    }, [searchTrigerred]);
+
     // פונקציה שתוסיף את ההדר המתאים לכל בקשה
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
@@ -331,7 +340,7 @@ function Course() {
                 // אם התוצאה היא לא מערך, נהפוך אותה למערך
                 if (parsedResponse.status === "success" && parsedResponse.data.length > 0) {
                     console.log("תוצאות החיפוש: ", parsedResponse.data);
-                    setSearchResults(parsedResponse.data);  // עדכון תוצאות החיפוש
+                    setSearchResults(parsedResponse.data);
                 } else {
                     setSearchResults([]); // אם אין תוצאות, לנקות את ה-state
                 }
@@ -378,8 +387,13 @@ function Course() {
             })
             .then(response => {
                 const parsedResponse = JSON.parse(response.data.data);
-                if (parsedResponse.status === "success" && parsedResponse.message.length > 0) {
-                    setSearchResults(parsedResponse.message);
+                if (parsedResponse.status === "success" ) {
+                    if (parsedResponse.first_suggestion!== null) {
+                        setSuggestions(parsedResponse.first_suggestion);
+                    }
+                    if (parsedResponse.message.length > 0) {
+                        setSearchResults(parsedResponse.message);
+                    }// עדכון תוצאות החיפוש
                 } else {
                     setSearchResults([]);
                 }
@@ -920,7 +934,24 @@ function Course() {
 
 
                 {activeSearch && (<div className="search-results">
+                    {suggestions !== '' && searchType === 'text' && (
+                        <div className="suggestion">
+                            <p>האם התכוונת ל:</p>
+                            <p
+                                style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}
+                                onClick={() => {
+                                    setSearchText(suggestions) ;
+                                    setSuggestions('') ;
+                                    setSearchTriggered(!searchTrigerred);
+                                }}
+                            >
+                                {suggestions}
+                            </p>
+                        </div>
+                    )}
                     {searchResults.length > 0 ? (
+                        <div>
+
                         <div>
                             <h3>התוצאות שהתקבלו</h3>
                             <label className='checkbox-solution'>
@@ -943,6 +974,8 @@ function Course() {
                                 ))}
                             </ul>
                         </div>
+                        </div>
+
                     ) : (
                         <div>
                             <h3>התוצאות שהתקבלו</h3>

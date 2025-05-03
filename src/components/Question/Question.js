@@ -684,32 +684,38 @@ function Question() {
       
     
 
-    const handleSolutionUpload = async () => {
+    const handleSolutionUpload = async (e) => {
+        e.preventDefault();
         if (!answerFile) {
             alert("Please select a file to upload.");
             return;
         }
-    
+
         const formData = new FormData();
         formData.append('course_id', courseId);
         formData.append('year', examYear);
         formData.append('semester', examSemester);
         formData.append('moed', examDateSelection);
         formData.append('question_number', questionNum);
-        formData.append('solution_file', answerFile); // Adjust the key for your backend
+        const cleanedFile = new File([answerFile], answerFile.name.replace(/ /g, '_'), { type: answerFile.type });
+        formData.append('solution_file', cleanedFile); // Adjust the key for your backend
     
         try {
             const response = await axiosInstance.post(`${API_BASE_URL}/api/course/uploadSolution`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' , 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+                headers: {...addAuthHeaders()},
             });
-    
+            console.log("Full response from upload solution", response);
+            console.log("response from upload solution", response.data)
             if (response.data.success) {
                 alert("Solution uploaded successfully!");
+                setAnswerFile(null);
+
                 // closeSolutionModal();
             } else {
                 alert(`Failed to upload solution: ${response.data.message}`);
             }
         } catch (error) {
+
             console.error("Error uploading solution:", error);
             alert("An error occurred while uploading the solution.");
         }
@@ -1154,14 +1160,17 @@ function Question() {
                     headers: addAuthHeaders(),
                     responseType: 'blob', // חשוב כדי לקבל את הקובץ כ-BLOB
                 });
-
+                console.log("answer-data", response.data)
                 const fileType = response.headers['content-type'];
                 if (fileType === 'application/pdf') {
                     const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
                     const answerpdfUrl = URL.createObjectURL(pdfBlob);
+                    setAnswerImageUrl(null);
                     setAnswerPdfUrl(answerpdfUrl);
+
                 } else if (fileType.includes('image')) {
                     const answerImageUrl = URL.createObjectURL(response.data);
+                    setAnswerPdfUrl(null)
                     setAnswerImageUrl(answerImageUrl);
                     // Set the image URL
                 }
@@ -1178,7 +1187,7 @@ function Question() {
             }
         };
         fetchAnswerPdf();
-    }, [courseId, examYear, examSemester, examDateSelection, questionNum]);
+    }, [answerFile]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -1845,7 +1854,7 @@ function Question() {
             question_id: question.question_id
           }, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              ...addAuthHeaders(),
             }
           });
 
