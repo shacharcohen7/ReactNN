@@ -48,6 +48,8 @@ import Exam from './components/Exam/Exam';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ResetPassword/ResetPassword';
 import UploadExam from "./components/UploadExam/UploadExam";
+import UserSetting from './components/UserSetting/UserSetting';
+
 
 
 function App() {
@@ -73,6 +75,8 @@ function App() {
           <Route path="/exam/:courseId/:examYear/:examSemester/:examDateSelection" element={<Exam />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/course/:courseId" element={<Course />} />
+          <Route path="/settings" element={<UserSetting />} />
+
         </Routes>
       </Router>
     </UserProvider>

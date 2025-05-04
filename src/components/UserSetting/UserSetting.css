@@ -1,0 +1,90 @@
+/* Optional: inherit from general layout structure if needed */
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f7f7f7; /* match your site’s background */
+  }
+  
+  .content-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  
+  .settings-container {
+    background: white;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+    direction: rtl;
+  }
+  
+  .profile-picture-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid #ccc;
+  }
+  
+  .name-section label,
+  .notifications-section label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  .name-section input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .notifications-section {
+    margin-top: 30px;
+  }
+  
+  .notification-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background-color: #e58e58;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  button:hover {
+    background-color: #d57845;
+  }
+  
