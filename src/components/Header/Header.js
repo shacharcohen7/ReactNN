@@ -483,6 +483,13 @@ function Header() {
                                 </p>
                                 <p
                                     className="dropdown-item"
+                                    onClick={() => navigate('/settings')}
+                                    role="menuitem"
+                                >
+                                    הגדרות פרופיל
+                                </p>
+                                <p
+                                    className="dropdown-item"
                                     onClick={handleLogoutClick}
                                     role="menuitem"
                                 >

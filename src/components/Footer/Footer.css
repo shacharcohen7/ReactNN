@@ -7,11 +7,34 @@
     text-align: right; /* aligns text for RTL */
 }
 
+/* .footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+} */
 .footer-content {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    direction: rtl; /* ✅ LEFT side appears on left, right on right */
 }
+
+.footer-section {
+    width: 45%;
+    margin-bottom: 1%;
+    direction: rtl; /* ✅ Inside content still reads RTL */
+    text-align: right;
+}
+
+
+/* .footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: row-reverse; /* ✅ Enforce RTL visual order */
+    /* direction: rtl;  
+} */ */
+
 
 .email{
     padding: 5px;
