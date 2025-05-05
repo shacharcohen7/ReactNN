@@ -752,3 +752,64 @@ button:disabled {
   }
   
 
+  .comment-header {
+    display: flex;
+    flex-direction: row;       /* Make sure it's row, not column */
+    align-items: center;       /* Vertically center image + text */
+    gap: 8px;                  /* Space between image and name */
+    direction: rtl;            /* Optional: if you want name on the left, for Hebrew */
+  }
+  
+  /* .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  } */
+
+  .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 8px;
+  }
+  
+  .comment-avatar-fallback {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #d1d5db; /* light gray */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #374151; /* dark text */
+    margin-left: 8px;
+    font-size: 14px;
+  }
+  
+  
+  /* .comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* if you want space between name and avatar */
+    /* gap: 8px; /* spacing between name and avatar */
+  /* } */ 
+  
+  /* .comment-writer {
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .blank-avatar {
+    background-color: #ccc;
+  }
+   */ 
