@@ -3,7 +3,8 @@ import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import './UserSetting.css';
 import axiosInstance from '../../utils/axiosInstance';
-
+import { useContext } from 'react';
+import { UserContext } from '../../context/UserContext';
 
 function UserSetting() {
   const [firstName, setFirstName] = useState('');
@@ -11,6 +12,9 @@ function UserSetting() {
   const [profilePic, setProfilePic] = useState(null);
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [notificationSettings, setNotificationSettings] = useState(null);
+  const [nameError, setNameError] = useState('');
+  const [nameSuccess, setNameSuccess] = useState('');
+  const { setUser } = useContext(UserContext);
 
   const [notifications, setNotifications] = useState({
     AppointSystemManager: true,
@@ -45,9 +49,61 @@ function UserSetting() {
     alert("📸 Profile picture saved (you can implement upload logic here)");
   };
 
-  const saveName = () => {
-    alert(`✅ Name saved: ${firstName} ${lastName}`);
+  const saveName = async () => {
+    const hebrewRegex = /^[\u0590-\u05FF\s]+$/;
+  
+    if (!firstName.trim() || !lastName.trim()) {
+      setNameError("נא למלא שם פרטי ושם משפחה.");
+      setNameSuccess('');
+      return;
+    }
+    if (firstName.length > 25 || lastName.length > 25) {
+      setNameError("השם לא יכול להכיל יותר מ-25 תווים.");
+      setNameSuccess('');
+      return;
+    }
+  
+    if (!hebrewRegex.test(firstName) || !hebrewRegex.test(lastName)) {
+      setNameError("השם חייב להכיל אותיות בעברית בלבד.");
+      setNameSuccess('');
+      return;
+    }
+  
+    // Clear any previous errors
+    setNameError('');
+    setNameSuccess('');
+  
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/api/user/update_name`,
+        {
+          first_name: firstName,
+          last_name: lastName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          },
+        }
+      );
+  
+      if (response.data.success) {
+        localStorage.setItem('first_name', firstName);
+        localStorage.setItem('last_name', lastName);
+        setUser({ firstName, lastName });  // ✅ immediately updates header
+        setNameSuccess("✅ השם נשמר בהצלחה.");
+      } else {
+        setNameError("שגיאה בשמירת השם. נסו שוב.");
+      }
+    } catch (error) {
+      console.error("Error saving name:", error);
+      setNameError("שגיאה בשרת. נסו שוב מאוחר יותר.");
+    }
   };
+  
+  
+  
 
   const saveNotifications = async () => {
     try {
@@ -118,28 +174,31 @@ function UserSetting() {
             <button onClick={saveProfilePicture}>שמור תמונה</button>
           </div>
 
-          {/* Name Fields */}
           <div className="name-section">
-            <label>
-              שם פרטי:
-              <input
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </label>
+  <label>
+    שם פרטי:
+    <input
+      type="text"
+      value={firstName}
+      onChange={(e) => setFirstName(e.target.value)}
+    />
+  </label>
 
-            <label>
-              שם משפחה:
-              <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </label>
+  <label>
+    שם משפחה:
+    <input
+      type="text"
+      value={lastName}
+      onChange={(e) => setLastName(e.target.value)}
+    />
+  </label>
 
-            <button onClick={saveName}>שמור שם</button>
-          </div>
+  {nameError && <p style={{ color: 'red' }}>{nameError}</p>}
+  {nameSuccess && <p style={{ color: 'green' }}>{nameSuccess}</p>}
+
+  <button onClick={saveName}>שמור שם</button>
+</div>
+
 
           {/* Notification Settings */}
           <div className="notifications-section">
