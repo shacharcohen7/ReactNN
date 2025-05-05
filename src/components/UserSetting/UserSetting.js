@@ -15,6 +15,7 @@ function UserSetting() {
   const [nameError, setNameError] = useState('');
   const [nameSuccess, setNameSuccess] = useState('');
   const { setUser } = useContext(UserContext);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const [notifications, setNotifications] = useState({
     AppointSystemManager: true,
@@ -34,20 +35,78 @@ function UserSetting() {
   };
   
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [uploadError, setUploadError] = useState('');
+  const [uploadSuccess, setUploadSuccess] = useState('');
+  
   const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfilePic(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImage(file);
+      setPreviewUrl(URL.createObjectURL(file));  // 👈 preview URL
+      setUploadError('');
+    } else {
+      setUploadError('יש לבחור קובץ תמונה בלבד.');
+      setSelectedImage(null);
+      setPreviewUrl(null);
     }
   };
-
+  
+  
+  const saveProfilePicture = async () => {
+    if (!selectedImage) {
+      setUploadError('לא נבחרה תמונה.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('profile_picture', selectedImage);
+  
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/api/user/upload_profile_picture`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+  
+      if (response.data.success) {
+        setUploadSuccess("✅ התמונה נשמרה בהצלחה.");
+        setUploadError('');
+      
+        const savedPath = response.data.profile_picture_path;
+      
+        // Make sure the backend gave us a full URL or construct it:
+        const fullImageUrl = `${API_BASE_URL}/${savedPath}`;
+        setProfilePic(fullImageUrl);
+        
+        // Wait for next render to clear preview
+        setTimeout(() => setPreviewUrl(null), 500);
+      
+      
+        // Optional: preview the uploaded image or update user context
+      } else {
+        setUploadError("שגיאה בהעלאת התמונה: " + response.data.message);
+        setUploadSuccess('');
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      setUploadError("שגיאה בהעלאת התמונה. נסו שוב מאוחר יותר.");
+      setUploadSuccess('');
+    }
+  };
+  
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
     setNotifications((prev) => ({ ...prev, [name]: checked }));
   };
 
-  const saveProfilePicture = () => {
-    alert("📸 Profile picture saved (you can implement upload logic here)");
-  };
+  
 
   const saveName = async () => {
     const hebrewRegex = /^[\u0590-\u05FF\s]+$/;
@@ -155,7 +214,31 @@ function UserSetting() {
     fetchNotificationSettings();
   }, []);
   
-
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await axiosInstance.get(
+          `${API_BASE_URL}/api/user/get_profile_picture`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            responseType: 'blob',  // ⬅️ important for image
+          }
+        );
+    
+        const imageUrl = URL.createObjectURL(response.data);
+        setProfilePic(imageUrl);
+      } catch (error) {
+        console.error("Error fetching profile picture:", error);
+      }
+    };
+    
+  
+    fetchProfilePicture();
+  }, []);
+  
   return (
     <div className="page-container">
       <Header />
@@ -165,11 +248,12 @@ function UserSetting() {
 
           {/* Profile Picture Upload */}
           <div className="profile-picture-section">
-            <img
-              src={profilePic || '/default-avatar.png'}
-              alt="Profile"
-              className="profile-picture"
-            />
+          <img
+            src={previewUrl || profilePic || '/default-avatar.png'}
+            alt="Profile"
+            className="profile-picture"
+          />
+
             <input type="file" accept="image/*" onChange={handleImageChange} />
             <button onClick={saveProfilePicture}>שמור תמונה</button>
           </div>

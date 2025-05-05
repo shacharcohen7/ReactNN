@@ -569,9 +569,57 @@ function Question() {
     //     });
     // }
 
+    // const updateComments = async () => {
+    //     try {
+    //         const response = await axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, 
+    //             {
+    //                 course_id: courseId,
+    //                 year: examYear,
+    //                 semester: examSemester,
+    //                 moed: examDateSelection,
+    //                 question_number: questionNum
+    //             },
+    //             {
+    //                 headers: addAuthHeaders()  // שלח את ההדרים המתאימים
+    //             }
+    //         );            
+    //         const parsedResponse = JSON.parse(response.data.data);
+    //         if (parsedResponse.status === "success" && parsedResponse.data.length === 1) {
+    //             const questionData = parsedResponse.data[0];
+    //             setAllComments(questionData.comments_list);
+                
+    //             setchatInput([]);
+    //             setReplyInput([]);
+    //             setActiveRepliedComment(null);
+    
+    //             // Fetch metadata for comments
+    //             const metadataResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/get_comments_metadata`, {
+    //                 params: { question_id: questionData.question_id }, 
+    //                 headers: addAuthHeaders()
+    //             });
+    
+    //             if (metadataResponse.data.success) {
+    //                 setCommentsMetadata(metadataResponse.data.comments_metadata); // Store metadata in a state
+    //             } else {
+    //                 console.error("Error fetching comments metadata:", metadataResponse.data.message);
+    //                 setCommentsMetadata([])
+    //             }
+    //         } else {
+    //             setQuestion([]);
+    //             setCommentsMetadata([])
+
+    //         }
+    //     } catch (error) {
+    //         console.error('Error updating comments:', error);
+    //         setQuestion([]);
+    //         alert("An error occurred while updating comments.");
+    //     }
+    // };
+    
     const updateComments = async () => {
         try {
-            const response = await axiosInstance.post(`${API_BASE_URL}/api/course/search_question_by_specifics`, 
+            const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/course/search_question_by_specifics`,
                 {
                     course_id: courseId,
                     year: examYear,
@@ -580,43 +628,60 @@ function Question() {
                     question_number: questionNum
                 },
                 {
-                    headers: addAuthHeaders()  // שלח את ההדרים המתאימים
+                    headers: addAuthHeaders()
                 }
-            );            
+            );
+    
             const parsedResponse = JSON.parse(response.data.data);
             if (parsedResponse.status === "success" && parsedResponse.data.length === 1) {
                 const questionData = parsedResponse.data[0];
-                setAllComments(questionData.comments_list);
-                
+    
                 setchatInput([]);
                 setReplyInput([]);
                 setActiveRepliedComment(null);
     
                 // Fetch metadata for comments
-                const metadataResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/get_comments_metadata`, {
-                    params: { question_id: questionData.question_id }, 
-                    headers: addAuthHeaders()
-                });
+                const metadataResponse = await axiosInstance.get(
+                    `${API_BASE_URL}/api/course/get_comments_metadata`,
+                    {
+                        params: { question_id: questionData.question_id },
+                        headers: addAuthHeaders()
+                    }
+                );
     
                 if (metadataResponse.data.success) {
-                    setCommentsMetadata(metadataResponse.data.comments_metadata); // Store metadata in a state
+                    const metadata = metadataResponse.data.comments_metadata;
+    
+                    // Merge metadata into comments
+                    const enrichedComments = questionData.comments_list.map(comment => {
+                        const meta = metadata.find(m => m.comment_id === comment.comment_id);
+                        return {
+                            ...comment,
+                            profile_picture_base64: meta?.profile_picture_base64 || null
+                        };
+                    });
+    
+                    setAllComments(enrichedComments);
+                    setCommentsMetadata(metadata);
                 } else {
                     console.error("Error fetching comments metadata:", metadataResponse.data.message);
-                    setCommentsMetadata([])
+                    setAllComments([]);
+                    setCommentsMetadata([]);
                 }
             } else {
                 setQuestion([]);
-                setCommentsMetadata([])
-
+                setAllComments([]);
+                setCommentsMetadata([]);
             }
         } catch (error) {
             console.error('Error updating comments:', error);
             setQuestion([]);
+            setAllComments([]);
+            setCommentsMetadata([]);
             alert("An error occurred while updating comments.");
         }
     };
     
-
     const handleDeleteComment = (commentId) => {
         setCommentToDelete(commentId); // Store the comment ID
         setIsDeleteCommentModalOpen(true); // Open the modal
@@ -922,9 +987,27 @@ function Question() {
                     <div className="comment-content">
                         {comment.deleted ? (<em>תגובה זו נמחקה</em>):(
                             <>
-                                <div className="comment-header">
-                                    <span className="comment-writer">{comment.writer_name}</span>
+                             <div className="comment-header">
+                            {comment.profile_picture_base64 ? (
+                                <img
+                                src={`data:image/png;base64,${comment.profile_picture_base64}`}
+                                alt="avatar"
+                                className="comment-avatar"
+                                />
+                            ) : (
+                                <div className="comment-avatar-fallback">
+                                {comment.writer_name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .toUpperCase()}
                                 </div>
+                            )}
+                            <span className="comment-writer">{comment.writer_name}</span>
+                            </div>
+
+
+
                                 {activeEditedComment !== comment.comment_id && comment.reactions.length > 0 && (
                                     <button
                                         className="users-reactions-window"

@@ -21,7 +21,9 @@ function Header() {
     const notificationRef = useRef(null);
     const userId = TokenManager.getUserIdFromToken();
     const [latestPopupNotif, setLatestPopupNotif] = useState(null);
-
+    const [profilePic, setProfilePic] = useState(null);
+    const [profileFallbackName, setProfileFallbackName] = useState('');
+    
     useNotificationsSocket({
       userId: userId,
       onNotification: (newNotif) => {
@@ -46,6 +48,55 @@ function Header() {
             setUser({ firstName, lastName });
         }
     }, [setUser]);
+    // useEffect(() => {
+    //   const fetchProfilePicture = async () => {
+    //     try {
+    //       const token = localStorage.getItem('access_token');
+    //       const response = await axiosInstance.get(
+    //         `${API_BASE_URL}/api/user/get_profile_picture`,
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer ${token}`,
+    //           },
+    //           responseType: 'blob',
+    //         }
+    //       );
+    //       const imageUrl = URL.createObjectURL(response.data);
+    //       setProfilePic(imageUrl);
+    //     } catch (error) {
+    //       console.error("Error fetching profile picture:", error);
+    //     }
+    //   };
+    
+    //   fetchProfilePicture();
+    // }, []);
+    useEffect(() => {
+      const fetchProfilePicture = async () => {
+        try {
+          const token = localStorage.getItem('access_token');
+          const decoded = JSON.parse(atob(token.split('.')[1]));
+          setProfileFallbackName(`${decoded.firstName || ''} ${decoded.lastName || ''}`.trim());
+    
+          const response = await axiosInstance.get(
+            `${API_BASE_URL}/api/user/get_profile_picture`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              responseType: 'blob',
+            }
+          );
+          const imageUrl = URL.createObjectURL(response.data);
+          setProfilePic(imageUrl);
+        } catch (error) {
+          console.error("Error fetching profile picture:", error);
+        }
+      };
+    
+      fetchProfilePicture();
+    }, []);
+    
+    
     useEffect(() => {
         const handleClickOutside = (event) => {
           if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -462,7 +513,7 @@ function Header() {
 
 </div>
 
-                   
+
 
                     <div className="dropdown">
                         <button
@@ -476,11 +527,29 @@ function Header() {
                         </button>
                         {isDropdownOpen && (
                             <div className="dropdown-menu" role="menu">
-                                <p className="dropdown-username">
-                                    {user?.firstName && user?.lastName
-                                        ? `${user.firstName} ${user.lastName}`
-                                        : 'אורח'}
-                                </p>
+                                <div className="dropdown-userinfo">
+                                <span className="dropdown-username">
+                                {user?.firstName && user?.lastName
+                                  ? `${user.firstName} ${user.lastName}`
+                                  : 'אורח'}
+                                </span>
+                                {profilePic ? (
+  <img
+    src={profilePic}
+    alt="avatar"
+    className="dropdown-profile-pic"
+  />
+) : (
+  <div className="comment-avatar-fallback">
+    {profileFallbackName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()}
+  </div>
+)}
+
+                                </div>
                                 <p
                                     className="dropdown-item"
                                     onClick={() => navigate('/settings')}
