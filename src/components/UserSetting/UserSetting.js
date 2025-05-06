@@ -16,6 +16,7 @@ function UserSetting() {
   const [nameSuccess, setNameSuccess] = useState('');
   const { setUser } = useContext(UserContext);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const [notifications, setNotifications] = useState({
     AppointSystemManager: true,
@@ -86,7 +87,7 @@ function UserSetting() {
         setProfilePic(fullImageUrl);
         
         // Wait for next render to clear preview
-        setTimeout(() => setPreviewUrl(null), 500);
+        // setTimeout(() => setPreviewUrl(null), 500);
       
       
         // Optional: preview the uploaded image or update user context
@@ -253,9 +254,63 @@ function UserSetting() {
             alt="Profile"
             className="profile-picture"
           />
+{profilePic && (
+  <>
+    <button
+      onClick={() => setShowDeleteConfirmation(true)}
+      className="remove-picture-button"
+    >
+      הסר תמונת פרופיל
+    </button>
+
+    {showDeleteConfirmation && (
+      <div className="confirmation-modal">
+        <p>האם אתה בטוח שברצונך להסיר את התמונה?</p>
+        <button
+          onClick={async () => {
+            try {
+              const token = localStorage.getItem('access_token');
+              const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/user/delete_profile_picture`,
+                {},
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (response.data.success) {
+                setProfilePic(null);
+                setPreviewUrl(null);
+                setSelectedImage(null);
+                setUploadSuccess("✅ התמונה נמחקה בהצלחה.");
+                setUploadError('');
+              } else {
+                setUploadError("שגיאה במחיקת התמונה.");
+              }
+            } catch (err) {
+              console.error("Error deleting profile picture:", err);
+              setUploadError("שגיאה במחיקת התמונה.");
+            } finally {
+              setShowDeleteConfirmation(false);
+            }
+          }}
+        >
+          כן
+        </button>
+        <button onClick={() => setShowDeleteConfirmation(false)}>לא</button>
+      </div>
+    )}
+  </>
+)}
+
 
             <input type="file" accept="image/*" onChange={handleImageChange} />
             <button onClick={saveProfilePicture}>שמור תמונה</button>
+            {uploadSuccess && <p className="success-message">{uploadSuccess}</p>}
+{uploadError && <p className="error-message">{uploadError}</p>}
+
           </div>
 
           <div className="name-section">

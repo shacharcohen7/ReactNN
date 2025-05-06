@@ -25,44 +25,129 @@ function SignUpTerms() {
 
     const navigate = useNavigate();  // Create navigate object
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        profilePicture: null,
 
+    });
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);  // Track submission state
-
-    // Handle form submission and make HTTP POST request
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setIsSubmitting(true);
+    
+    //     try {
+    //         const formPayload = new FormData();
+    //         formPayload.append('email', localStorage.getItem('email'));
+    //         formPayload.append('password', localStorage.getItem('password'));
+    //         formPayload.append('first_name', localStorage.getItem('first_name'));
+    //         formPayload.append('last_name', localStorage.getItem('last_name'));
+    
+    //         // 🖼️ Add profile picture from memory if available
+    //         if (formData.profilePicture) {
+    //             formPayload.append('profile_picture', formData.profilePicture);
+    //         }
+    
+    //         const response = await axiosInstance.post(
+    //             `${API_BASE_URL}/api/register_termOfUse_part`,
+    //             formPayload,
+    //             {
+    //                 headers: {
+    //                     'Content-Type': 'multipart/form-data',
+    //                 },
+    //             }
+    //         );
+    
+    //         if (response.data.success) {
+    //             localStorage.setItem('access_token', response.data.access_token);
+    //             localStorage.removeItem('password');  // Clean sensitive info
+    //             setMessage('ההרשמה בוצעה בהצלחה!');
+    //             navigate('/home');
+    //         } else {
+    //             setMessage(response.data.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+    //         }
+    
+    //     } catch (error) {
+    //         setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+    //     }
+    
+    //     setIsSubmitting(false);
+    // };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);  // Disable submit button during submission
-
+        setIsSubmitting(true);
+      
         try {
-            const response = await axiosInstance.post(`${API_BASE_URL}/api/register_termOfUse_part`, {
-                email: localStorage.getItem('email'),
-                password: localStorage.getItem('password'),
-                first_name: localStorage.getItem('first_name'),
-                last_name: localStorage.getItem('last_name'),
-
-            });
-            if (response.data.success) {
-                // Save user_id to localStorage
-                const userId = response.data.user_id;
-                localStorage.setItem('access_token', response.data.access_token); // שמירת הטוקן ב-localStorage
-
-                console.log('User ID:', userId);
-                //localStorage.setItem('user_id', userId);
-                localStorage.removeItem('password');
-
-
+          const formData = new FormData();
+          formData.append('email', localStorage.getItem('email'));
+          formData.append('password', localStorage.getItem('password'));
+          formData.append('first_name', localStorage.getItem('first_name'));
+          formData.append('last_name', localStorage.getItem('last_name'));
+      
+          if (window.profilePictureFile) {
+            formData.append('profile_picture', window.profilePictureFile);
+          }
+      
+          const response = await axiosInstance.post(
+            `${API_BASE_URL}/api/register_termOfUse_part`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
             }
-
-            setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
-            console.log(response.data);  // Log the response if needed
-            navigate('/home');  // Navigate to the home page
+          );
+      
+          if (response.data.success) {
+            localStorage.setItem('access_token', response.data.access_token);
+            localStorage.removeItem('password');
+            navigate('/home');
+          }
         } catch (error) {
-            setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+          console.error('Upload error:', error);
+          setMessage(error.response?.data?.message || 'ההרשמה נכשלה');
         }
+      
+        setIsSubmitting(false);
+      };
+      
+    // Handle form submission and make HTTP POST request
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setIsSubmitting(true);  // Disable submit button during submission
 
-        setIsSubmitting(false);  // Re-enable submit button after submission
-    };
+    //     try {
+    //         const response = await axiosInstance.post(`${API_BASE_URL}/api/register_termOfUse_part`, {
+    //             email: localStorage.getItem('email'),
+    //             password: localStorage.getItem('password'),
+    //             first_name: localStorage.getItem('first_name'),
+    //             last_name: localStorage.getItem('last_name'),
+
+    //         });
+    //         if (response.data.success) {
+    //             // Save user_id to localStorage
+    //             const userId = response.data.user_id;
+    //             localStorage.setItem('access_token', response.data.access_token); // שמירת הטוקן ב-localStorage
+
+    //             console.log('User ID:', userId);
+    //             //localStorage.setItem('user_id', userId);
+    //             localStorage.removeItem('password');
+
+
+    //         }
+
+    //         setMessage('ההרשמה בוצעה בהצלחה!');  // Success message
+    //         console.log(response.data);  // Log the response if needed
+    //         navigate('/home');  // Navigate to the home page
+    //     } catch (error) {
+    //         setMessage(error.response?.data?.message || 'ההרשמה נכשלה. בדוק את הפרטים שלך.');
+    //     }
+
+    //     setIsSubmitting(false);  // Re-enable submit button after submission
+    // };
 
     return (
         <div className="welcome-page">

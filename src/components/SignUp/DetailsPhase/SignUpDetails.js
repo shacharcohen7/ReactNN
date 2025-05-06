@@ -13,6 +13,7 @@ function SignUpDetails() {
     const navigate = useNavigate();
     const { setUser } = useContext(UserContext); // Access setUser from UserContext
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const [fileInputKey, setFileInputKey] = useState(Date.now());  // For forcing input reset
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -20,6 +21,9 @@ function SignUpDetails() {
         email: '',
         password: '',
         confirmPassword: '',
+        profilePicture: null,
+        profilePicturePreview: null,  // ← new
+
     });
     
 
@@ -39,40 +43,50 @@ function SignUpDetails() {
             [name]: type === 'checkbox' ? checked : value,
         });
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        
-
+    
         try {
-            const response = await axiosInstance.post(`${API_BASE_URL}/api/register`, {
-                email: formData.email,
-                password: formData.password,
-                password_confirm: formData.confirmPassword,
-                first_name: formData.firstName,
-                last_name: formData.lastName,
-            });
-
+            const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/register`,
+                {
+                    email: formData.email,
+                    password: formData.password,
+                    password_confirm: formData.confirmPassword,
+                    first_name: formData.firstName,
+                    last_name: formData.lastName
+                }
+            );
+    
             if (response.data.success) {
                 const { firstName, lastName, email } = formData;
-                const returnedPassword = response.data.password; // Extract password from response
-
-
-
-                // Debug log to verify data being saved
-                console.log('Saving to localStorage:', { firstName, lastName, email });
-
-                // Update localStorage
+                const returnedPassword = response.data.password;
+    
                 localStorage.setItem('email', email);
                 localStorage.setItem('first_name', firstName);
                 localStorage.setItem('last_name', lastName);
                 localStorage.setItem("password", returnedPassword);
-
-
-                // Update UserContext
+    
+                // 🧠 Save picture metadata (optional, actual file used later)
+                if (formData.profilePicture) {
+                    // Save the actual file in memory via sessionStorage or context
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      sessionStorage.setItem('profile_picture_base64', reader.result); // optional
+                    };
+                    reader.readAsDataURL(formData.profilePicture);
+                  
+                    // If needed for upload as file:
+                    sessionStorage.setItem('profile_picture_file', JSON.stringify({
+                      name: formData.profilePicture.name,
+                      type: formData.profilePicture.type,
+                    }));
+                    window.profilePictureFile = formData.profilePicture; // temp global storage (hacky but effective)
+                  }
+                  
+    
                 setUser({ firstName, lastName });
-
                 setMessage('ההרשמה בוצעה בהצלחה!');
                 navigate('/signupcode');
             } else {
@@ -82,9 +96,57 @@ function SignUpDetails() {
             console.error('Registration error:', error.response || error.message);
             setMessage(error.response?.data?.message || 'שגיאה במהלך ההרשמה.');
         }
-
+    
         setIsSubmitting(false);
     };
+    
+    
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setIsSubmitting(true);
+        
+
+    //     try {
+    //         const response = await axiosInstance.post(`${API_BASE_URL}/api/register`, {
+    //             email: formData.email,
+    //             password: formData.password,
+    //             password_confirm: formData.confirmPassword,
+    //             first_name: formData.firstName,
+    //             last_name: formData.lastName,
+
+    //         });
+
+    //         if (response.data.success) {
+    //             const { firstName, lastName, email } = formData;
+    //             const returnedPassword = response.data.password; // Extract password from response
+
+
+
+    //             // Debug log to verify data being saved
+    //             console.log('Saving to localStorage:', { firstName, lastName, email });
+
+    //             // Update localStorage
+    //             localStorage.setItem('email', email);
+    //             localStorage.setItem('first_name', firstName);
+    //             localStorage.setItem('last_name', lastName);
+    //             localStorage.setItem("password", returnedPassword);
+
+
+    //             // Update UserContext
+    //             setUser({ firstName, lastName });
+
+    //             setMessage('ההרשמה בוצעה בהצלחה!');
+    //             navigate('/signupcode');
+    //         } else {
+    //             setMessage(response.data.message || 'הרשמה נכשלה. בדוק את הפרטים שלך.');
+    //         }
+    //     } catch (error) {
+    //         console.error('Registration error:', error.response || error.message);
+    //         setMessage(error.response?.data?.message || 'שגיאה במהלך ההרשמה.');
+    //     }
+
+    //     setIsSubmitting(false);
+    // };
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -220,8 +282,59 @@ function SignUpDetails() {
 
                                         </ul>
                                     </div>
+                                    
                                 )}
                             </div>
+                            <div className="input-container">
+    <label htmlFor="profilePicture">תמונת פרופיל (אופציונלי):</label>
+                <input
+                key={fileInputKey}  // 🔁 This forces re-render
+                type="file"
+                name="profilePicture"
+                accept="image/*"
+                onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        setFormData({
+                            ...formData,
+                            profilePicture: file,
+                            profilePicturePreview: URL.createObjectURL(file)
+                        });
+                    }
+                }}
+            />
+
+</div>
+{formData.profilePicturePreview && (
+    <div className="preview-container">
+        <p>תצוגה מקדימה:</p>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+            <img
+                src={formData.profilePicturePreview}
+                alt="תצוגה מקדימה"
+                className="profile-picture-preview"
+            />
+           <button
+    type="button"
+    onClick={() => {
+        setFormData({
+            ...formData,
+            profilePicture: null,
+            profilePicturePreview: null
+        });
+        setFileInputKey(Date.now());  // ⬅️ Force re-render of input
+    }}
+    className="remove-preview-button"
+    aria-label="הסר תמונה"
+>
+    ✖
+</button>
+
+        </div>
+    </div>
+)}
+
+
 
                             <button
                                 type="submit"

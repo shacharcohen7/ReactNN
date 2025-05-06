@@ -222,3 +222,28 @@
         display: none !important;
     }
 }
+
+.profile-picture-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-top: 8px;
+}
+
+.remove-preview-button {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f44336;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 20px;
+    text-align: center;
+}
+

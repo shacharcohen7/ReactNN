@@ -88,3 +88,32 @@
     background-color: #d57845;
   }
   
+  .remove-picture-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    margin-top: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .confirmation-modal {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .confirmation-modal button {
+    margin: 0 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+    
