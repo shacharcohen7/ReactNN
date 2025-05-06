@@ -180,6 +180,8 @@
   justify-content: center;
 }
 
+
+
 .action-button {
   background-color: #f0f0f0;
   padding: 15px 25px;
@@ -190,10 +192,18 @@
   transition: background-color 0.3s ease;
 }
 
+
+
+
 .action-button:hover {
   background-color: #d38a67;
   color: white;
 }
+
+
+
+
+
 
 /* עיצוב השדה של חיפוש קורס */
 .course-search-container {
