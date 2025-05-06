@@ -55,37 +55,47 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="forgot-password-container">
-            <h2>שכחתי סיסמה</h2>
-            <p>אנא מלאו את האימייל איתו נרשמתם למערכת, מייל אימות ישלח לאימייל זה.</p>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="הכנס כתובת אימייל"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <button type="submit">שליחה</button>
-            </form>
+        <div className="welcome-page">
+            <div className="background-logo">
+                <div className="image-layer"></div>
+                <div className="content">
+                    <h1 className="welcome-title">שכחתי סיסמה</h1>
+                    <div className="login-container">
+                        <p className="instruction">אנא מלאו את האימייל איתו נרשמתם למערכת, מייל אימות ישלח לאימייל זה.</p>
+                        <div className="input-group">
+                            <form className="login-form" onSubmit={handleSubmit}>
+                                <input
+                                    type="email"
+                                    placeholder="הכנס כתובת אימייל"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                                <button type="submit" className="submit-button">שליחה</button>
+                            </form>
+                        </div>
+                        {showCodeInput && (
+                            <form onSubmit={handleVerifyCode} className="verify-code-form">
+                                <p className="instruction">הכנס את קוד האימות שקיבלת במייל:</p>
+                                <div className="input-group">
+                                        <input
+                                            type="text"
+                                            maxLength={6}
+                                            placeholder="קוד אימות"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value)}
+                                            required
+                                        />
+                                        <button type="submit" className="submit-button">אמת קוד</button>
+                                </div>
+                            </form>
+                        )}
 
-            {showCodeInput && (
-                <form onSubmit={handleVerifyCode} className="verify-code-form">
-                    <p>הכנס את קוד האימות שקיבלת במייל:</p>
-                    <input
-                        type="text"
-                        maxLength={6}
-                        placeholder="קוד אימות"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        required
-                    />
-                    <button type="submit">אמת קוד</button>
-                </form>
-            )}
-
-            {message && <p className="response-message">{message}</p>}
-            <button className="back-button" onClick={() => navigate('/login')}>חזור</button>
+                        {message && <p className="response-message">{message}</p>}
+                        <button className="back-button" onClick={() => navigate('/login')}>חזור</button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
