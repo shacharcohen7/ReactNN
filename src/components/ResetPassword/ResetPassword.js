@@ -63,71 +63,76 @@ const ResetPassword = () => {
     
     
     return (
-        <div className="reset-password-container">
-            <h2>איפוס סיסמה</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="password-input-container">
-                    <input
-                        type={passwordVisible ? "text" : "password"}
-                        placeholder="סיסמה חדשה"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onFocus={() => setShowPasswordTooltip(true)}
-                        onBlur={() => setShowPasswordTooltip(false)}
-                        required
-                    />
-                    <button
-                        type="button"
-                        className="eye-button"
-                        onClick={togglePasswordVisibility}
-                        aria-label={passwordVisible ? "Hide password" : "Show password"}
-                    >
-                        {passwordVisible ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                    {showPasswordTooltip && (
-                        <div className="password-tooltip">
-                            <p>דרישות הסיסמה:</p>
-                            <ul>
-                                <li>לפחות 8 תווים ולא יותר מ-20 תווים</li>
-                                <li>אות גדולה אחת לפחות באנגלית</li>
-                                <li>אות קטנה אחת לפחות באנגלית</li>
-                                <li>ספרה אחת לפחות</li>
-                                <li>תו מיוחד אחד לפחות: <code>!@$%^&*()[]{}+</code></li>
-                                <li>יש לכלול אותיות רק באנגלית</li>
-                            </ul>
+        <div className="welcome-page">
+            <div className="background-logo">
+                <div className="image-layer"></div>
+                <div className="content">
+                    <h1 className="welcome-title">איפוס סיסמה</h1>
+                    <div className="login-container">
+                        <div className="input-group">
+                            <form className="login-form" onSubmit={handleSubmit}>
+                                <div className="password-input-container">
+                                    <input
+                                        type={passwordVisible ? "text" : "password"}
+                                        placeholder="סיסמה חדשה"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        onFocus={() => setShowPasswordTooltip(true)}
+                                        onBlur={() => setShowPasswordTooltip(false)}
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="eye-button"
+                                        onClick={togglePasswordVisibility}
+                                        aria-label={passwordVisible ? "Hide password" : "Show password"}
+                                    >
+                                        {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                    {showPasswordTooltip && (
+                                        <div className="password-tooltip">
+                                            <p>דרישות הסיסמה:</p>
+                                            <ul>
+                                                <li>לפחות 8 תווים ולא יותר מ-20 תווים</li>
+                                                <li>אות גדולה אחת לפחות באנגלית</li>
+                                                <li>אות קטנה אחת לפחות באנגלית</li>
+                                                <li>ספרה אחת לפחות</li>
+                                                <li>תו מיוחד אחד לפחות: <code>!@$%^&*()[]{}+</code></li>
+                                                <li>יש לכלול אותיות רק באנגלית</li>
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="password-input-container">
+                                    <input
+                                        type="password"
+                                        placeholder="אימות סיסמה"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="submit-button">אפס סיסמה</button>
+                            </form>
                         </div>
-                    )}
+                        {message && (
+                            <div className="response-message">
+                                <p>{message}</p>
+                                {showLoginButton && (
+                                    <button
+                                        className="to-login-button"
+                                        onClick={() => navigate('/login')}
+                                    >
+                                        לעמוד ההתחברות
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+
+                    </div>
                 </div>
-    
-                <div className="password-input-container">
-                    <input
-                        type="password"
-                        placeholder="אימות סיסמה"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
-                </div>
-    
-                <button type="submit">אפס סיסמה</button>
-            </form>
-    
-           
-            {message && (
-            <div className="response-message">
-                <p>{message}</p>
-                {showLoginButton && (
-                    <button
-                        className="to-login-button"
-                        onClick={() => navigate('/login')}
-                    >
-                        לעמוד ההתחברות
-                    </button>
-                )}
             </div>
-        )}
-
-
         </div>
     );    
 };
