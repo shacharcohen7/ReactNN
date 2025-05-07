@@ -465,7 +465,7 @@
 }
 
 .toolbar-toggle {
-  background-color: #007acc;
+  background-color: rgba(0,0,0,0.6);
   color: white;
   padding: 10px 14px;
   cursor: pointer;
