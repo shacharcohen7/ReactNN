@@ -1582,8 +1582,25 @@ function Question() {
                 </a>
             </div>
             <main className="content">
-                <h1>דף שאלה</h1>
-               
+                <div style={{display: "flex", gap: "20px"}}>
+                    <button
+                            className={`tab-next ${!prevQuestion ? "disabled" : ""}`} 
+                            onClick={() => prevQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${prevQuestion.question_number}`)}
+                            title={"לשאלה הקודמת במבחן"}
+                            disabled={!prevQuestion} // הכפתור מושבת אם אין שאלה הבאה
+                        >
+                            <FaArrowRight />
+                        </button>
+                    <h1>שאלה מספר {questionNum}</h1>
+                    <button 
+                        className={`tab-next ${!nextQuestion ? "disabled" : ""}`} 
+                        onClick={() => nextQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${nextQuestion.question_number}`)}
+                        title={"לשאלה הבאה במבחן"}
+                        disabled={!nextQuestion} // הכפתור מושבת אם אין שאלה הבאה
+                    >
+                        <FaArrowLeft />
+                    </button>
+                </div>
                 {question.question_topics && question.question_topics.length > 0 &&
                 <div className="details-container">
                     <div className="detail-item">
@@ -1841,14 +1858,7 @@ function Question() {
                     </div>
                 </div>}
                 <div className="tabs-container">
-                    <button 
-                        className={`tab-next ${!prevQuestion ? "disabled" : ""}`} 
-                        onClick={() => prevQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${prevQuestion.question_number}`)}
-                        title={"לשאלה הקודמת במבחן"}
-                        disabled={!prevQuestion} // הכפתור מושבת אם אין שאלה הבאה
-                    >
-                        <FaArrowRight />
-                    </button>
+
                     
                     <div className="question-tab-group">
     <button
@@ -1901,14 +1911,6 @@ function Question() {
         </button>
         )}
     </div>
-                    <button 
-                        className={`tab-next ${!nextQuestion ? "disabled" : ""}`} 
-                        onClick={() => nextQuestion && navigate(`/question/${courseId}/${examYear}/${examSemester}/${examDateSelection}/${nextQuestion.question_number}`)}
-                        title={"לשאלה הבאה במבחן"}
-                        disabled={!nextQuestion} // הכפתור מושבת אם אין שאלה הבאה
-                    >
-                        <FaArrowLeft />
-                    </button>
                     {/* <button
                         className="tab download-tab"
                         onClick={downloadExamPdf}
