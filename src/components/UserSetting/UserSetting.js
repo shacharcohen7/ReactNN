@@ -307,7 +307,7 @@ function UserSetting() {
 
 
             <input type="file" accept="image/*" onChange={handleImageChange} />
-            <button onClick={saveProfilePicture}>שמור תמונה</button>
+            <button className="settings-button" onClick={saveProfilePicture}>שמור תמונה</button>
             {uploadSuccess && <p className="success-message">{uploadSuccess}</p>}
 {uploadError && <p className="error-message">{uploadError}</p>}
 
@@ -335,7 +335,7 @@ function UserSetting() {
   {nameError && <p style={{ color: 'red' }}>{nameError}</p>}
   {nameSuccess && <p style={{ color: 'green' }}>{nameSuccess}</p>}
 
-  <button onClick={saveName}>שמור שם</button>
+  <button className="settings-button" onClick={saveName}>שמור שם</button>
 </div>
 
 
@@ -357,7 +357,7 @@ function UserSetting() {
             ))}
 
 
-            <button onClick={saveNotifications}>שמור הגדרות התראות</button>
+            <button className="settings-button" onClick={saveNotifications}>שמור הגדרות התראות</button>
           </div>
 
         </div>

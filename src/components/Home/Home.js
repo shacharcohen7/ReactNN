@@ -823,10 +823,10 @@ function Home() {
                 </div>)}
 
                 <div className="action-buttons">
-                    <button className="action-button" onClick={openExamModal}>
+                    <button className="action-button" type="button" onClick={openExamModal}>
                         <span>העלאת מבחן חדש </span>
                     </button>
-                    <button className="action-button" onClick={openQuestionModal}>
+                    <button className="action-button" type="button" onClick={openQuestionModal}>
                         <span>העלאת שאלה חדשה</span>
                     </button>
                     {isExamModalOpen && (

@@ -17,7 +17,7 @@
     font-size: 24px;
     font-weight: bold;
     margin: 0;
-    margin-right: 30px; /* הוספתי רווח בין הכותרת לכפתור */
+    /*margin-right: 30px; !* הוספתי רווח בין הכותרת לכפתור *!*/
 }
 
 /* חלון עדכונים אחרונים */
@@ -189,7 +189,7 @@
     height: 100%;
     background-color: rgba(0,0,0,0.5);
     z-index: 1000; /* <- make sure it's above other content */
-  /* } */ */
+  /* } */
   
   /* Confirmation Modal – higher z-index */
   .confirm-modal-overlay {
