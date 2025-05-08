@@ -1372,8 +1372,10 @@ function Question() {
                 setAnswerPdfUrl(null)
             }
         };
+        setAnswerImageUrl(null);
+        setAnswerPdfUrl(null);
         fetchAnswerPdf();
-    }, [answerFile]);
+    }, [answerFile, questionNum]);
 
     
     useEffect(() => {

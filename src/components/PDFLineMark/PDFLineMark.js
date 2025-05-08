@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import './PDFLineMark.css';
+import {FaSpinner} from "react-icons/fa";
 
 
 
@@ -10,6 +11,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
     const [numPages, setNumPages] = useState(null);
     const [lines, setLines] = useState([]);
+
+    const [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -39,6 +42,11 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
 
 
     return (
+        (isLoading) ? (
+                <>
+                    <FaSpinner className="spinner" size={32} /> טוען...
+                </>
+            ) : (
         <div className="pdf-container">
             <Document file={file} onLoadSuccess={handleDocumentLoadSuccess}>
                 {Array.from(new Array(numPages), (_, i) => (
@@ -59,7 +67,7 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
             </Document>
 
             <div className="modal-actions">
-                <button className="submit-btn" onClick={() => onSubmitLines(lines)}>
+                <button className="submit-btn" onClick={() => {setIsLoading(true) ; onSubmitLines(lines);}}>
                     אישור הבחירה
                 </button>
 
@@ -72,7 +80,7 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
                 </button>
             </div>
         </div>
-    );
+    ));
 }
 
 export default PdfLineMark;

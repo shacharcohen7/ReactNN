@@ -18,17 +18,22 @@ function Exam() {
     const [isModalOpen, setIsModalOpen] = useState(false); // New state for modal visibility
     const [token, setToken] = useState('');  // מזהה היוזר
     const [examFile, setExamFile] = useState(null);
+    const [solutionFile, setSolutionFile] = useState(null);
     const [examExist, setExamExist] = useState(false);
+    const [solutionExist, setSolutionExist] = useState(false);
     const { courseId, examYear, examSemester, examDateSelection } = useParams();  // מקבלים את שם הקורס מה-URL
     const [courseDetails, setCourseDetails] = useState(null);
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
+    const [isSolutionModalOpen, setIsSolutionModalOpen] = useState(false); // State לשליטה בפופ-אפ
     const [questionNum, setQuestionNum] = useState(''); // מספר שאלה
     const openQuestionModal = () => setIsQuestionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
+    const openSolutionModal = () => setIsSolutionModalOpen(true);  // פונקציה לפתיחת הפופ-אפ
     const closeQuestionModal = () => setIsQuestionModalOpen(false); // פונקציה לסגירת הפופ-אפ
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const [lines, setLines] = useState([]);
     const [isFileUploaded, setIsFileUploaded] = useState(false);
+    const [isSolutionUploaded, setIsSolutionUploaded] = useState(false);
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
 
     const [hasSolution, setHasSolution] = useState([]);
@@ -47,6 +52,13 @@ function Exam() {
         }
     };
 
+    const handleSolutionChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSolutionFile(file); // Store the selected file
+            setIsSolutionUploaded(true); // Flag to indicate the file is ready for marking
+        }
+    };
 
     const addAuthHeaders = (headers = {}) => {
         const token = localStorage.getItem('access_token');  // הוצאת ה-token מ-localStorage
@@ -95,12 +107,60 @@ function Exam() {
         }
     };
 
+
+    const handleSubmitSolutionLines = async (lines) => {
+        if (!solutionFile) {
+            alert("Please upload a file before submitting.");
+            return;
+        }
+
+        if (!lines || lines.length === 0) {
+            alert("Please draw at least one line to split the questions.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('year', examYear);
+        formData.append('semester', examSemester);
+        formData.append('moed', examDateSelection);
+        formData.append('solution_pdf', solutionFile); // Attach the PDF file
+        formData.append('line_data', JSON.stringify(lines)); // Attach the drawn lines data
+
+        try {
+            const response = await axiosInstance.post(`${API_BASE_URL}/api/course/uploadFullExamSolution`, formData, {
+                headers: {
+                    ...addAuthHeaders()
+                },
+            });
+
+            if (response.data.success) {
+                alert("File uploaded and lines saved successfully!");
+                closeSolutionModal();
+                window.location.reload(); // Reload the page
+            } else {
+                alert(`Failed to upload file: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert("An error occurred while uploading the file.");
+        }
+    };
+
     const handleFileUpload = async (lines) => {
         if (!examFile) {
             alert("Please select a file to upload.");
             return;
         }
         setIsFileUploaded(true); // Set the file upload state to true
+    }
+
+    const handleSolutionUpload = async (lines) => {
+        if (!solutionFile) {
+            alert("Please select a file to upload.");
+            return;
+        }
+        setIsSolutionUploaded(true); // Set the file upload state to true
     }
 
 
@@ -127,7 +187,7 @@ function Exam() {
                     }
 
                     // טעינת קובץ המבחן האם קיים
-                    const response = await axiosInstance.post(`${API_BASE_URL}/api/checkExamFullPdf`, 
+                    const response = await axiosInstance.post(`${API_BASE_URL}/api/checkExamFullPdf`,
                         {
                             course_id: courseId,
                             year: examYear,
@@ -181,6 +241,31 @@ function Exam() {
     
         fetchData();
     }, [onlyWithSolution]);
+
+    useEffect(() => {
+        const fetchExamFullSolution = async () => {
+            try {
+                const response = await axiosInstance.post(`${API_BASE_URL}/api/course/check_exist_full_solution`, {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                }, {
+                    headers: addAuthHeaders(),
+                });
+                if (response.data.status === "success") {
+                    // console.log("has link " , response.data.has_link)
+                    // console.log("has link " , response.data)
+
+                    setSolutionExist(response.data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching exam solutions:', error);
+            }
+        };
+
+        fetchExamFullSolution();
+    }, []);
 
     const sortedQuestions = [...allQuestions].sort((a, b) => {
         // מיון לפי שנה
@@ -322,12 +407,69 @@ function Exam() {
             }
         }
     };
+
+    const downloadSolutionPdf = async () => {
+        try {
+            const response = await axiosInstance.post(
+                `${API_BASE_URL}/api/course/downloadExamFullSolution`,
+                {
+                    course_id: courseId,
+                    year: examYear,
+                    semester: examSemester,
+                    moed: examDateSelection,
+                },
+                {
+                    headers: addAuthHeaders()
+                ,
+
+                    responseType: 'blob', // Expect binary data
+                }
+            );
+
+            if (response.headers['content-type'] === 'application/json') {
+                // Handle the case where the response is JSON (no file link exists)
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const result = JSON.parse(reader.result);
+                    if (!result.has_link) {
+                        alert(result.message);
+                    }
+                };
+                reader.readAsText(response.data);
+            } else {
+                // Handle the case where the response is a file
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+
+                // Use the expected file name
+                const fileName = `${courseId}_${examYear}_${examSemester}_${examDateSelection}_solution.pdf`;
+                link.setAttribute('download', fileName);
+
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+            }
+        } catch (error) {
+            if (error.response && error.response.data.message) {
+                alert(error.response.data.message);
+            } else {
+                console.error('Error downloading solution PDF:', error);
+                alert('An error occurred while trying to download the solution.');
+            }
+        }
+    }
     
     const openModal = () => setIsModalOpen(true); // Open modal
 
     const closeModal =useCallback( () => {
         setIsModalOpen(false);
         setExamFile(null);
+    }, []); // Close modal and reset file
+
+    const closeSolutionModal =useCallback( () => {
+        setIsSolutionModalOpen(false);
+        setSolutionFile(null);
     }, []); // Close modal and reset file
       
     const addExamPdf = async () => {
@@ -396,19 +538,19 @@ function Exam() {
                     </div>
                 </div> */}
                 <div className="action-buttons">
-                   {examExist ? 
-                    (<button
-                        className="action-button"
-                        onClick={downloadExamPdf}
-                    >
-                        הורדת המבחן המלא
-                    </button>):
-                    (<button
-                        className="action-button"
-                        onClick={addExamPdf}
-                    >
-                        העלאת המבחן המלא
-                    </button>)}
+                    {examExist ?
+                        (<button
+                            className="action-button"
+                            onClick={downloadExamPdf}
+                        >
+                            הורדת המבחן המלא
+                        </button>) :
+                        (<button
+                            className="action-button"
+                            onClick={addExamPdf}
+                        >
+                            העלאת המבחן המלא
+                        </button>)}
                     <button
                         className="action-button"
                         onClick={() => {
@@ -418,39 +560,55 @@ function Exam() {
                     >
                         העלאת שאלה חדשה
                     </button>
+                    {solutionExist ?
+                            (<button
+                                className="action-button"
+                                onClick={downloadSolutionPdf}
+                            >
+                                הורדת הפיתרון המלא
+                            </button>) :
+                            (<button
+                                className="action-button"
+                                onClick={() => {
+                                    openSolutionModal();
+                                }}
+                            >
+                                העלאת פיתרון המבחן
+                            </button>)
+                    }
                     {isQuestionModalOpen && (
                         <div className="modal-overlay">
                             <div className="modal-content-question">
-                            <p>
-                                 הזן את מספר השאלה שברצונך להעלות
-                            </p>
-                            <input
-                                type="number"
-                                value={questionNum}
-                                onChange={(e) => setQuestionNum(e.target.value)}
-                                placeholder='מספר שאלה'
-                                className="search-input-question"
-                                min="1"
-                            />
-                            <div className="modal-buttons">
-                                <button class="confirm-button-question" onClick={() => handleConfirmClick()}>
-                                    אישור
-                                </button>
-                                <button class="confirm-button-question" onClick={closeQuestionModal}>
-                                    ביטול
-                                </button>
+                                <p>
+                                    הזן את מספר השאלה שברצונך להעלות
+                                </p>
+                                <input
+                                    type="number"
+                                    value={questionNum}
+                                    onChange={(e) => setQuestionNum(e.target.value)}
+                                    placeholder='מספר שאלה'
+                                    className="search-input-question"
+                                    min="1"
+                                />
+                                <div className="modal-buttons">
+                                    <button class="confirm-button-question" onClick={() => handleConfirmClick()}>
+                                        אישור
+                                    </button>
+                                    <button class="confirm-button-question" onClick={closeQuestionModal}>
+                                        ביטול
+                                    </button>
+                                </div>
                             </div>
-                        </div>
                         </div>
                     )}
                 </div>
                 <div className="updates-container">
                     <h3>שאלות במבחן זה</h3>
                     <label className='checkbox-solution'>
-                            <input
-                                type="checkbox"
-                                checked={onlyWithSolution}
-                                onChange={handleCheckboxChange}
+                        <input
+                            type="checkbox"
+                            checked={onlyWithSolution}
+                            onChange={handleCheckboxChange}
                             />
                             הצג שאלות עם פתרון בלבד
                         </label>
@@ -476,7 +634,7 @@ function Exam() {
                         <div className="modal-overlay">
                             <div className="modal-content">
                                 <button className="modal-close" onClick={closeModal}>X</button>
-                                <h2>Upload Exam File</h2>
+                                <h2>העלה קובץ מבחן</h2>
                                 <input
                                     type="file"
                                     onChange={handleFileChange}
@@ -494,11 +652,47 @@ function Exam() {
                             </div>
                         </div>
                     )}
+                    {isSolutionModalOpen && !isSolutionUploaded && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <button className="modal-close" onClick={closeSolutionModal}>X</button>
+                                <h2>העלה קובץ פיתרון</h2>
+                                <input
+                                    type="file"
+                                    onChange={handleSolutionChange}
+                                    accept="application/pdf"
+                                />
+                                <div className="modal-actions">
+                                    <button
+                                        className="upload-btn"
+                                        onClick={() => handleSolutionUpload}  // Pass lines to the upload function
+                                    >
+                                        Upload
+                                    </button>
+                                    <button className="cancel-btn" onClick={closeSolutionModal}>Cancel</button>
+                                </div>closeS
+                            </div>
+                        </div>
+                    )}
+                    {isSolutionUploaded && solutionFile && (
+                        <div className="modal-overlay">
+                            <p className="modal-title">בחר את נקודות ההפרדה בין התשובות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
+                            <div className="modal-content-line-selection">
+                                {/*<button className="modal-close" onClick={closeModal}>X</button>*/}
+                                <PdfLineMark
+                                    file={solutionFile}
+                                    closeModal={closeSolutionModal}
+                                    onLinesChange={setLines}// Capture lines drawn by the user
+                                    onSubmitLines={handleSubmitSolutionLines} // Pass the function to handle line submission
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Modal for Line Selection after file is uploaded */}
                     {isFileUploaded && examFile && (
                         <div className="modal-overlay">
-                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות(הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
+                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
                             <div className="modal-content-line-selection">
                                 {/*<button className="modal-close" onClick={closeModal}>X</button>*/}
                                 <PdfLineMark
