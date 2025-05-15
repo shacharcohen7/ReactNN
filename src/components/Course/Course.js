@@ -32,6 +32,8 @@ function Course() {
     const [questionNum, setQuestionNum] = useState('');
     const [activeSearch, setActiveSearch] = useState(false);
     const [examsDownloadExist, setExamsDownloadExist] = useState([]);
+    const [courseManagers, setCourseManagers] = useState([]);
+    const [showManagers, setShowManagers] = useState(false);
 
     const navigate = useNavigate();
 
@@ -326,6 +328,56 @@ function Course() {
           document.removeEventListener("keydown", handleKeyDown);
         };
       }, [IsRemoveCourseManagerModalOpen]);
+
+      useEffect(() => {
+        const fetchCourseManagers = async () => {
+            try {
+                const response = await axiosInstance.get(`${API_BASE_URL}/api/course/get_course_managers`, {
+                    params: { course_id: courseId },
+                    headers: addAuthHeaders()
+                });
+    
+                if (response.data.success) {
+                    console.log("✅ Got managers:", response.data.managers);  // <— add this
+                    setCourseManagers(response.data.managers);
+                } else {
+                    console.error("Failed to fetch course managers:", response.data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching course managers:", error);
+            }
+        };
+    
+        if (courseId) {
+            fetchCourseManagers();
+        }
+    }, [courseId]);
+    
+    
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+          if (event.key === "Escape") {
+            setShowManagers(false);
+          }
+        };
+      
+        const handleClickOutside = (event) => {
+          const popup = document.getElementById("managers-popup");
+          if (popup && !popup.contains(event.target)) {
+            setShowManagers(false);
+          }
+        };
+      
+        if (showManagers) {
+          document.addEventListener("keydown", handleKeyDown);
+          document.addEventListener("mousedown", handleClickOutside);
+        }
+      
+        return () => {
+          document.removeEventListener("keydown", handleKeyDown);
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, [showManagers]);
       
     // useEffect(() => {
     //     console.log('✅ useEffect5 triggered: courseId =', courseId);
@@ -1125,6 +1177,42 @@ function Course() {
     </div>
   </div>
 )}
+{/* {courseManagers.length > 0 && (
+    <div className="course-managers-container">
+        <h3>מנהלי הקורס</h3>
+        <div className="managers-grid">
+            {courseManagers.map((manager, index) => (
+                <div key={index} className="manager-card">
+                    <div className="manager-icon">
+                        <FontAwesomeIcon icon={faStar} />
+                    </div>
+                    <div className="manager-info">
+                        <div className="manager-name">{manager.full_name}</div>
+                        <div className="manager-email">{manager.email}</div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+)} */}
+<div className="course-managers-toggle">
+  <button onClick={() => setShowManagers(prev => !prev)}>
+    📋 הצג מנהלי קורס
+  </button>
+
+  {showManagers && (
+  <div className="managers-popup" id="managers-popup">
+    {courseManagers.map((manager, index) => (
+      <div key={index} className="manager-entry">
+        <strong>{manager.full_name}</strong>
+        <div style={{ fontSize: "0.85rem", color: "#555" }}>{manager.email}</div>
+      </div>
+    ))}
+  </div>
+)}
+
+</div>
+
 
 
                 {activeSearch && (<div className="search-results">
