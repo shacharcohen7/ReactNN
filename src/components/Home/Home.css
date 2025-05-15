@@ -543,3 +543,44 @@
   background-color: #ccc;
   color: black;
 }
+
+.system-managers-toggle {
+  margin-top: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.system-managers-toggle button {
+  background-color: #f5f5f5;
+  padding: 8px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.system-managers-popup {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 10px;
+  padding: 12px;
+  width: 240px;
+  right: 0;
+  left: 0;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 10;
+}
+
+.manager-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.manager-entry:last-child {
+  border-bottom: none;
+}
+
