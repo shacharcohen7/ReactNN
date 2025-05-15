@@ -8,7 +8,7 @@ import {FaSpinner} from "react-icons/fa";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 
-const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
+const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines, userPrompt }) => {
     const [numPages, setNumPages] = useState(null);
     const [lines, setLines] = useState([]);
 
@@ -42,45 +42,53 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines }) => {
 
 
     return (
-        (isLoading) ? (
-                <>
-                    <FaSpinner className="spinner" size={32} /> טוען...
-                </>
-            ) : (
-        <div className="pdf-container">
-            <Document file={file} onLoadSuccess={handleDocumentLoadSuccess}>
-                {Array.from(new Array(numPages), (_, i) => (
-                    <div key={i} className="page-wrapper" onClick={(e) => handlePageClick(e, i + 1)}>
-                        <Page pageNumber={i + 1} width={900}
-                              renderTextLayer={false}/>
-                        {lines
-                            .filter((line) => line.page === i + 1)
-                            .map((line, index) => (
-                                <div
-                                    key={index}
-                                    className="line-marker"
-                                    style={{ top: `${line.y}px` }}
-                                />
-                            ))}
-                    </div>
-                ))}
-            </Document>
-
-            <div className="modal-actions">
-                <button className="submit-btn" onClick={() => {setIsLoading(true) ; onSubmitLines(lines);}}>
-                    אישור הבחירה
-                </button>
-
-                <button className="remove-btn" onClick={removeLastLine}>
-                    הסר את הקו האחרון
-                </button>
-
-                <button className="cancel-btn" onClick={closeModal}>
-                    ביטול
-                </button>
+        isLoading ? (
+            <div className="loading-container">
+                <FaSpinner className="spinner" size={60} />
+                <span className="loading-text">טוען</span>
             </div>
-        </div>
-    ));
-}
+        ) : (
+            <div className="pdf-container">
+                    <div className="line-mark-header">
+                        <h2>{userPrompt}</h2>
+                    </div>
+                    <div>
+                        <Document file={file} onLoadSuccess={handleDocumentLoadSuccess}>
+                            {Array.from(new Array(numPages), (_, i) => (
+                                <div key={i} className="page-wrapper" onClick={(e) => handlePageClick(e, i + 1)}>
+                                    <Page pageNumber={i + 1} width={900}
+                                          renderTextLayer={false}/>
+                                    {lines
+                                        .filter((line) => line.page === i + 1)
+                                        .map((line, index) => (
+                                            <div
+                                                key={index}
+                                                className="line-marker"
+                                                style={{top: `${line.y}px`}}
+                                            />
+                                        ))}
+                                </div>
+                            ))}
+                        </Document>
+                    </div>
 
-export default PdfLineMark;
+                    <div className="modal-actions">
+                        <button className="submit-btn" onClick={() => {
+                            setIsLoading(true);
+                            onSubmitLines(lines);
+                        }}>
+                            אישור הבחירה
+                        </button>
+
+                        <button className="remove-btn" onClick={removeLastLine}>
+                            הסר את הקו האחרון
+                        </button>
+
+                        <button className="cancel-btn" onClick={closeModal}>
+                            ביטול
+                        </button>
+                    </div>
+            </div>
+        ));
+}
+export default React.memo(PdfLineMark);

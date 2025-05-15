@@ -280,13 +280,14 @@ function UploadExam() {
                     )}
                     {ExamFile && submitFile && (
                         <div className="modal-overlay">
-                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
+                            {/*<p className="modal-title">בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>*/}
                             <div className="modal-content-line-selection">
                                 <PdfLineMark
                                     file={ExamFile}
                                     closeModal={closeModal}
                                     onLinesChange={setLines}
                                     onSubmitLines={handleSubmitLines}
+                                    userPrompt="בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)"
                                 />
                             </div>
                         </div>

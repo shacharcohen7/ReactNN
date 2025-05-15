@@ -13,6 +13,7 @@ import axiosInstance from '../../utils/axiosInstance';
 import { FiDownload } from "react-icons/fi";
 import { IoOpenOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import {FaSpinner} from "react-icons/fa";
 
 
 function Course() {
@@ -34,6 +35,7 @@ function Course() {
     const [examsDownloadExist, setExamsDownloadExist] = useState([]);
     const [courseManagers, setCourseManagers] = useState([]);
     const [showManagers, setShowManagers] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -157,6 +159,7 @@ function Course() {
         const fetchData = async () => {
             if (courseId) {
                 try {
+                    setIsLoading(true);
                     // טעינת פרטי הקורס
                     const courseResponse = await axiosInstance.get(`${API_BASE_URL}/api/course/get_course/${courseId}`, {
                         headers: addAuthHeaders()  
@@ -201,6 +204,9 @@ function Course() {
                 } catch (error) {
                     console.error('Error fetching data:', error);
                     setAllQuestions([]);  // לנקות אם יש שגיאה
+                }
+                finally {
+                    setIsLoading(false);
                 }
             }
     
@@ -1307,7 +1313,16 @@ function Course() {
                             </tr>
                         </thead>
                         <tbody>
-                            {sortedExams && Array.isArray(sortedExams) && sortedExams.length > 0 ? (
+                            { isLoading ? (
+                                    <tr>
+                                        <td colSpan="5">
+                                            <div className="loading-container">
+                                                <FaSpinner className="spinner" size={60} />
+                                                <span className="loading-text">טוען מבחנים...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : sortedExams && Array.isArray(sortedExams) && sortedExams.length > 0 ? (
                                 sortedExams.map(exam => {
                                     const key = `${exam.year}-${exam.semester}-${exam.moed}`;
                                     const hasPdf = examsDownloadExist[key];

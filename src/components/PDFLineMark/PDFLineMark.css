@@ -38,6 +38,15 @@
 
 }
 
+.pdf-title{
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #f5a623;
+    text-align: center;
+    position: sticky;
+}
+
 /* Disables interaction with the text layer */
 .page-wrapper .react-pdf__Page__textContent {
     pointer-events: none; /* Disable interaction with the PDF text */
@@ -65,7 +74,7 @@
     z-index: 1000000; /* Ensure the buttons are above content */
     display: flex;
     justify-content: space-between;
-    width: 90%;
+    width: 96%;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for better separation */
 }
 
@@ -79,4 +88,30 @@
 
 .upload-btn:hover, .submit-btn:hover, .remove-line-btn:hover {
     background-color: #45a049;
+}
+
+.line-mark-header {
+    position: sticky;
+    top: 0;
+    z-index: 10000000000000000000;
+    background-color: white;
+    padding: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f5a623;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    transform: translateY(-20%);
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #f5a623; /* או כל צבע אחר שמתאים לעיצוב שלך */
+    margin-left: 8px; /* רווח מהטקסט */
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
