@@ -1,54 +1,39 @@
-// src/hooks/useNotificationsSocket.js
-import { useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
+import { useEffect } from 'react';
+import socket from "../../utils/socket";
 
 export default function useNotificationsSocket({ userId, onNotification }) {
-  const socketRef = useRef(null);
-
   useEffect(() => {
     if (!userId) return;
 
-    const isSecure = window.location.protocol === 'https:';
-    const baseURL = isSecure
-      ? 'https://negevnerds.cs.bgu.ac.il'
-      : 'http://localhost:5001';
-
-    // socketRef.current = io(baseURL, {
-    //   transports: ['websocket'],
-    //   withCredentials: true,
-    // });
-    const token = localStorage.getItem('access_token');
-
-    socketRef.current = io(baseURL, {
-        transports: ['websocket', 'polling'],
-        withCredentials: true,
-        query: {
-          token: localStorage.getItem("access_token")
-        }
-      });
-      
-
-    socketRef.current.on('connect', () => {
+    const handleConnect = () => {
       console.log('🔌 Socket.IO connected');
-    });
+    };
 
-    socketRef.current.on('disconnect', () => {
+    const handleDisconnect = () => {
       console.log('❌ Socket.IO disconnected');
-    });
+    };
 
-    socketRef.current.on('NEW_NOTIFICATION', (data) => {
+    const handleNewNotification = (data) => {
       console.log('📥 Received Socket.IO message:', data);
       if (data?.notification?.receiver_user_id === userId && typeof onNotification === 'function') {
         onNotification(data.notification);
       }
-    });
+    };
 
-    socketRef.current.on('connect_error', (err) => {
+    const handleError = (err) => {
       console.error('🚨 Socket.IO connection error:', err.message);
-    });
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    socket.on('connect_error', handleError);
 
     return () => {
-      socketRef.current.disconnect();
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('NEW_NOTIFICATION', handleNewNotification);
+      socket.off('connect_error', handleError);
     };
   }, [userId, onNotification]);
 }
