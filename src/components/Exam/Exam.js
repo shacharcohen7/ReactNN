@@ -11,6 +11,7 @@ import axiosInstance from '../../utils/axiosInstance';
 
 import { useNavigate } from "react-router-dom";
 import PdfLineMark from "../PDFLineMark/PDFLineMark";
+import {FaSpinner} from "react-icons/fa";
 
 function Exam() {
     const [searchResults, setSearchResults] = useState([]); // אם אין תוצאות, הוא יהיה מערך ריק
@@ -35,6 +36,7 @@ function Exam() {
     const [isFileUploaded, setIsFileUploaded] = useState(false);
     const [isSolutionUploaded, setIsSolutionUploaded] = useState(false);
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [hasSolution, setHasSolution] = useState([]);
 
@@ -68,7 +70,7 @@ function Exam() {
         return headers;
     };
 
-    const handleSubmitLines = async (lines) => {
+    const handleSubmitLines = useCallback(async (lines) => {
         if (!examFile) {
             alert("Please upload a file before submitting.");
             return;
@@ -105,7 +107,7 @@ function Exam() {
             console.error("Error uploading file:", error);
             alert("An error occurred while uploading the file.");
         }
-    };
+    });
 
 
     const handleSubmitSolutionLines = async (lines) => {
@@ -176,6 +178,7 @@ function Exam() {
         const storedToken = localStorage.getItem('access_token');
         setToken(storedToken);
         const fetchData = async () => {
+            setIsLoading(true);
             if (courseId) {
                 try {
                     // טעינת פרטי הקורס
@@ -230,16 +233,22 @@ function Exam() {
                     } else {
                         setAllQuestions([]);  // אם לא, הפוך את allQuestions למערך ריק
                     }
-    
+
+
                 } catch (error) {
                     console.error('Error fetching data:', error);
                     setAllQuestions([]);  // לנקות אם יש שגיאה
                 }
+                finally {
+                    setIsLoading(false);
+                }
+
             }
     
         };
     
         fetchData();
+
     }, [onlyWithSolution]);
 
     useEffect(() => {
@@ -613,7 +622,13 @@ function Exam() {
                             הצג שאלות עם פתרון בלבד
                         </label>
                     <ul className="results-list">
-                            {sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
+                        {isLoading ? (
+                            <div className="loading-container">
+                                <FaSpinner className="spinner" size={60} />
+                                <span className="loading-text">טוען שאלות...</span>
+                            </div>
+                        ) : (
+                            sortedQuestions && Array.isArray(sortedQuestions) && sortedQuestions.length > 0 ? (
                                 sortedQuestions.map((result, index) => (
                                     (!onlyWithSolution || (onlyWithSolution && hasSolution[index])) && (
                                         <li key={result.question_id} className="result-item">
@@ -625,8 +640,9 @@ function Exam() {
                                 ))
                             ) : (
                                 <p>לא נמצאו שאלות</p>
-                            )}
-                        </ul>
+                            )
+                        )}
+                    </ul>
                     
                 </div>
                 <div>
@@ -684,6 +700,7 @@ function Exam() {
                                     closeModal={closeSolutionModal}
                                     onLinesChange={setLines}// Capture lines drawn by the user
                                     onSubmitLines={handleSubmitSolutionLines} // Pass the function to handle line submission
+                                    userPrompt="בחר את נקודות ההפרדה בין התשובות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)"
                                 />
                             </div>
                         </div>
@@ -691,15 +708,16 @@ function Exam() {
 
                     {/* Modal for Line Selection after file is uploaded */}
                     {isFileUploaded && examFile && (
-                        <div className="modal-overlay">
-                            <p className="modal-title">בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
-                            <div className="modal-content-line-selection">
+                        <div>
+                            {/*<p className="modal-title">בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>*/}
+                            <div>
                                 {/*<button className="modal-close" onClick={closeModal}>X</button>*/}
                                 <PdfLineMark
                                     file={examFile}
                                     closeModal={closeModal}
                                     onLinesChange={setLines}// Capture lines drawn by the user
                                     onSubmitLines={handleSubmitLines} // Pass the function to handle line submission
+                                    userPrompt="בחר את נקודות ההפרדה בין השאלות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)"
                                 />
                             </div>
                         </div>

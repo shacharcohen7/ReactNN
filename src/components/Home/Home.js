@@ -35,6 +35,7 @@ function Home() {
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
     const [hasSolution, setHasSolution] = useState([]);
+    //const [isLoadingCourses, setIsLoadingCourses] = useState(false); // State for loading state
 
     const [suggestion, setSuggestion] = useState(''); // State for suggestion
 
