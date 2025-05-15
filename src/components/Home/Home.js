@@ -36,7 +36,9 @@ function Home() {
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
     const [hasSolution, setHasSolution] = useState([]);
     //const [isLoadingCourses, setIsLoadingCourses] = useState(false); // State for loading state
-
+    const [systemManagers, setSystemManagers] = useState([]);
+    const [showSystemManagers, setShowSystemManagers] = useState(false);
+    
     const [suggestion, setSuggestion] = useState(''); // State for suggestion
 
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false); // State לשליטה בפופ-אפ
@@ -364,10 +366,55 @@ function Home() {
           document.removeEventListener("keydown", handleKeyDown);
         };
       }, [isAppointSystemManagerModalOpen]);
+
+      useEffect(() => {
+        const fetchSystemManagers = async () => {
+          try {
+            const response = await axiosInstance.get(`${API_BASE_URL}/api/course/get_system_managers`, {
+              headers: addAuthHeaders()
+            });
       
+            if (response.data.success) {
+              setSystemManagers(response.data.managers);
+            } else {
+              console.error("Failed to fetch system managers:", response.data.message);
+            }
+          } catch (error) {
+            console.error("Error fetching system managers:", error);
+          }
+        };
+      
+        fetchSystemManagers(); // ✅ Always fetch, regardless of IsSystemManager
+      }, []);
+            
       const handleAppointSystemManager = () => {
         setIsAppointSystemManagerModalOpen(true);
       };
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === "Escape") {
+            setShowSystemManagers(false);
+          }
+        };
+      
+        const handleClickOutside = (e) => {
+          const popup = document.getElementById("system-managers-popup");
+          if (popup && !popup.contains(e.target)) {
+            setShowSystemManagers(false);
+          }
+        };
+      
+        if (showSystemManagers) {
+          document.addEventListener("keydown", handleKeyDown);
+          document.addEventListener("mousedown", handleClickOutside);
+        }
+      
+        return () => {
+          document.removeEventListener("keydown", handleKeyDown);
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, [showSystemManagers]);
+      
       
       
   
@@ -629,6 +676,22 @@ function Home() {
     </div>
   </div>
 )}
+<div className="system-managers-toggle">
+  <button onClick={() => setShowSystemManagers(prev => !prev)}>
+    👥 הצג מנהלי מערכת
+  </button>
+
+  {showSystemManagers && (
+    <div className="system-managers-popup" id="system-managers-popup">
+      {systemManagers.map((manager, index) => (
+        <div key={index} className="manager-entry">
+          <strong>{manager.full_name}</strong>
+          <div style={{ fontSize: "0.85rem", color: "#555" }}>{manager.email}</div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
 
                 <div className="search-container">
