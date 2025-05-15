@@ -142,10 +142,12 @@ function Exam() {
                 window.location.reload(); // Reload the page
             } else {
                 alert(`Failed to upload file: ${response.data.message}`);
+                closeSolutionModal();
             }
         } catch (error) {
             console.error("Error uploading file:", error);
             alert("An error occurred while uploading the file.");
+            closeSolutionModal();
         }
     };
 
@@ -479,6 +481,7 @@ function Exam() {
     const closeSolutionModal =useCallback( () => {
         setIsSolutionModalOpen(false);
         setSolutionFile(null);
+        setIsSolutionUploaded(false);
     }, []); // Close modal and reset file
       
     const addExamPdf = async () => {
@@ -686,13 +689,12 @@ function Exam() {
                                         Upload
                                     </button>
                                     <button className="cancel-btn" onClick={closeSolutionModal}>Cancel</button>
-                                </div>closeS
+                                </div>
                             </div>
                         </div>
                     )}
                     {isSolutionUploaded && solutionFile && (
                         <div className="modal-overlay">
-                            <p className="modal-title">בחר את נקודות ההפרדה בין התשובות (הקו הראשון בתחילת שאלה 1 והאחרון בסוף השאלה האחורנה)</p>
                             <div className="modal-content-line-selection">
                                 {/*<button className="modal-close" onClick={closeModal}>X</button>*/}
                                 <PdfLineMark
