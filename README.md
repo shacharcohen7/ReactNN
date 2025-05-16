@@ -1,6 +1,7 @@
 # NegevNerds
 
 NegevNerds is a web platform designed to improve Ben-Gurion-University exam preparation by facilitating collaborative learning. The platform allows students to share and discuss exam-related questions, fostering a community-driven approach to studying.
+
 for more info: https://shacharcohen7.github.io/NNwebsite/
 
 # backend repository - https://github.com/davidvolo/NegevNerds
