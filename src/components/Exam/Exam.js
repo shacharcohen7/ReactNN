@@ -37,6 +37,7 @@ function Exam() {
     const [isSolutionUploaded, setIsSolutionUploaded] = useState(false);
     const [onlyWithSolution, setOnlyWithSolution] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [dataChanged, setDataChanged] = useState(false); // State to track data changes
 
     const [hasSolution, setHasSolution] = useState([]);
 
@@ -248,8 +249,9 @@ function Exam() {
             }
     
         };
-    
+
         fetchData();
+        setDataChanged(!dataChanged);
 
     }, [onlyWithSolution]);
 
@@ -276,7 +278,7 @@ function Exam() {
         };
 
         fetchExamFullSolution();
-    }, []);
+    }, [dataChanged]);
 
     const sortedQuestions = [...allQuestions].sort((a, b) => {
         // מיון לפי שנה
@@ -317,7 +319,7 @@ function Exam() {
         
             checkAnswers();
         
-        }, []);
+        }, [dataChanged]);
 
     const handleSort = (column) => {
         // מיון תוצאות החיפוש לפי העמודה
