@@ -2225,7 +2225,7 @@ function Question() {
 {ShowDeleteSolutionConfirmation && (
     <div className="modal-overlay">
         <div className="delete-solution-confirmation-modal">
-        <p>האם את/ה בטוח/ה שברצונך למחוק את השאלה?</p>
+        <p>האם את/ה בטוח/ה שברצונך למחוק את הפיתרון?</p>
             <div className="modal-buttons">
                 <button onClick={handleDeleteSolution} className="confirm-button">אישור</button>
                 <button onClick={() => setShowDeleteSolutionConfirmation(false)} className="cancel-button">ביטול</button>
