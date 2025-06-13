@@ -577,8 +577,9 @@ function Home() {
               );
           
               if (response.data.success) {
+                window.location.reload(); // ✅ Reloads the page
                 alert('הקורס נמחק בהצלחה');
-                // Optional: refresh the course list
+
                 setCourses(prev => prev.filter(c => c.course_id !== selectedCourseToRemove));
               } else {
                 alert(`שגיאה במחיקת הקורס: ${response.data.message}`);
