@@ -796,7 +796,7 @@ function Question() {
 
 
     const handleSendClick = async (chatInput, prevId) => {
-        if(chatInput.length > 0){
+        if(chatInput.length > 0 || photoFile){
             const formData = new FormData();
             formData.append('course_id', courseId);
             formData.append('year', examYear);
