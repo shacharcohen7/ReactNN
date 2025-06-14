@@ -95,6 +95,38 @@ margin-bottom: 20px;
     max-width: 500px; /* Consistent width */
 }
 
+.loading-text {
+    font-size: 18px;
+    color: #333;
+    background-color: white;        /* רקע לבן */
+    padding: 12px 20px;             /* ריווח פנימי יפה */
+    border-radius: 12px;            /* פינות מעוגלות */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* צל לרקע */
+    font-weight: bold;              /* הדגשה */
+    direction: rtl;                 /* יישור מימין לשמאל */
+    text-align: center;             /* מרכז את הטקסט */
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(255, 255, 255, 0.7); /* שקיפות מעל הדף */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px); /* אופציונלי - טשטוש */
+}
+
+.loading-container2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 .search-button:hover {
     background-color: #e59428;
 }
