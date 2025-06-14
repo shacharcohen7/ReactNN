@@ -45,7 +45,7 @@ const PdfLineMark = ({ file, onLinesChange, closeModal, onSubmitLines, userPromp
         isLoading ? (
             <div className="loading-container">
                 <FaSpinner className="spinner" size={60} />
-                <span className="loading-text">טוען</span>
+                <span className="loading-text">מנתחים את המידע שלך, פעולה זו עלולה לקחת מעט זמן</span>
             </div>
         ) : (
             <div className="pdf-container">
