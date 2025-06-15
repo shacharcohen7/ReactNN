@@ -60,7 +60,7 @@ function OpenCourse() {
             <div className="loading-overlay">
               <div className="loading-container">
                 <FaSpinner className="spinner" size={80} />
-                <span className="loading-text">מנתחים את המידע שלך, פעולה זו עלולה לקחת מעט זמן</span>
+                <span className="loading-text2">מנתחים את המידע שלך, פעולה זו עלולה לקחת מעט זמן</span>
               </div>
             </div>
         )}
@@ -71,42 +71,47 @@ function OpenCourse() {
             <h2>הוספת קורס חדש</h2>
 
             <div className="form-row">
-              <label htmlFor="courseNumber">מספר קורס:</label>
+              <label htmlFor="courseName">שם קורס:</label>
               <input
-                id="courseNumber"
-                type="text"
-                placeholder="מספר קורס"
-                value={newCourseNumber}
-                onChange={(e) => setNewCourseNumber(e.target.value)}
-                onMouseEnter={() => setShowCourseNumberTooltip(true)}
-                onMouseLeave={() => setShowCourseNumberTooltip(false)}
-                required
+                  id="courseName"
+                  type="text"
+                  placeholder="שם קורס"
+                  value={newCourseName}
+                  onChange={(e) => setNewCourseName(e.target.value)}
+                  required
               />
-              {showCourseNumberTooltip && (
-                <div className="tooltip">חובה מהצורה xxx.x.xxxx</div>
-              )}
             </div>
 
             <div className="form-row">
-              <label htmlFor="courseName">שם קורס:</label>
-              <input
-                id="courseName"
-                type="text"
-                placeholder="שם קורס"
-                value={newCourseName}
-                onChange={(e) => setNewCourseName(e.target.value)}
-                required
-              />
+              <label htmlFor="courseNumber">מספר קורס:</label>
+
+              <div style={{position: 'relative', width: '63%'}}>
+                <input
+                    id="courseNumber"
+                    type="text"
+                    placeholder="מספר קורס"
+                    value={newCourseNumber}
+                    onChange={(e) => setNewCourseNumber(e.target.value)}
+                    onMouseEnter={() => setShowCourseNumberTooltip(true)}
+                    onMouseLeave={() => setShowCourseNumberTooltip(false)}
+                    required
+                    style={{width: '100%'}} // אם אין לך CSS גלובלי
+                />
+                {showCourseNumberTooltip && (
+                    <div className="tooltip2">חובה מהצורה xxx.x.xxxx</div>
+                )}
+              </div>
             </div>
+
 
             <div className="form-row">
               <label htmlFor="syllabus">סילבוס:</label>
               <input
-                id="syllabus"
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setSyllabusFile(e.target.files[0])}
-                required
+                  id="syllabus"
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setSyllabusFile(e.target.files[0])}
+                  required
               />
             </div>
 
@@ -115,10 +120,10 @@ function OpenCourse() {
             </button>
           </div>
         </main>
-        <Footer />
+        <Footer/>
       </div>
       </>
-    );
+  );
 
 }
 
