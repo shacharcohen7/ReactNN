@@ -2134,6 +2134,7 @@ function Question() {
                                                                                                                 setActiveEditedComment(null);
                                                                                                                 setReplyInput([]);
                                                                                                                 setActiveRepliedComment(null);
+                                                                                                                mainCommentFileRef.current.value = null; // Allow re-selecting same file
                                                                                                                 mainCommentFileRef.current.click()
                                                                                                                 }}
                                 >
