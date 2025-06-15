@@ -98,15 +98,15 @@ function Exam() {
             });
 
             if (response.data.success) {
-                alert("File uploaded and lines saved successfully!");
+                alert("המבחן נחתך בהצלחה, השאלות נשמרו!");
                 closeModal();
                 window.location.reload(); // Reload the page
             } else {
-                alert(`Failed to upload file: ${response.data.message}`);
+                alert(`שגיאה בחיתוך המבחן : ${response.data.message}`);
             }
         } catch (error) {
-            console.error("Error uploading file:", error);
-            alert("An error occurred while uploading the file.");
+            console.error("שגיאה בחיתוך המבחן:", error);
+            alert("שגיאה אירעה במהלך חיתוך המבחן ושמירתו");
         }
     });
 

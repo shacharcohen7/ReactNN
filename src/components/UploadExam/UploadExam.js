@@ -76,16 +76,16 @@ function UploadExam() {
             });
 
             if (response.data.success) {
-                alert("File uploaded and lines saved successfully!");
+                alert("המידע נשמר , והחיתוך עבר בהצלחה");
                 closeModal();
                 navigate(`/exam/${courseId}/${examYear}/${examSemester}/${examDateSelection}`);
                 window.location.reload(); // Reload the page
             } else {
-                alert(`Failed to upload file: ${response.data.message}`);
+                alert(`שגיאה בחיתוך המבחן: ${response.data.message}`);
             }
         } catch (error) {
             console.error("Error uploading file:", error);
-            alert("An error occurred while uploading the file.");
+            alert("שגיאה אירעה במהלך חיתוך המבחן");
         }
 
     }, [ExamFile, courseId, examYear, examSemester, examDateSelection]);
