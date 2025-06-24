@@ -1869,13 +1869,15 @@ function Question() {
     >
         שאלה
     </button>
-    <span
-        className="question-file-swap-icon"
-        title="החלפת קובץ שאלה"
-        onClick={() => setShowSwapModal(true)}
-    >
-        ⇄
+                        {(isCourseManager || IsSystemManager) && (
+                            <span
+                                className="question-file-swap-icon"
+                                title="החלפת קובץ שאלה"
+                                onClick={() => setShowSwapModal(true)}
+                            >
+    ⇄
     </span>
+                        )}
 </div>
 
 {showSwapModal && (
